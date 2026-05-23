@@ -1,0 +1,5284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三国课堂军师争霸积分器</title>
+<style>
+:root{
+  --night:#030714;
+  --midnight:#09121a;
+  --violet:#725b8f;
+  --rose:#c84b3f;
+  --gold:#ffd36b;
+  --mint:#5fc59d;
+  --sky:#5eb0c8;
+  --coral:#cf6a45;
+  --ink:#151b20;
+  --bronze:#a66b32;
+  --jade:#2f8a5f;
+  --cinnabar:#b9332d;
+  --paper:#fff8e8;
+  --white:#ffffff;
+  --glass:rgba(8,12,17,.58);
+  --glass-strong:rgba(255,236,176,.12);
+  --line:rgba(255,223,146,.18);
+  --shadow:0 18px 46px rgba(0,0,0,.38);
+  --radius:8px;
+}
+
+*{box-sizing:border-box}
+html,body{min-height:100%;margin:0}
+body{
+  position:relative;
+  font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  color:var(--white);
+  background:
+    linear-gradient(115deg, rgba(84,31,24,.72) 0%, rgba(8,16,21,.96) 34%, rgba(5,18,20,.96) 68%, rgba(58,33,12,.88) 100%),
+    linear-gradient(180deg, #071016 0%, #14100d 54%, #05070c 100%);
+  overflow-x:hidden;
+}
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-4;
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(135deg, rgba(255,211,107,.06) 0 1px, transparent 1px 18px),
+    linear-gradient(90deg, rgba(6,9,12,.86), rgba(42,25,15,.22) 46%, rgba(4,8,12,.78)),
+    linear-gradient(180deg, rgba(47,138,95,.13), transparent 42%, rgba(185,51,45,.12));
+  opacity:.9;
+}
+body:after{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-3;
+  pointer-events:none;
+  opacity:.13;
+  background-image:linear-gradient(rgba(255,255,255,.42) 1px, transparent 1px);
+  background-size:100% 4px;
+  mix-blend-mode:soft-light;
+}
+
+button,input,select{font:inherit}
+button{
+  border:0;
+  color:inherit;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.app{
+  min-height:100vh;
+  position:relative;
+  isolation:isolate;
+  padding:18px;
+  display:grid;
+  grid-template-rows:auto 1fr;
+  gap:14px;
+}
+.brand-watermark{
+  position:fixed;
+  right:14px;
+  bottom:12px;
+  z-index:18;
+  pointer-events:none;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255,211,107,.28);
+  background:rgba(3,7,20,.42);
+  color:rgba(255,235,175,.72);
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:2px;
+  box-shadow:0 10px 26px rgba(0,0,0,.28);
+  backdrop-filter:blur(8px);
+}
+
+.sky-layer,.fireworks-layer,.confetti-layer{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+}
+.sky-layer{z-index:-2;overflow:hidden;opacity:.26}
+.fireworks-layer{z-index:5}
+.confetti-layer{z-index:10;overflow:hidden}
+
+.sky-layer:before{
+  content:"";
+  position:absolute;
+  inset:-10% -5%;
+  background:
+    linear-gradient(104deg, transparent 0 18%, rgba(255,211,107,.1) 18% 19%, transparent 19% 46%, rgba(95,197,157,.08) 46% 47%, transparent 47% 100%),
+    repeating-linear-gradient(90deg, transparent 0 96px, rgba(255,211,107,.045) 96px 97px, transparent 97px 180px);
+  transform:skewY(-5deg);
+}
+
+.header{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:14px;
+  align-items:center;
+  padding:12px 14px;
+  border:1px solid rgba(255,223,146,.2);
+  background:
+    linear-gradient(135deg, rgba(12,18,20,.82), rgba(67,36,19,.42)),
+    linear-gradient(90deg, rgba(185,51,45,.14), rgba(47,138,95,.1));
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(12px) saturate(1.15);
+  border-radius:var(--radius);
+}
+
+.brand{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  min-width:0;
+}
+.crest{
+  width:48px;
+  height:48px;
+  position:relative;
+  flex:0 0 auto;
+  filter:drop-shadow(0 8px 14px rgba(255,211,107,.22));
+}
+.crest:before{
+  content:"";
+  position:absolute;
+  inset:4px 5px 3px;
+  border-radius:8px;
+  background:
+    linear-gradient(135deg, #fff0aa 0%, var(--gold) 38%, var(--cinnabar) 72%, #61251e 100%);
+  clip-path:polygon(50% 0,88% 13%,82% 75%,50% 100%,18% 75%,12% 13%);
+  border:1px solid rgba(255,246,202,.45);
+}
+.crest:after{
+  content:"军";
+  position:absolute;
+  inset:9px 0 0;
+  display:grid;
+  place-items:center;
+  color:#1b140b;
+  font-size:20px;
+  font-weight:950;
+  text-shadow:0 1px 0 rgba(255,255,255,.32);
+}
+
+h1{
+  margin:0;
+  font-size:clamp(24px, 3.4vw, 48px);
+  line-height:1.02;
+  letter-spacing:0;
+  text-shadow:0 0 24px rgba(255,211,107,.22);
+}
+.subtitle{
+  margin-top:4px;
+  color:rgba(255,255,255,.8);
+  font-size:13px;
+}
+
+.top-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  justify-content:flex-end;
+}
+.chip,.ghost-btn,.primary-btn{
+  min-height:38px;
+  border-radius:var(--radius);
+  padding:0 12px;
+  background:
+    linear-gradient(180deg, rgba(255,211,107,.13), rgba(8,12,17,.62)),
+    rgba(22,18,13,.48);
+  border:1px solid rgba(255,211,107,.24);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  color:#fff;
+  box-shadow:inset 0 1px 0 rgba(255,236,176,.12), 0 7px 14px rgba(0,0,0,.18);
+  transition:transform .16s ease, background .16s ease, box-shadow .16s ease, border-color .16s ease;
+}
+.chip:hover,.ghost-btn:hover,.primary-btn:hover{transform:translateY(-1px);border-color:rgba(255,211,107,.5);background:linear-gradient(180deg, rgba(255,211,107,.2), rgba(35,24,14,.7));box-shadow:0 0 16px rgba(255,211,107,.16)}
+.primary-btn{
+  background:
+    linear-gradient(180deg, rgba(255,247,204,.2), transparent 42%),
+    linear-gradient(135deg, #9f2d27, #d69a39 52%, #2f8a5f);
+  border-color:rgba(255,211,107,.45);
+  box-shadow:0 10px 22px rgba(214,154,57,.2), inset 0 1px 0 rgba(255,255,255,.28);
+}
+
+.main{
+  display:grid;
+  grid-template-columns:minmax(280px, 340px) minmax(0,1fr) minmax(280px, 340px);
+  gap:14px;
+  min-height:0;
+}
+.aux-tabs{
+  display:none;
+}
+
+.panel{
+  border:1px solid rgba(255,223,146,.16);
+  background:
+    linear-gradient(180deg, rgba(255,223,146,.1), rgba(255,255,255,.035)),
+    rgba(6,10,13,.62);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  backdrop-filter:blur(12px) saturate(1.12);
+  overflow:hidden;
+}
+.panel-title{
+  padding:13px 14px 10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border-bottom:1px solid rgba(255,255,255,.13);
+}
+.panel-title h2{
+  margin:0;
+  font-size:16px;
+  letter-spacing:0;
+}
+.tab-btn.active{
+  background:linear-gradient(135deg, rgba(255,211,107,.28), rgba(47,138,95,.2));
+  border-color:rgba(255,211,107,.45);
+  box-shadow:0 0 14px rgba(255,211,107,.16);
+}
+
+.setup{
+  padding:14px;
+  display:grid;
+  gap:12px;
+}
+.field{
+  display:grid;
+  gap:6px;
+}
+.field label{
+  color:rgba(255,255,255,.76);
+  font-size:12px;
+}
+.field input,.field select{
+  width:100%;
+  min-height:40px;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(3,7,20,.46);
+  color:#fff;
+  padding:0 10px;
+  outline:none;
+}
+.field input:focus,.field select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,211,107,.14)}
+.name-grid{
+  display:grid;
+  gap:8px;
+}
+.name-row{
+  display:grid;
+  grid-template-columns:30px 44px 1fr;
+  gap:8px;
+  align-items:center;
+}
+.role-select{
+  grid-column:3;
+}
+.role-mini{
+  grid-column:2;
+  grid-row:1 / span 2;
+  width:52px;
+  height:72px;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.16);
+  background:#071126 center / contain no-repeat;
+  box-shadow:inset 0 -28px 24px rgba(3,7,20,.38);
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  overflow:hidden;
+}
+.role-mini span{
+  width:100%;
+  min-height:20px;
+  display:grid;
+  place-items:center;
+  color:#1a1208;
+  background:linear-gradient(90deg, rgba(255,211,107,.86), rgba(255,248,212,.78));
+  font-size:12px;
+  font-weight:950;
+}
+.token{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  color:#071126;
+  font-weight:800;
+  background:var(--gold);
+}
+
+.stage{
+  min-height:620px;
+  display:grid;
+  grid-template-rows:auto auto auto;
+  overflow:hidden;
+  position:relative;
+}
+.stage-tabs{
+  display:flex;
+  gap:8px;
+  padding:10px 12px 0;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.stage-tabs::-webkit-scrollbar{display:none}
+.stage-tabs .stage-tab{
+  flex:0 0 auto;
+  min-height:34px;
+  padding:0 12px;
+}
+.stage-tabs .active{
+  border-color:rgba(255,211,107,.45);
+  background:linear-gradient(135deg, rgba(255,211,107,.24), rgba(47,138,95,.13));
+  box-shadow:0 0 18px rgba(255,211,107,.16);
+}
+.score-ribbon{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  padding:12px;
+  border-bottom:1px solid rgba(255,255,255,.13);
+}
+body[data-stage-tab="score"] .command-scene,
+body[data-stage-tab="score"] .selector-dock,
+body[data-stage-tab="score"] .expedition-view,
+body[data-stage-tab="scene"] .selector-dock,
+body[data-stage-tab="scene"] .quick-selector,
+body[data-stage-tab="scene"] .expedition-view,
+body[data-stage-tab="expedition"] .score-ribbon,
+body[data-stage-tab="expedition"] .quick-selector,
+body[data-stage-tab="expedition"] .command-scene,
+body[data-stage-tab="expedition"] .selector-dock,
+body[data-stage-tab="expedition"] .players{
+  display:none;
+}
+body:not([data-stage-tab="expedition"]) .expedition-view{display:none}
+body[data-stage-tab="scene"] .score-ribbon{
+  border-bottom:0;
+}
+.stat{
+  border-radius:var(--radius);
+  background:rgba(5,11,25,.28);
+  border:1px solid rgba(255,255,255,.14);
+  padding:10px;
+  min-width:0;
+}
+.stat small{display:block;color:rgba(255,255,255,.65);font-size:11px}
+.stat strong{display:block;font-size:20px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.quick-selector{
+  padding:0 12px 12px;
+  display:grid;
+  grid-template-columns:minmax(190px, 1fr) auto auto auto auto;
+  gap:8px;
+  align-items:center;
+  border-bottom:1px solid rgba(255,255,255,.13);
+}
+.quick-selector .selected-result{
+  min-height:42px;
+  font-size:16px;
+  padding:9px 10px;
+}
+.quick-selector button{
+  min-height:38px;
+  white-space:nowrap;
+}
+
+.command-scene{
+  position:relative;
+  overflow:hidden;
+  min-height:390px;
+  background:
+    linear-gradient(180deg, rgba(4,8,12,.08), rgba(16,12,9,.36) 58%, rgba(4,8,12,.82)),
+    linear-gradient(112deg, rgba(185,51,45,.16), transparent 38%, rgba(47,138,95,.14)),
+    url("assets/hero-strategist-neon.jpg") center 42% / cover no-repeat;
+  border-bottom:1px solid rgba(255,223,146,.16);
+}
+.command-scene:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(90deg, rgba(4,8,12,.56), transparent 28%, transparent 70%, rgba(4,8,12,.5)),
+    linear-gradient(0deg, rgba(4,8,12,.76), transparent 38%);
+}
+.scene-glow{
+  position:absolute;
+  inset:-22% -8% auto;
+  height:250px;
+  opacity:.68;
+  background:
+    linear-gradient(105deg, transparent 0 18%, rgba(95,197,157,.2) 28%, transparent 43%),
+    linear-gradient(72deg, transparent 0 26%, rgba(255,211,107,.2) 40%, transparent 58%),
+    linear-gradient(95deg, transparent 0 38%, rgba(185,51,45,.14) 52%, transparent 68%);
+  filter:blur(8px);
+  animation:sceneGlow 12s ease-in-out infinite alternate;
+}
+@keyframes sceneGlow{
+  from{transform:translateX(-4%) skewX(-7deg)}
+  to{transform:translateX(4%) skewX(7deg)}
+}
+.war-banner{
+  position:absolute;
+  top:28px;
+  width:52px;
+  height:150px;
+  background:linear-gradient(180deg, rgba(255,211,107,.92), rgba(196,52,43,.82));
+  border:1px solid rgba(255,255,255,.24);
+  clip-path:polygon(0 0,100% 8%,78% 48%,100% 92%,0 100%);
+  box-shadow:0 14px 26px rgba(0,0,0,.24), 0 0 18px rgba(255,211,107,.18);
+  transform-origin:50% 0;
+  animation:bannerSway 6.8s ease-in-out infinite;
+  z-index:1;
+}
+.war-banner:before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:-24px;
+  width:3px;
+  height:190px;
+  background:linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,211,107,.2));
+}
+.war-banner.one{left:8%}
+.war-banner.two{left:25%;top:44px;animation-delay:1.1s;background:linear-gradient(180deg, rgba(95,197,157,.76), rgba(34,111,96,.78))}
+.war-banner.three{right:9%;top:38px;animation-delay:1.8s;background:linear-gradient(180deg, rgba(94,176,200,.8), rgba(63,91,128,.72))}
+@keyframes bannerSway{
+  0%,100%{transform:skewY(-3deg) translateY(0)}
+  50%{transform:skewY(4deg) translateY(8px)}
+}
+.strategy-routes{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+}
+.strategy-routes span{
+  position:absolute;
+  left:14%;
+  top:64%;
+  width:44%;
+  height:2px;
+  background:linear-gradient(90deg, transparent, rgba(255,211,107,.82), rgba(95,197,157,.55), transparent);
+  transform:rotate(-12deg);
+  transform-origin:left center;
+  filter:drop-shadow(0 0 10px rgba(255,211,107,.55));
+  animation:routePulse 5.8s ease-in-out infinite;
+}
+.strategy-routes span:nth-child(2){left:28%;top:72%;width:40%;transform:rotate(9deg);animation-delay:1.2s;background:linear-gradient(90deg, transparent, rgba(94,176,200,.76), transparent)}
+.strategy-routes span:nth-child(3){left:48%;top:56%;width:32%;transform:rotate(-22deg);animation-delay:2.2s;background:linear-gradient(90deg, transparent, rgba(185,51,45,.6), transparent)}
+@keyframes routePulse{
+  0%,100%{opacity:.25;filter:drop-shadow(0 0 2px rgba(255,211,107,.28))}
+  50%{opacity:1;filter:drop-shadow(0 0 14px rgba(255,211,107,.82))}
+}
+.battle-token{
+  position:absolute;
+  z-index:1;
+  width:46px;
+  height:46px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  color:#fff;
+  font-size:21px;
+  font-weight:950;
+  border:1px solid rgba(255,255,255,.38);
+  background:radial-gradient(circle at 30% 20%, rgba(255,255,255,.3), rgba(255,211,107,.24) 38%, rgba(3,7,20,.66));
+  box-shadow:0 10px 18px rgba(0,0,0,.3), 0 0 16px rgba(255,211,107,.24);
+  animation:tokenFloat 7.2s ease-in-out infinite;
+}
+.battle-token.one{left:14%;bottom:26%;color:var(--gold)}
+.battle-token.two{left:43%;bottom:36%;color:var(--mint);animation-delay:1.1s}
+.battle-token.three{right:15%;bottom:24%;color:var(--sky);animation-delay:2s}
+@keyframes tokenFloat{
+  0%,100%{transform:translateY(0) scale(.96)}
+  50%{transform:translateY(-10px) scale(1.04)}
+}
+.campaign-card{
+  position:absolute;
+  right:16px;
+  bottom:16px;
+  z-index:2;
+  width:min(560px, calc(100% - 32px));
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.2);
+  background:linear-gradient(180deg, rgba(3,7,20,.56), rgba(3,7,20,.82));
+  box-shadow:0 16px 34px rgba(0,0,0,.32);
+  padding:11px;
+  backdrop-filter:blur(8px);
+}
+.campaign-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:8px;
+}
+.campaign-head strong{font-size:14px;color:var(--gold)}
+.campaign-head span{font-size:11px;color:rgba(255,255,255,.7);white-space:nowrap}
+.faction-map{
+  position:relative;
+  min-height:168px;
+  border-radius:var(--radius);
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.16);
+  background:
+    linear-gradient(180deg, rgba(3,7,20,.08), rgba(3,7,20,.26)),
+    url("assets/faction-power-map.jpg") center / cover no-repeat;
+}
+.faction-map:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:radial-gradient(circle at 50% 50%, transparent 42%, rgba(3,7,20,.38));
+}
+.map-marker{
+  position:absolute;
+  left:var(--x);
+  top:var(--y);
+  z-index:1;
+  transform:translate(-50%, -50%);
+  display:grid;
+  place-items:center;
+  gap:3px;
+  color:#fff;
+  font-size:10px;
+  font-weight:900;
+  text-shadow:0 2px 8px rgba(0,0,0,.9);
+}
+.map-marker .pin{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:var(--color);
+  border:2px solid rgba(255,255,255,.86);
+  box-shadow:0 0 0 5px color-mix(in srgb, var(--color) 28%, transparent), 0 0 20px color-mix(in srgb, var(--color) 70%, transparent);
+}
+.power-list{
+  margin-top:8px;
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+  gap:6px;
+}
+.power-row{
+  display:grid;
+  grid-template-columns:minmax(0, 1fr) auto;
+  gap:7px;
+  align-items:center;
+  padding:6px 7px;
+  border-radius:var(--radius);
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.1);
+}
+.power-row span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-weight:900}
+.power-row small{font-size:11px;color:var(--gold);font-weight:950}
+.power-track{
+  grid-column:1 / -1;
+  height:5px;
+  border-radius:999px;
+  overflow:hidden;
+  background:rgba(255,255,255,.13);
+}
+.power-fill{
+  width:var(--power);
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg, var(--color), rgba(255,211,107,.9));
+}
+
+.selector-dock{
+  padding:12px;
+  display:grid;
+  grid-template-columns:minmax(220px, 300px) 1fr;
+  gap:12px;
+  align-items:center;
+  border-top:1px solid rgba(255,255,255,.13);
+  border-bottom:1px solid rgba(255,255,255,.13);
+  background:
+    linear-gradient(102deg, rgba(255,211,107,.16), transparent 32%, rgba(47,138,95,.14) 68%, transparent),
+    linear-gradient(90deg, rgba(4,8,12,.84), rgba(47,26,16,.58), rgba(4,8,12,.84)),
+    url("assets/faction-power-map.jpg") center / cover no-repeat;
+}
+.wheel-wrap{
+  display:grid;
+  justify-items:center;
+  gap:9px;
+}
+.wheel-shell{
+  position:relative;
+  width:228px;
+  aspect-ratio:1;
+  border-radius:50%;
+  padding:10px;
+  background:
+    linear-gradient(135deg, rgba(255,211,107,.24), rgba(185,51,45,.12) 45%, rgba(4,8,12,.82)),
+    url("assets/icon-card-map.jpg") center / cover no-repeat;
+  box-shadow:0 18px 36px rgba(0,0,0,.42), 0 0 22px rgba(255,211,107,.14);
+}
+.wheel-pointer{
+  position:absolute;
+  left:50%;
+  top:-4px;
+  z-index:3;
+  transform:translateX(-50%);
+  width:0;
+  height:0;
+  border-left:14px solid transparent;
+  border-right:14px solid transparent;
+  border-top:30px solid var(--gold);
+  filter:drop-shadow(0 4px 8px rgba(0,0,0,.38));
+}
+.answer-wheel{
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  border:7px solid rgba(255,211,107,.72);
+  background:conic-gradient(var(--rose), var(--jade), var(--gold), var(--sky), #8a6d42, var(--rose));
+  box-shadow:0 16px 32px rgba(0,0,0,.4), 0 0 20px rgba(255,211,107,.18), inset 0 0 0 9px rgba(7,17,38,.28);
+  transition:transform 3.2s cubic-bezier(.08,.72,.12,1);
+  position:relative;
+  overflow:hidden;
+}
+.answer-wheel:before{
+  content:"";
+  position:absolute;
+  inset:16px;
+  border-radius:50%;
+  border:1px dashed rgba(255,235,175,.72);
+  box-shadow:inset 0 0 36px rgba(3,7,20,.28);
+}
+.answer-wheel:after{
+  content:"";
+  position:absolute;
+  inset:50%;
+  width:56px;
+  height:56px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.08), rgba(3,7,20,.2)),
+    url("assets/icon-card-map.jpg") center / cover no-repeat;
+  border:2px solid rgba(255,235,175,.82);
+  box-shadow:0 0 0 8px rgba(7,17,38,.28), 0 0 20px rgba(255,211,107,.35);
+}
+.wheel-labels{
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  transform-origin:center;
+  transition:transform 3.2s cubic-bezier(.08,.72,.12,1);
+}
+.wheel-label{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:74px;
+  margin-left:-37px;
+  margin-top:-10px;
+  transform:rotate(var(--angle)) translateY(-76px) rotate(calc(-1 * var(--angle)));
+  text-align:center;
+  font-size:12px;
+  font-weight:900;
+  color:#fff8e8;
+  text-shadow:0 2px 8px rgba(0,0,0,.85);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.selector-info{
+  display:grid;
+  gap:10px;
+  min-width:0;
+}
+.selector-info h2{
+  margin:0;
+  font-size:clamp(20px, 3vw, 34px);
+  letter-spacing:0;
+}
+.selector-info p{
+  margin:0;
+  color:rgba(255,255,255,.78);
+  line-height:1.45;
+}
+.selected-result{
+  min-height:58px;
+  border-radius:var(--radius);
+  padding:12px;
+  background:linear-gradient(135deg, rgba(255,223,146,.14), rgba(47,138,95,.08));
+  border:1px solid rgba(255,223,146,.17);
+  font-size:18px;
+  font-weight:900;
+}
+.selector-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.answer-all{
+  color:var(--gold);
+}
+
+.expedition-view{
+  padding:10px;
+  display:grid;
+  gap:10px;
+  align-content:start;
+  min-height:560px;
+  background:
+    linear-gradient(180deg, rgba(4,8,12,.22), rgba(4,8,12,.58)),
+    linear-gradient(120deg, rgba(185,51,45,.12), transparent 42%, rgba(47,138,95,.12)),
+    url("assets/faction-power-map.jpg") center / cover no-repeat;
+}
+.expedition-hero{
+  display:grid;
+  grid-template-columns:minmax(340px, 1.12fr) minmax(280px, .88fr);
+  gap:10px;
+  align-items:stretch;
+}
+.expedition-panel{
+  border-radius:var(--radius);
+  border:1px solid rgba(255,223,146,.18);
+  background:linear-gradient(180deg, rgba(7,12,17,.76), rgba(7,12,17,.9));
+  box-shadow:0 16px 34px rgba(0,0,0,.3);
+  overflow:hidden;
+}
+.expedition-art{
+  min-height:210px;
+  background:
+    linear-gradient(180deg, rgba(4,8,12,.08), rgba(4,8,12,.78)),
+    url("assets/expedition-icons.jpg") center / contain no-repeat;
+  background-color:#05080c;
+  border-bottom:1px solid rgba(255,223,146,.16);
+}
+.expedition-copy{
+  padding:12px;
+  display:grid;
+  gap:9px;
+}
+.expedition-copy h2,.enemy-card h2{
+  margin:0;
+  font-size:clamp(19px, 2.6vw, 29px);
+}
+.expedition-copy p,.enemy-card p{
+  margin:0;
+  color:rgba(255,255,255,.76);
+  line-height:1.38;
+  font-size:13px;
+}
+.expedition-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:7px;
+}
+.expedition-actions .ghost-btn,.expedition-actions .primary-btn{
+  min-height:34px;
+  padding:0 10px;
+}
+.expedition-stats{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0,1fr));
+  gap:7px;
+}
+.expedition-stat{
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.13);
+  background:rgba(255,255,255,.08);
+  padding:8px;
+  min-width:0;
+}
+.expedition-stat small{
+  display:block;
+  color:rgba(255,255,255,.62);
+  font-size:11px;
+}
+.expedition-stat strong{
+  display:block;
+  margin-top:3px;
+  color:var(--gold);
+  font-size:16px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.enemy-card{
+  position:relative;
+  padding:12px;
+  display:grid;
+  gap:10px;
+  background:
+    linear-gradient(135deg, rgba(255,211,107,.16), transparent 34%),
+    linear-gradient(180deg, rgba(30,18,15,.84), rgba(4,8,12,.92));
+}
+.enemy-top{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:10px;
+  align-items:center;
+}
+.enemy-seal{
+  width:54px;
+  height:54px;
+  border-radius:var(--radius);
+  display:grid;
+  place-items:center;
+  font-size:27px;
+  font-weight:950;
+  color:#15100a;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.22), transparent 38%),
+    var(--enemy-color, var(--gold));
+  box-shadow:0 0 0 1px rgba(255,255,255,.28), 0 10px 22px rgba(0,0,0,.26);
+}
+.enemy-badge{
+  min-height:28px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  padding:0 10px;
+  background:rgba(255,211,107,.16);
+  border:1px solid rgba(255,211,107,.26);
+  color:var(--gold);
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.hp-shell{
+  height:18px;
+  border-radius:999px;
+  overflow:hidden;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.16);
+}
+.hp-fill{
+  width:var(--hp);
+  height:100%;
+  background:linear-gradient(90deg, #c44736, #d69a39 58%, #5fc59d);
+  border-radius:inherit;
+}
+.intent-row{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+  gap:7px;
+}
+.intent-box{
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.13);
+  background:rgba(3,7,20,.34);
+  padding:9px;
+  min-width:0;
+}
+.intent-box small{display:block;color:rgba(255,255,255,.6);font-size:11px}
+.intent-box strong{display:block;margin-top:3px;color:#fff;font-size:14px}
+.relic-strip,.reward-grid,.expedition-roster,.shop-grid{
+  display:grid;
+  gap:8px;
+}
+.relic-strip{
+  grid-template-columns:repeat(auto-fit, minmax(118px, 1fr));
+}
+.relic-chip{
+  min-height:42px;
+  display:grid;
+  grid-template-columns:34px 1fr;
+  gap:8px;
+  align-items:center;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,223,146,.16);
+  background:rgba(255,255,255,.08);
+  padding:7px;
+}
+.relic-icon,.reward-icon{
+  border-radius:7px;
+  background-image:url("assets/expedition-icons.jpg");
+  background-size:300% 200%;
+  background-position:var(--icon-pos, 0% 0%);
+  background-repeat:no-repeat;
+  background-color:#05080c;
+  box-shadow:inset 0 -20px 20px rgba(0,0,0,.28);
+}
+.relic-icon{
+  width:34px;
+  height:34px;
+}
+.relic-chip span{
+  min-width:0;
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.reward-grid{
+  grid-template-columns:repeat(3, minmax(0,1fr));
+}
+.reward-card{
+  min-height:116px;
+  text-align:left;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,223,146,.18);
+  background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.055));
+  color:#fff;
+  padding:10px;
+  display:grid;
+  gap:8px;
+  align-content:start;
+}
+.reward-icon{
+  width:100%;
+  aspect-ratio:3 / 2;
+  min-height:62px;
+}
+.reward-card strong{color:var(--gold);font-size:14px}
+.reward-card span{color:rgba(255,255,255,.76);font-size:12px;line-height:1.35}
+.shop-grid{
+  grid-template-columns:repeat(4, minmax(0,1fr));
+}
+.shop-card{
+  min-height:112px;
+  text-align:left;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,223,146,.16);
+  background:linear-gradient(180deg, rgba(255,211,107,.12), rgba(255,255,255,.05));
+  color:#fff;
+  padding:10px;
+  display:grid;
+  gap:6px;
+  align-content:start;
+}
+.shop-card strong{
+  color:var(--gold);
+  font-size:13px;
+}
+.shop-card span{
+  color:rgba(255,255,255,.74);
+  font-size:12px;
+  line-height:1.35;
+}
+.shop-card small{
+  display:inline-flex;
+  width:max-content;
+  min-height:22px;
+  align-items:center;
+  padding:0 7px;
+  border-radius:999px;
+  background:rgba(255,211,107,.18);
+  border:1px solid rgba(255,211,107,.24);
+  color:var(--gold);
+  font-size:11px;
+  font-weight:950;
+}
+.shop-card:disabled,.reward-card:disabled{opacity:.45;cursor:not-allowed}
+.expedition-shop-drawer{
+  position:fixed;
+  inset:0;
+  z-index:24;
+  display:grid;
+  place-items:center;
+  padding:18px;
+  background:rgba(4,8,12,.72);
+  backdrop-filter:blur(8px);
+}
+.expedition-shop-panel{
+  width:min(820px, 100%);
+  border-radius:var(--radius);
+  border:1px solid rgba(255,223,146,.24);
+  background:
+    linear-gradient(135deg, rgba(255,211,107,.18), transparent 34%, rgba(47,138,95,.1)),
+    linear-gradient(180deg, rgba(31,20,15,.98), rgba(6,10,13,.98));
+  box-shadow:0 24px 62px rgba(0,0,0,.52);
+  overflow:hidden;
+}
+.expedition-shop-top{
+  padding:12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border-bottom:1px solid rgba(255,255,255,.13);
+}
+.expedition-shop-top h2{
+  margin:0;
+  font-size:21px;
+}
+.expedition-shop-body{
+  padding:12px;
+  display:grid;
+  gap:10px;
+}
+.expedition-roster{
+  grid-template-columns:repeat(auto-fit, minmax(188px, 1fr));
+}
+.expedition-player{
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.15);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--player-color, #c44736) 42%, transparent), rgba(4,8,12,.58));
+  padding:10px;
+  display:grid;
+  gap:8px;
+}
+.expedition-player h3{
+  margin:0;
+  font-size:14px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.expedition-hit-actions{
+  display:grid;
+  grid-template-columns:repeat(5, minmax(0,1fr));
+  gap:7px;
+}
+.expedition-hit-actions button{
+  min-height:36px;
+  padding:0 7px;
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.expedition-hit-actions .wide-action{
+  grid-column:span 5;
+}
+.expedition-log{
+  max-height:158px;
+  overflow:auto;
+  display:grid;
+  gap:7px;
+}
+.expedition-log .event{
+  margin:0;
+}
+
+.players{
+  padding:12px;
+  display:grid;
+  grid-template-columns:repeat(5, minmax(130px, 1fr));
+  gap:10px;
+  align-content:start;
+}
+.player-card{
+  position:relative;
+  overflow:hidden;
+  min-height:368px;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.18);
+  background:
+    linear-gradient(135deg, rgba(255,236,176,.18), transparent 32%),
+    linear-gradient(160deg, var(--player-color, #b9332d), rgba(4,8,12,.78) 72%);
+  background:
+    linear-gradient(135deg, rgba(255,236,176,.18), transparent 32%),
+    linear-gradient(160deg, color-mix(in srgb, var(--player-color, #b9332d) 72%, #030714), rgba(4,8,12,.78) 72%);
+  box-shadow:0 14px 28px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.18);
+  padding:12px;
+  display:grid;
+  grid-template-rows:auto auto auto auto auto auto 1fr auto;
+  gap:10px;
+}
+.role-art{
+  min-height:88px;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.16);
+  background:#071126 center / contain no-repeat;
+  box-shadow:inset 0 -40px 32px rgba(3,7,20,.36), 0 10px 20px rgba(0,0,0,.2);
+}
+.player-card.leader{
+  border-color:var(--gold);
+  box-shadow:0 0 0 2px rgba(255,211,107,.22), 0 20px 35px rgba(0,0,0,.28);
+}
+.player-card.selected{
+  border-color:#fff;
+  box-shadow:0 0 0 3px rgba(255,255,255,.24), 0 0 22px rgba(255,211,107,.48), 0 18px 30px rgba(0,0,0,.28);
+  animation:selectedPulse 2.2s ease-in-out infinite;
+}
+.player-card.secret-flash:before{
+  content:"";
+  position:absolute;
+  right:11px;
+  top:11px;
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:rgba(255,255,255,.92);
+  box-shadow:0 0 7px rgba(95,197,157,.72);
+  z-index:2;
+  animation:secretBlink .48s ease-out forwards;
+}
+@keyframes secretBlink{
+  0%{opacity:0;transform:scale(.4)}
+  35%{opacity:.9;transform:scale(1)}
+  100%{opacity:0;transform:scale(.2)}
+}
+.player-card.all-answer{
+  box-shadow:0 0 0 2px rgba(95,197,157,.26), 0 0 20px rgba(95,197,157,.32), 0 18px 30px rgba(0,0,0,.26);
+}
+@keyframes selectedPulse{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-5px)}
+}
+.player-card.frozen{
+  filter:saturate(.5);
+}
+.player-card.frozen:after{
+  content:"暂停一回合";
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  background:rgba(7,17,38,.62);
+  color:#fff;
+  font-weight:900;
+  font-size:20px;
+}
+.player-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.badge{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:rgba(255,255,255,.88);
+  color:#071126;
+  font-weight:900;
+}
+.player-name{
+  margin:0;
+  font-size:15px;
+  line-height:1.15;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  cursor:pointer;
+}
+.rank{
+  font-size:12px;
+  padding:4px 7px;
+  border-radius:999px;
+  background:rgba(7,17,38,.28);
+}
+.role-line{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  min-height:30px;
+}
+.role-pill{
+  min-width:0;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border-radius:999px;
+  padding:5px 9px;
+  background:rgba(3,7,20,.34);
+  border:1px solid rgba(255,255,255,.16);
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.role-pill-art{
+  width:22px;
+  height:22px;
+  flex:0 0 auto;
+  border-radius:50%;
+  border:1px solid rgba(255,235,175,.3);
+  background:#071126 center / contain no-repeat;
+  box-shadow:inset 0 -9px 10px rgba(3,7,20,.32);
+}
+.role-pill span:last-child{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.skill-state{
+  font-size:11px;
+  color:rgba(255,255,255,.72);
+  white-space:nowrap;
+}
+.mini-tag{
+  display:inline-flex;
+  align-items:center;
+  max-width:100%;
+  min-height:20px;
+  padding:0 7px;
+  border-radius:999px;
+  background:rgba(3,7,20,.3);
+  border:1px solid rgba(255,255,255,.13);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.resource-strip{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.asset-dashboard{
+  display:grid;
+  gap:6px;
+}
+.asset-group{
+  display:grid;
+  grid-template-columns:42px 1fr;
+  gap:6px;
+  align-items:center;
+  min-width:0;
+}
+.asset-label{
+  color:rgba(255,255,255,.68);
+  font-size:10px;
+  font-weight:900;
+}
+.icon-row{
+  display:flex;
+  gap:5px;
+  flex-wrap:wrap;
+  min-width:0;
+}
+.asset-icon{
+  position:relative;
+  width:30px;
+  height:30px;
+  flex:0 0 auto;
+  border-radius:7px;
+  border:1px solid rgba(255,255,255,.18);
+  background:#071126 center / cover no-repeat;
+  box-shadow:0 8px 16px rgba(0,0,0,.18);
+}
+.asset-icon small{
+  position:absolute;
+  right:-4px;
+  bottom:-4px;
+  min-width:16px;
+  height:16px;
+  display:grid;
+  place-items:center;
+  border-radius:999px;
+  background:var(--gold);
+  color:#071126;
+  font-size:9px;
+  font-weight:950;
+  border:1px solid rgba(255,255,255,.7);
+}
+.asset-empty{
+  color:rgba(255,255,255,.48);
+  font-size:11px;
+  line-height:30px;
+}
+.score{
+  align-self:center;
+  text-align:center;
+  font-size:clamp(52px, 7vw, 78px);
+  font-weight:950;
+  line-height:.9;
+  text-shadow:0 8px 20px rgba(0,0,0,.38), 0 0 24px rgba(255,255,255,.18);
+}
+.score-label{
+  text-align:center;
+  font-size:12px;
+  color:rgba(255,255,255,.72);
+  margin-top:8px;
+}
+.score-actions{
+  display:grid;
+  grid-template-columns:repeat(6, minmax(0,1fr));
+  gap:8px;
+}
+.score-actions button{
+  min-height:42px;
+  border-radius:var(--radius);
+  font-size:14px;
+  font-weight:900;
+  background:rgba(255,255,255,.15);
+  border:1px solid rgba(255,255,255,.22);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18);
+}
+.score-actions button[data-score]{
+  grid-column:span 3;
+  font-size:18px;
+}
+.score-actions .skill-btn{
+  grid-column:span 2;
+  background:linear-gradient(135deg, rgba(255,211,107,.26), rgba(47,138,95,.14));
+}
+.score-actions .build-btn{
+  grid-column:span 2;
+  background:linear-gradient(135deg, rgba(95,197,157,.2), rgba(255,211,107,.14));
+}
+.score-actions .tech-btn{
+  grid-column:span 2;
+  background:linear-gradient(135deg, rgba(94,176,200,.22), rgba(95,197,157,.13));
+}
+.score-actions .recruit-btn{
+  grid-column:span 2;
+  background:linear-gradient(135deg, rgba(207,106,69,.24), rgba(255,211,107,.12));
+}
+.score-actions .attack-btn{
+  grid-column:span 2;
+  background:linear-gradient(135deg, rgba(185,51,45,.24), rgba(207,106,69,.15));
+}
+.score-actions .card-btn{
+  grid-column:span 2;
+  background:linear-gradient(135deg, rgba(255,211,107,.22), rgba(114,91,143,.14));
+}
+.score-actions button:hover{background:rgba(255,255,255,.32)}
+.score-actions button:disabled{opacity:.45;cursor:not-allowed}
+
+.side-list{
+  padding:12px;
+  display:grid;
+  gap:10px;
+}
+.event-log{
+  max-height:275px;
+  overflow:auto;
+  padding-right:3px;
+}
+.event{
+  padding:10px;
+  border-radius:var(--radius);
+  background:rgba(7,17,38,.25);
+  border:1px solid rgba(255,255,255,.12);
+  margin-bottom:8px;
+  font-size:13px;
+  line-height:1.35;
+}
+.event strong{color:var(--gold)}
+.leaderboard{
+  display:grid;
+  gap:8px;
+}
+.leader-row{
+  display:grid;
+  grid-template-columns:28px 1fr auto;
+  gap:8px;
+  align-items:center;
+  padding:8px;
+  border-radius:var(--radius);
+  background:rgba(7,17,38,.25);
+  border:1px solid rgba(255,255,255,.12);
+}
+.leader-row span:nth-child(2){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.surprise-board{
+  display:grid;
+  gap:8px;
+  padding:12px;
+}
+.surprise-card{
+  border-radius:var(--radius);
+  min-height:80px;
+  padding:12px;
+  background:linear-gradient(135deg, rgba(255,211,107,.16), rgba(47,138,95,.1));
+  border:1px solid rgba(255,255,255,.18);
+}
+.surprise-card h3{margin:0 0 6px;font-size:15px}
+.surprise-card p{margin:0;color:rgba(255,255,255,.78);font-size:13px;line-height:1.4}
+.memory-strip{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:8px;
+  margin-top:10px;
+}
+.memory-thumb{
+  position:relative;
+  overflow:hidden;
+  min-height:58px;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.2);
+  background:#081022 center / cover no-repeat;
+  box-shadow:0 10px 24px rgba(0,0,0,.24);
+}
+.memory-thumb:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg, transparent 42%, rgba(3,7,20,.78));
+}
+.memory-thumb span{
+  position:absolute;
+  left:7px;
+  right:7px;
+  bottom:6px;
+  z-index:1;
+  font-size:11px;
+  font-weight:800;
+  color:#fff;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.loot-banner{
+  min-height:92px;
+  margin-top:10px;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.18);
+  background:url("assets/roles-roster.jpg") center 35% / cover no-repeat;
+  box-shadow:0 14px 30px rgba(0,0,0,.26);
+}
+.role-gallery{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:8px;
+  margin-top:10px;
+}
+.role-preview{
+  min-height:116px;
+  position:relative;
+  overflow:hidden;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.16);
+  background:#071126 center / contain no-repeat;
+  box-shadow:0 12px 26px rgba(0,0,0,.25);
+}
+.role-preview:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg, transparent 42%, rgba(3,7,20,.88));
+}
+.role-preview span{
+  position:absolute;
+  left:7px;
+  right:7px;
+  bottom:7px;
+  z-index:1;
+  color:#fff;
+  font-weight:900;
+  font-size:11px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.visual-gallery{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0,1fr));
+  gap:9px;
+  margin:10px 0 12px;
+}
+.visual-card{
+  position:relative;
+  min-height:118px;
+  overflow:hidden;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.16);
+  background:#081022 center / cover no-repeat;
+  box-shadow:0 14px 28px rgba(0,0,0,.24);
+}
+.visual-card:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg, transparent 36%, rgba(3,7,20,.84));
+}
+.visual-card span{
+  position:absolute;
+  left:9px;
+  right:9px;
+  bottom:8px;
+  z-index:1;
+  color:#fff;
+  font-weight:900;
+  font-size:12px;
+}
+.visual-card[style*="expedition-icons"]{
+  background-size:contain;
+  background-repeat:no-repeat;
+  background-color:#05080c;
+}
+.icon-showcase{
+  display:grid;
+  grid-template-columns:repeat(6, minmax(0,1fr));
+  gap:8px;
+  margin:10px 0 12px;
+}
+.icon-tile{
+  min-height:78px;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.14);
+  background:#071126 center / cover no-repeat;
+  box-shadow:0 10px 22px rgba(0,0,0,.22);
+}
+.manual-grid{
+  display:grid;
+  gap:9px;
+}
+.manual-section-title{
+  margin:14px 0 8px;
+  color:#fff;
+  font-size:14px;
+  font-weight:900;
+}
+.manual-card-grid{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+  gap:9px;
+}
+.manual-card-grid.three{
+  grid-template-columns:repeat(3, minmax(0,1fr));
+}
+.manual-item{
+  padding:9px;
+  border-radius:var(--radius);
+  background:rgba(3,7,20,.28);
+  border:1px solid rgba(255,255,255,.12);
+}
+.manual-item strong{
+  display:block;
+  color:var(--gold);
+  font-size:12px;
+  margin-bottom:4px;
+}
+.manual-item span{
+  display:block;
+  color:rgba(255,255,255,.78);
+  font-size:12px;
+  line-height:1.35;
+}
+.manual-item em{
+  display:inline-flex;
+  margin-top:6px;
+  padding:3px 7px;
+  border-radius:999px;
+  background:rgba(255,211,107,.18);
+  color:var(--gold);
+  font-style:normal;
+  font-size:11px;
+  font-weight:900;
+}
+.manual-item.route{
+  background:linear-gradient(135deg, rgba(255,211,107,.18), rgba(47,138,95,.1));
+}
+.manual-item.balance{
+  background:linear-gradient(135deg, rgba(95,197,157,.15), rgba(255,255,255,.055));
+}
+
+.modal{
+  position:fixed;
+  inset:0;
+  z-index:20;
+  display:none;
+  place-items:center;
+  padding:18px;
+  background:rgba(4,8,12,.72);
+  backdrop-filter:blur(8px);
+}
+.modal.open{display:grid}
+.modal-card{
+  width:min(620px, 100%);
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.22);
+  background:
+    linear-gradient(135deg, rgba(255,211,107,.2), transparent 35%, rgba(47,138,95,.12)),
+    linear-gradient(180deg, rgba(35,23,17,.96), rgba(7,12,14,.98));
+  box-shadow:0 22px 58px rgba(0,0,0,.46);
+  overflow:hidden;
+}
+.action-card{
+  width:min(760px, 100%);
+}
+.modal-top{
+  padding:18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  border-bottom:1px solid rgba(255,255,255,.13);
+}
+.modal-top h2{margin:0;font-size:22px}
+.modal-copy{
+  margin:6px 0 0;
+  color:rgba(255,255,255,.78);
+  font-size:13px;
+  line-height:1.45;
+}
+.action-summary{
+  margin:5px 0 0;
+  color:rgba(255,255,255,.72);
+  font-size:13px;
+  line-height:1.35;
+}
+.close-btn{
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  background:rgba(255,255,255,.13);
+  border:1px solid rgba(255,255,255,.18);
+}
+.reset-actions{
+  padding:18px;
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+  border-top:1px solid rgba(255,255,255,.12);
+}
+.danger-btn{
+  min-height:38px;
+  border-radius:var(--radius);
+  padding:0 14px;
+  color:#fff;
+  background:linear-gradient(135deg, rgba(185,51,45,.94), rgba(207,106,69,.78));
+  border:1px solid rgba(255,255,255,.22);
+  font-weight:900;
+}
+.action-tabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:12px 14px;
+  border-bottom:1px solid rgba(255,255,255,.12);
+  background:rgba(3,7,20,.25);
+}
+.action-tabs .ghost-btn{
+  min-height:34px;
+  flex:1 1 120px;
+}
+.action-tabs .active{
+  border-color:rgba(255,211,107,.45);
+  background:linear-gradient(135deg, rgba(255,211,107,.24), rgba(47,138,95,.13));
+}
+.action-options{
+  padding:14px;
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0,1fr));
+  gap:10px;
+  max-height:min(62vh, 560px);
+  overflow:auto;
+}
+.action-option{
+  min-height:112px;
+  text-align:left;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.16);
+  background:linear-gradient(135deg, rgba(255,255,255,.13), rgba(255,255,255,.055));
+  padding:12px;
+  display:grid;
+  gap:7px;
+  align-content:start;
+  color:#fff;
+}
+.action-art{
+  display:block;
+  min-height:72px;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.13);
+  background:#071126 center / cover no-repeat;
+  box-shadow:inset 0 -30px 28px rgba(3,7,20,.3);
+}
+.action-option:hover{background:rgba(255,255,255,.18)}
+.action-option:disabled{
+  opacity:.48;
+  cursor:not-allowed;
+}
+.action-option strong{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  color:var(--gold);
+  font-size:14px;
+}
+.action-option span{
+  color:rgba(255,255,255,.78);
+  font-size:12px;
+  line-height:1.35;
+}
+.action-price{
+  color:#071126;
+  background:var(--gold);
+  padding:3px 7px;
+  border-radius:999px;
+  font-size:11px;
+  white-space:nowrap;
+}
+.action-empty{
+  grid-column:1 / -1;
+  min-height:86px;
+  display:grid;
+  place-items:center;
+  text-align:center;
+  color:rgba(255,255,255,.76);
+  border:1px dashed rgba(255,255,255,.22);
+  border-radius:var(--radius);
+  padding:14px;
+}
+.box-area{
+  padding:24px 18px 18px;
+  display:grid;
+  justify-items:center;
+  gap:18px;
+}
+.mystery-box{
+  width:180px;
+  height:160px;
+  position:relative;
+  transform-style:preserve-3d;
+  animation:boxFloat 4.8s ease-in-out infinite;
+}
+.mystery-box:before{
+  content:"";
+  position:absolute;
+  inset:18px 12px 0;
+  border-radius:8px;
+  background:linear-gradient(90deg, transparent, rgba(255,211,107,.24), transparent);
+  filter:blur(6px);
+}
+@keyframes boxFloat{
+  0%,100%{transform:translateY(0) rotate(-2deg)}
+  50%{transform:translateY(-10px) rotate(2deg)}
+}
+.mystery-box .lid{
+  position:absolute;
+  left:8px;
+  right:8px;
+  top:6px;
+  height:48px;
+  border-radius:8px 8px 5px 5px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.12), rgba(3,7,20,.08)),
+    linear-gradient(135deg, #b9332d, #d69a39);
+  box-shadow:0 10px 0 rgba(0,0,0,.12);
+  transition:transform .45s ease;
+}
+.mystery-box .body{
+  position:absolute;
+  left:18px;
+  right:18px;
+  bottom:0;
+  height:118px;
+  border-radius:8px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.14), rgba(3,7,20,.18)),
+    url("assets/icon-card-map.jpg") center / cover no-repeat;
+  border:2px solid rgba(255,211,107,.65);
+  box-shadow:inset 0 -28px 30px rgba(3,7,20,.38), 0 18px 36px rgba(0,0,0,.28);
+}
+.mystery-box .ribbon-v{
+  position:absolute;
+  left:50%;
+  top:8px;
+  bottom:0;
+  width:28px;
+  transform:translateX(-50%);
+  background:linear-gradient(180deg, rgba(255,211,107,.96), rgba(185,51,45,.9));
+}
+.mystery-box .ribbon-h{
+  position:absolute;
+  left:18px;
+  right:18px;
+  top:78px;
+  height:24px;
+  background:linear-gradient(90deg, rgba(255,211,107,.95), rgba(185,51,45,.88));
+}
+.modal.open.revealed .mystery-box .lid{transform:translateY(-62px) rotate(-12deg)}
+.result{
+  min-height:118px;
+  width:100%;
+  border-radius:var(--radius);
+  padding:16px;
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.15);
+  text-align:center;
+}
+.result h3{margin:0 0 8px;font-size:24px;color:var(--gold)}
+.result p{margin:0;color:rgba(255,255,255,.82);line-height:1.5}
+.result-art{
+  width:min(360px, 100%);
+  aspect-ratio:16 / 10;
+  object-fit:cover;
+  display:block;
+  margin:0 auto 12px;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.22);
+  box-shadow:0 16px 36px rgba(0,0,0,.28);
+}
+.result-art.sticker{
+  object-fit:contain;
+  background:linear-gradient(135deg, rgba(255,236,176,.12), rgba(3,7,20,.4));
+}
+.rarity-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:28px;
+  border-radius:999px;
+  padding:0 11px;
+  margin-bottom:10px;
+  font-size:13px;
+  font-weight:900;
+  color:#071126;
+  background:var(--rarity-color, var(--gold));
+  box-shadow:0 0 20px rgba(255,211,107,.35);
+}
+.result.common{--rarity-color:#d7deea}
+.result.rare{--rarity-color:#78d7ff}
+.result.epic{--rarity-color:#b28cff}
+.result.legend{--rarity-color:#ffd36b}
+.result.mythic{--rarity-color:#cf6a45}
+
+.toast{
+  position:fixed;
+  left:50%;
+  top:86px;
+  z-index:30;
+  transform:translateX(-50%) translateY(-18px);
+  opacity:0;
+  transition:opacity .2s ease, transform .2s ease;
+  max-width:min(680px, calc(100vw - 28px));
+  padding:12px 16px;
+  border-radius:var(--radius);
+  border:1px solid rgba(255,255,255,.24);
+  background:rgba(7,17,38,.86);
+  box-shadow:var(--shadow);
+  color:#fff;
+  text-align:center;
+  pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.confetti{
+  position:absolute;
+  width:8px;
+  height:14px;
+  border-radius:2px;
+  animation:fall 1.25s linear forwards;
+}
+@keyframes fall{
+  0%{transform:translateY(-20px) rotate(0);opacity:1}
+  100%{transform:translateY(100vh) rotate(520deg);opacity:0}
+}
+
+@media (max-width:1180px){
+  body{background-attachment:scroll}
+  body:before{opacity:.56}
+  .app{padding:10px;gap:10px}
+  .header{padding:10px 12px}
+  h1{font-size:clamp(22px, 3vw, 34px)}
+  .subtitle{font-size:12px}
+  .top-actions{gap:7px}
+  .top-actions .chip,.top-actions .ghost-btn,.top-actions .primary-btn{min-height:34px;padding:0 10px}
+  .main{grid-template-columns:1fr;gap:10px}
+  .stage{order:1;min-height:auto}
+  .sky-layer{display:none}
+  .header,.panel,.campaign-card,.modal{backdrop-filter:none}
+  .scene-glow,.war-banner,.strategy-routes span,.battle-token,.mystery-box,.player-card.selected{animation:none}
+  .scene-glow{opacity:.46;filter:none}
+  .fireworks-layer{opacity:.82}
+  .aux-tabs{
+    order:2;
+    display:flex;
+    gap:7px;
+    overflow-x:auto;
+    padding:2px 0;
+    scrollbar-width:none;
+  }
+  .aux-tabs::-webkit-scrollbar{display:none}
+  .aux-tabs .tab-btn{flex:0 0 auto;min-height:36px}
+  .settings-panel,.right-panel{order:3;grid-column:auto;display:none}
+  body[data-aux-tab="settings"] .settings-panel{display:block}
+  body[data-aux-tab="board"] .right-panel,
+  body[data-aux-tab="events"] .right-panel,
+  body[data-aux-tab="manual"] .right-panel,
+  body[data-aux-tab="easter"] .right-panel{display:block}
+  body[data-aux-tab="board"] .right-panel .event-section,
+  body[data-aux-tab="board"] .right-panel .manual-section,
+  body[data-aux-tab="board"] .right-panel .easter-section{display:none}
+  body[data-aux-tab="events"] .right-panel .leader-section,
+  body[data-aux-tab="events"] .right-panel .manual-section,
+  body[data-aux-tab="events"] .right-panel .easter-section{display:none}
+  body[data-aux-tab="manual"] .right-panel .leader-section,
+  body[data-aux-tab="manual"] .right-panel .event-section,
+  body[data-aux-tab="manual"] .right-panel .easter-section{display:none}
+  body[data-aux-tab="easter"] .right-panel .leader-section,
+  body[data-aux-tab="easter"] .right-panel .event-section,
+  body[data-aux-tab="easter"] .right-panel .manual-section{display:none}
+  .stage-tabs{padding:9px 9px 0}
+  .score-ribbon{padding:9px;gap:7px}
+  .quick-selector{grid-template-columns:1fr 1fr;gap:7px;padding:0 9px 9px}
+  .quick-selector .selected-result{grid-column:1 / -1}
+  .stat{padding:8px}
+  .stat strong{font-size:18px}
+  .command-scene{min-height:clamp(120px, 18vh, 170px)}
+  .selector-dock{grid-template-columns:210px 1fr;padding:9px;gap:10px}
+  .selector-info h2{font-size:22px}
+  .selector-info p{display:none}
+  .selected-result{min-height:44px;font-size:16px;padding:10px}
+  .selector-actions{gap:7px}
+  .selector-actions .ghost-btn,.selector-actions .chip{min-height:34px;padding:0 10px}
+  .players{grid-template-columns:repeat(auto-fit, minmax(148px,1fr));padding:9px;gap:8px}
+  .player-card{min-height:330px;padding:9px;gap:6px}
+  .role-art{min-height:68px}
+  .player-name{font-size:14px}
+  .role-pill,.skill-state,.mini-tag,.asset-label,.asset-empty{font-size:10px}
+  .asset-icon{width:27px;height:27px}
+  .score{font-size:clamp(38px, 5vw, 56px)}
+  .score-label{margin-top:4px}
+  .score-actions{gap:6px}
+  .score-actions button{min-height:34px;font-size:12px}
+  .score-actions button[data-score]{font-size:17px}
+  .side-list{grid-template-columns:1fr}
+  .event-log{max-height:220px}
+  .manual-card-grid,.manual-card-grid.three,.visual-gallery,.expedition-hero,.reward-grid{grid-template-columns:1fr}
+  .shop-grid{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .expedition-view{padding:9px;min-height:auto}
+  .expedition-stats{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .expedition-art{min-height:150px}
+  .role-gallery{grid-template-columns:repeat(3, minmax(0,1fr))}
+  .icon-showcase{grid-template-columns:repeat(4, minmax(0,1fr))}
+  .wheel-shell{width:176px}
+  .wheel-label{transform:rotate(var(--angle)) translateY(-64px) rotate(calc(-1 * var(--angle)))}
+  .action-options{grid-template-columns:1fr;max-height:58vh}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+    scroll-behavior:auto !important;
+  }
+  .fireworks-layer,.confetti-layer{display:none}
+}
+@media (max-width:900px){
+  .header{grid-template-columns:1fr}
+  .top-actions{justify-content:flex-start}
+  .main{grid-template-columns:1fr}
+  .stage{min-height:auto}
+  .selector-dock{grid-template-columns:1fr}
+  .players{grid-template-columns:repeat(2, minmax(135px,1fr))}
+  .side-list{grid-template-columns:1fr}
+  .memory-strip{grid-template-columns:repeat(4, 1fr)}
+  .role-gallery{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .icon-showcase{grid-template-columns:repeat(3, minmax(0,1fr))}
+  .intent-row{grid-template-columns:1fr}
+  .expedition-hit-actions{grid-template-columns:repeat(3, minmax(0,1fr))}
+  .expedition-hit-actions .wide-action{grid-column:span 3}
+}
+@media (max-width:560px){
+  .app{padding:10px}
+  .score-ribbon{grid-template-columns:1fr}
+  .players{grid-template-columns:1fr}
+  .command-scene{min-height:250px}
+  .wheel-shell{width:178px}
+  .wheel-label{transform:rotate(var(--angle)) translateY(-64px) rotate(calc(-1 * var(--angle)))}
+  .top-actions .chip,.top-actions .ghost-btn,.top-actions .primary-btn{flex:1 1 auto}
+  .memory-strip{grid-template-columns:repeat(2, 1fr)}
+  .icon-showcase{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .expedition-stats{grid-template-columns:1fr}
+  .shop-grid,.expedition-hit-actions{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .expedition-hit-actions .wide-action{grid-column:span 2}
+  .expedition-shop-drawer{padding:10px}
+}
+</style>
+</head>
+<body data-stage-tab="score" data-aux-tab="game">
+<div class="brand-watermark">MYSKME</div>
+<div class="sky-layer" aria-hidden="true"></div>
+<canvas id="fireworks" class="fireworks-layer"></canvas>
+<div id="confetti" class="confetti-layer"></div>
+<div id="toast" class="toast"></div>
+
+<div class="app">
+  <header class="header">
+    <div class="brand">
+      <div class="crest" aria-hidden="true"></div>
+      <div>
+        <h1>三国课堂军师争霸积分器</h1>
+        <div class="subtitle">1-6 位玩家 · 课堂积分 · 军粮经营 · 势力争霸 · 军师远征</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button class="chip" id="soundBtn" type="button">声音：开</button>
+      <button class="ghost-btn" id="undoBtn" type="button" title="撤回最近一次加分、技能、建造、科技、招兵、攻击、锦囊、随机点名或远征操作">撤回上一步</button>
+      <button class="ghost-btn" id="resetBtn" type="button">重置</button>
+      <button class="primary-btn" id="mysteryBtn" type="button">打开锦囊</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="panel settings-panel">
+      <div class="panel-title">
+        <h2>玩家设置</h2>
+        <span class="chip" id="roundInfo">第 1 回合</span>
+      </div>
+      <div class="setup">
+        <div class="field">
+          <label for="playerCount">玩家人数</label>
+          <select id="playerCount">
+            <option value="1">1 位玩家</option>
+            <option value="2">2 位玩家</option>
+            <option value="3">3 位玩家</option>
+            <option value="4" selected>4 位玩家</option>
+            <option value="5">5 位玩家</option>
+            <option value="6">6 位玩家</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>玩家名字</label>
+          <div class="name-grid" id="nameGrid"></div>
+        </div>
+        <button class="primary-btn" id="applyNames" type="button">应用名字</button>
+        <div class="surprise-card">
+          <h3>课堂玩法</h3>
+          <p>老师点击每位玩家的 +1 或 +2。可以 2-6 人争霸，也可以 1-6 人进入军师远征挑战 NPC。</p>
+        </div>
+        <div class="surprise-card">
+          <h3>三国军师提示</h3>
+          <p>这个版本使用原创势力地图、军府旗帜、赤壁水道、粮车和锦囊元素，适合课堂投屏使用。</p>
+        </div>
+        <div class="surprise-card">
+          <h3>军师锦囊</h3>
+          <p>锦囊里藏着军令、沙盘、藤甲和奇谋，抽到时会变成课堂里的策略转机。</p>
+          <div class="memory-strip">
+            <div class="memory-thumb" style="background-image:url('assets/hero-strategist-neon.jpg')"><span>赤壁军帐</span></div>
+            <div class="memory-thumb" style="background-image:url('assets/tactics-units.jpg')"><span>锦囊兵符</span></div>
+            <div class="memory-thumb" style="background-image:url('assets/buildings-tech.jpg')"><span>城池科技</span></div>
+          </div>
+        </div>
+        <div class="surprise-card">
+          <h3>职业策略</h3>
+          <p>职业现在有被动和 3 回合冷却技能。答题可能掉锦囊；军粮可以建多座建筑、升级科技、购买兵种。</p>
+          <div class="loot-banner" aria-hidden="true"></div>
+          <div class="role-gallery" aria-label="职业图鉴">
+            <div class="role-preview" style="background-image:url('assets/role-strategist.jpg')"><span>卧龙军师</span></div>
+            <div class="role-preview" style="background-image:url('assets/role-general.jpg')"><span>虎威将军</span></div>
+            <div class="role-preview" style="background-image:url('assets/role-vanguard.jpg')"><span>白袍先锋</span></div>
+            <div class="role-preview" style="background-image:url('assets/role-quartermaster.jpg')"><span>青囊粮官</span></div>
+            <div class="role-preview" style="background-image:url('assets/role-tactician.jpg')"><span>绯羽策士</span></div>
+            <div class="role-preview" style="background-image:url('assets/role-adviser.jpg')"><span>星河参谋</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel stage">
+      <div class="stage-tabs" aria-label="主控台栏目">
+        <button class="ghost-btn stage-tab active" type="button" data-stage-tab="score">计分台</button>
+        <button class="ghost-btn stage-tab" type="button" data-stage-tab="scene">势力地图</button>
+        <button class="ghost-btn stage-tab" type="button" data-stage-tab="expedition">军师远征</button>
+      </div>
+      <div class="score-ribbon">
+        <div class="stat"><small>当前领先</small><strong id="leaderName">准备中</strong></div>
+        <div class="stat"><small>最高分</small><strong id="topScore">0</strong></div>
+        <div class="stat"><small>下一次奇谋概率</small><strong id="chanceText">35%</strong></div>
+      </div>
+      <div class="quick-selector">
+        <div class="selected-result" id="quickSelectedResult">还没有选中答题者。</div>
+        <button class="primary-btn" id="quickSpinBtn" type="button">随机点名</button>
+        <button class="ghost-btn" id="quickClearSelectionBtn" type="button">清除</button>
+        <button class="ghost-btn" id="quickAllPlusOneBtn" type="button">全员 +1</button>
+        <button class="ghost-btn" id="quickAllPlusTwoBtn" type="button">全员 +2</button>
+      </div>
+      <div class="command-scene" aria-label="势力地图预览">
+        <div class="scene-glow"></div>
+        <div class="war-banner one"></div>
+        <div class="war-banner two"></div>
+        <div class="war-banner three"></div>
+        <div class="strategy-routes"><span></span><span></span><span></span></div>
+        <div class="battle-token one">粮</div>
+        <div class="battle-token two">谋</div>
+        <div class="battle-token three">兵</div>
+        <div class="campaign-card">
+          <div class="campaign-head"><strong>课堂势力地图</strong><span>国力 = 积分 + 军粮 + 建筑 + 科技 + 兵种</span></div>
+          <div class="faction-map" id="factionMap"></div>
+          <div class="power-list" id="powerList"></div>
+        </div>
+      </div>
+      <div class="selector-dock">
+        <div class="wheel-wrap">
+          <div class="wheel-shell">
+            <div class="wheel-pointer"></div>
+            <div class="answer-wheel" id="answerWheel"></div>
+            <div class="wheel-labels" id="wheelLabels"></div>
+          </div>
+          <button class="primary-btn" id="spinBtn" type="button">随机点名：选答题者</button>
+        </div>
+        <div class="selector-info">
+          <h2>谁来答题？</h2>
+          <p>计分台已经保留随机点名。抽到单人时，那位玩家获得答题机会；抽到“全员抢答”时，所有人都可以举手抢答。</p>
+          <div class="selected-result" id="selectedResult">还没有选中答题者。</div>
+          <div class="selector-actions">
+            <button class="ghost-btn" id="clearSelectionBtn" type="button">清除选中</button>
+            <button class="ghost-btn" id="quickUndoBtn" type="button">撤回</button>
+            <button class="ghost-btn" id="allPlusOneBtn" type="button">抢答全对 +1</button>
+            <button class="ghost-btn" id="allPlusTwoBtn" type="button">团队挑战 +2</button>
+            <span class="chip answer-all" id="allChanceText">全员抢答概率 18%</span>
+          </div>
+        </div>
+      </div>
+      <div class="expedition-view" id="expeditionView" aria-label="军师远征"></div>
+      <div class="players" id="players"></div>
+    </section>
+
+    <nav class="aux-tabs" aria-label="栏目">
+      <button class="ghost-btn tab-btn active" type="button" data-tab="game">主控台</button>
+      <button class="ghost-btn tab-btn" type="button" data-tab="settings">设置</button>
+      <button class="ghost-btn tab-btn" type="button" data-tab="board">排行</button>
+      <button class="ghost-btn tab-btn" type="button" data-tab="events">事件</button>
+      <button class="ghost-btn tab-btn" type="button" data-tab="manual">说明</button>
+      <button class="ghost-btn tab-btn" type="button" data-tab="easter">彩蛋</button>
+    </nav>
+
+    <section class="panel right-panel">
+      <div class="panel-title">
+        <h2>排行榜与事件</h2>
+        <span class="chip" id="eventCount">0 件事</span>
+      </div>
+      <div class="side-list">
+        <div class="leader-section">
+          <div class="leaderboard" id="leaderboard"></div>
+        </div>
+        <div class="event-log event-section" id="eventLog"></div>
+      </div>
+      <div class="surprise-board">
+        <div class="surprise-card manual-section">
+          <h3>玩法说明书</h3>
+          <div class="visual-gallery" aria-label="三国主题视觉图鉴">
+            <div class="visual-card" style="background-image:url('assets/roles-roster.jpg')"><span>六大职业阵容</span></div>
+            <div class="visual-card" style="background-image:url('assets/tech-building-upgrade.jpg')"><span>建筑科技路线</span></div>
+            <div class="visual-card" style="background-image:url('assets/tactics-units.jpg')"><span>锦囊兵种战术</span></div>
+            <div class="visual-card" style="background-image:url('assets/expedition-icons.jpg')"><span>远征遗物图鉴</span></div>
+          </div>
+          <div class="manual-section-title">图标速览</div>
+          <div class="icon-showcase" aria-label="系统图标速览">
+            <div class="icon-tile" style="background-image:url('assets/icon-academy.jpg')" title="茅庐书院"></div>
+            <div class="icon-tile" style="background-image:url('assets/icon-grain-market.jpg')" title="军粮市集"></div>
+            <div class="icon-tile" style="background-image:url('assets/icon-strategy-platform.jpg')" title="谋略台"></div>
+            <div class="icon-tile" style="background-image:url('assets/icon-barracks.jpg')" title="虎豹骑营"></div>
+            <div class="icon-tile" style="background-image:url('assets/icon-tech-economy.jpg')" title="屯田经济"></div>
+            <div class="icon-tile" style="background-image:url('assets/icon-unit-tiger-cavalry.jpg')" title="虎豹骑"></div>
+          </div>
+          <div class="manual-grid">
+            <div class="manual-item"><strong>1. 随机点名</strong><span>计分台保留随机点名。抽到单人时由该玩家答题；抽到全员抢答时可用课堂辅助奖励。</span></div>
+            <div class="manual-item"><strong>2. 基础得分</strong><span>答对点 +1 或 +2。课堂积分决定排名，军粮用于大富翁经营和战术动作。</span></div>
+            <div class="manual-item"><strong>3. 职业系统</strong><span>六个职业有被动和 3 回合冷却技能。军师爆发，将军经营，先锋机动，粮官拿资源，策士反领先，参谋控概率。</span></div>
+            <div class="manual-item"><strong>4. 锦囊装备</strong><span>答题后可能掉锦囊，最多保留 3 张卡。锦囊令加分，藤甲挡租，连策军令下次额外 +1，檄文向第一名收费，沙盘提高锦囊概率。</span></div>
+            <div class="manual-item"><strong>5. 大富翁经营</strong><span>军粮可建多种建筑并升级；科技能强化经济、建筑、谋略和军事，兵种攻击主要影响军粮、建筑和锦囊牌。</span></div>
+            <div class="manual-item"><strong>6. 军师远征</strong><span>1 人是单人闯关，2-6 人是合作讨伐。每关随机敌人、意图、商店货架和三选一遗物，队伍可用奇策、锦囊、个人宝物控场。</span></div>
+          </div>
+          <div class="manual-section-title">职业定位</div>
+          <div class="manual-card-grid">
+            <div class="manual-item"><strong>卧龙军师</strong><span>爆发型。技能自己 +2 并拿锦囊；答对 +2 时有机会额外 +1。</span><em>适合：冲分 + 锦囊</em></div>
+            <div class="manual-item"><strong>虎威将军</strong><span>经营型。能免费建造，已有建筑后收租更强；越早铺资产越稳定。</span><em>适合：建筑 + 收租</em></div>
+            <div class="manual-item"><strong>白袍先锋</strong><span>机动型。技能得分、拿轻骑兵并推进地图，适合快速积累国力。</span><em>适合：兵种 + 机动</em></div>
+            <div class="manual-item"><strong>青囊粮官</strong><span>资源型。更容易掉锦囊，技能能照顾最低分玩家，课堂氛围比较友好。</span><em>适合：锦囊牌 + 追分</em></div>
+            <div class="manual-item"><strong>绯羽策士</strong><span>反领先型。可以向第一名收费，遇到大型战鼓事件还有机会拿檄文卡。</span><em>适合：追击第一名</em></div>
+            <div class="manual-item"><strong>星河参谋</strong><span>控概率型。能提高锦囊概率并拿沙盘，适合赌传说、神话事件。</span><em>适合：谋略 + 奇谋</em></div>
+          </div>
+          <div class="manual-section-title">建筑说明</div>
+          <div class="manual-card-grid">
+            <div class="manual-item"><strong>茅庐书院｜3 军粮</strong><span>低价起步，租金 1，适合第一座建筑。升级后收租更稳。</span><em>便宜铺场</em></div>
+            <div class="manual-item"><strong>军粮市集｜5 军粮</strong><span>租金 1，每轮有军粮收入。经济路线的核心建筑。</span><em>稳定赚钱</em></div>
+            <div class="manual-item"><strong>谋略台｜6 军粮</strong><span>提高锦囊和奇谋事件机会，适合配合青囊粮官、星河参谋和谋略科技。</span><em>事件增益</em></div>
+            <div class="manual-item"><strong>虎豹骑营｜7 军粮</strong><span>解锁更好的招兵选择，也让招兵成本更舒服。</span><em>军事入口</em></div>
+            <div class="manual-item"><strong>城墙箭楼｜5 军粮</strong><span>被攻击时优先抵挡，保护军粮、锦囊牌和高等级建筑。</span><em>防守反制</em></div>
+            <div class="manual-item"><strong>三国军府｜10 军粮</strong><span>高价地标，租金 3 且有收入。适合中后期领先或稳局。</span><em>高投入高回报</em></div>
+          </div>
+          <div class="manual-section-title">科技与兵种</div>
+          <div class="manual-card-grid">
+            <div class="manual-item"><strong>屯田经济</strong><span>提高答题和建筑收入。前期升 1 级通常最稳。</span><em>越早越赚</em></div>
+            <div class="manual-item"><strong>城防工程</strong><span>增加建筑容量，并降低建造和升级压力。</span><em>适合地产流</em></div>
+            <div class="manual-item"><strong>谋略奇术</strong><span>提高锦囊和奇谋触发感，爆发不稳定但上限高。</span><em>适合赌事件</em></div>
+            <div class="manual-item"><strong>兵法军备</strong><span>解锁更强兵种并降低招兵成本，但需要军粮和兵营支撑。</span><em>适合压制流</em></div>
+            <div class="manual-item"><strong>轻骑兵｜3 军粮</strong><span>抢 1 军粮，低成本干扰，不会直接重创课堂积分。</span><em>轻攻击</em></div>
+            <div class="manual-item"><strong>弩兵｜4 军粮</strong><span>让对方建筑暂停 1 轮，需要兵营或军事科技支持。</span><em>克制建筑</em></div>
+            <div class="manual-item"><strong>谋士｜5 军粮</strong><span>优先打散对方锦囊牌，没有锦囊牌时抢军粮。</span><em>克制锦囊牌</em></div>
+            <div class="manual-item"><strong>虎豹骑｜8 军粮</strong><span>强攻击，会削弱建筑并抢军粮，适合后期翻盘。</span><em>后期爆发</em></div>
+          </div>
+          <div class="manual-section-title">热门发展路线</div>
+          <div class="manual-card-grid three">
+            <div class="manual-item route"><strong>1. 稳健经营流</strong><span>先建茅庐书院或军粮市集，再升屯田经济和城防工程。特点是收入稳定，适合大多数学生。</span><em>推荐：虎威将军 / 卧龙军师</em></div>
+            <div class="manual-item route"><strong>2. 锦囊谋略流</strong><span>先攒谋略台，再升谋略奇术，靠锦囊、沙盘和奇谋事件制造反超机会。</span><em>推荐：青囊粮官 / 星河参谋</em></div>
+            <div class="manual-item route"><strong>3. 兵营压制流</strong><span>先建虎豹骑营，再升兵法军备，购买弩兵或谋士干扰领先者的建筑和锦囊牌。</span><em>推荐：白袍先锋 / 绯羽策士</em></div>
+          </div>
+          <div class="manual-section-title">平衡性提示</div>
+          <div class="manual-card-grid">
+            <div class="manual-item balance"><strong>课堂积分优先</strong><span>攻击主要影响军粮、建筑和锦囊牌，不大幅扣课堂积分，避免学生被打到失去参与感。</span></div>
+            <div class="manual-item balance"><strong>防滚雪球设计</strong><span>策士、最低分奖励、护盾、城墙箭楼和不能连续攻击同一人的规则，会给落后者留追赶空间。</span></div>
+            <div class="manual-item balance"><strong>经济与军事互相牵制</strong><span>只买兵会缺收入，只建市集会怕干扰；通常需要至少一座防守或谋略建筑来补短板。</span></div>
+            <div class="manual-item balance"><strong>老师调节建议</strong><span>如果课堂节奏慢，少开兵种，多用全员 +1；如果学生很熟练，再鼓励科技和建筑升级。</span></div>
+          </div>
+        </div>
+        <div class="surprise-card easter-section">
+          <h3>今日隐藏彩蛋</h3>
+          <p id="easterHint">连续给落后的玩家加分，军府可能会偷偷放战鼓。</p>
+          <div class="memory-strip">
+            <div class="memory-thumb" style="background-image:url('assets/tactics-units.jpg')"><span>锦囊军报</span></div>
+            <div class="memory-thumb" style="background-image:url('assets/hero-strategist-neon.jpg')"><span>赤壁沙盘</span></div>
+            <div class="memory-thumb" style="background-image:url('assets/buildings-tech.jpg')"><span>军粮战术</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="mysteryModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-card">
+    <div class="modal-top">
+      <h2 id="modalTitle">军师锦囊</h2>
+      <button class="close-btn" id="closeModal" type="button" aria-label="关闭">X</button>
+    </div>
+    <div class="box-area">
+      <div class="mystery-box" aria-hidden="true">
+        <div class="lid"></div>
+        <div class="body"></div>
+        <div class="ribbon-v"></div>
+        <div class="ribbon-h"></div>
+      </div>
+      <div class="result" id="boxResult">
+        <h3>准备开锦囊</h3>
+        <p>点击下方按钮，看看军师锦囊里藏着什么奇谋。</p>
+      </div>
+      <button class="primary-btn" id="revealBox" type="button">揭晓奇谋</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="resetModal" role="dialog" aria-modal="true" aria-labelledby="resetTitle">
+  <div class="modal-card">
+    <div class="modal-top">
+      <div>
+        <h2 id="resetTitle">重置本轮课堂</h2>
+        <p class="modal-copy">将清空分数、军粮、建筑、科技、兵种、事件和旧存档，并保留当前玩家名字与职业。这个操作可以撤回吗？不可以，所以这里单独确认一次。</p>
+      </div>
+      <button class="close-btn" id="closeResetModal" type="button" aria-label="关闭">X</button>
+    </div>
+    <div class="reset-actions">
+      <button class="ghost-btn" id="cancelResetBtn" type="button">取消</button>
+      <button class="danger-btn" id="confirmResetBtn" type="button">确认重置</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal action-modal" id="actionModal" role="dialog" aria-modal="true" aria-labelledby="actionTitle">
+  <div class="modal-card action-card">
+    <div class="modal-top">
+      <div>
+        <h2 id="actionTitle">行动面板</h2>
+        <p id="actionSummary" class="action-summary">选择一个行动。</p>
+      </div>
+      <button class="close-btn" id="closeActionModal" type="button" aria-label="关闭">X</button>
+    </div>
+    <div class="action-tabs" id="actionTabs">
+      <button class="ghost-btn active" type="button" data-action-mode="build">建造</button>
+      <button class="ghost-btn" type="button" data-action-mode="tech">科技</button>
+      <button class="ghost-btn" type="button" data-action-mode="recruit">招兵</button>
+      <button class="ghost-btn" type="button" data-action-mode="attack">攻击</button>
+    </div>
+    <div class="action-options" id="actionOptions"></div>
+  </div>
+</div>
+
+<script>
+const palettes = ["#c44736","#2f8a5f","#d69a39","#3f77b6","#8a6d42","#b85b73"];
+const defaultNames = ["卧龙营","虎威营","白袍营","青囊营","绯羽营","星河营"];
+const hkHints = [
+  "下一次有人追平第一名时，赤壁战鼓会响起一轮。",
+  "手动锦囊有更高机会抽到全员奖励，适合课堂气氛快冷掉的时候。",
+  "如果某位玩家暂停一回合，下一回合解冻时会有回营提示。",
+  "连续三次 +2 可能触发卧龙暴击。",
+  "随机点名抽到全员抢答时，可以让最快举手的人答题，也可以全班齐答。",
+  "普通奖励适合维持节奏，传说和神话军令会明显改变排行榜。",
+  "答题会同时获得军粮，军粮用来建造、升科技、招兵和交租。",
+  "建造不同建筑会带来租金、收入、锦囊概率、防御或兵种能力。",
+  "科技分经济、建筑、谋略、军事四条线，每条最多 3 级。",
+  "攻击消耗兵种，主要影响军粮、建筑和锦囊牌，不会大幅扣课堂积分。",
+  "锦囊卡最多保留 3 张，太贪心会挤掉最早的卡。",
+  "极低概率会出现天命军令，送出锦囊牌并提高奇谋概率。"
+];
+const memoryAssets = {
+  commandTent:{src:"assets/hero-strategist-neon.jpg", alt:"三国课堂沙盘"},
+  rolesRoster:{src:"assets/roles-roster.jpg", alt:"赤壁军师阵容"},
+  tacticsManual:{src:"assets/tactics-units.jpg", alt:"三国军师锦囊"},
+  reinforcementCamp:{src:"assets/tech-building-upgrade.jpg", alt:"三国援军营帐"},
+  tigerSeal:{src:"assets/tactics-units.jpg", alt:"三国天命虎符"},
+  strategyPouch:{src:"assets/tactics-units.jpg", alt:"军师锦囊"},
+  altarMap:{src:"assets/hero-strategist-neon.jpg", alt:"七星坛沙盘"},
+  commandToken:{src:"assets/tactics-units.jpg", alt:"军令锦囊"},
+  grainBoard:{src:"assets/tech-building-upgrade.jpg", alt:"军中宴军粮"},
+  battleClose:{src:"assets/hero-strategist-neon.jpg", alt:"赤壁战局特写"},
+  sandTableSpark:{src:"assets/tactics-units.jpg", alt:"锦囊妙计"},
+  endgameMap:{src:"assets/faction-power-map.jpg", alt:"三国终局沙盘"}
+};
+const roles = {
+  mage:{icon:"策", art:"assets/role-strategist.jpg", name:"卧龙军师", skill:"锦囊妙计 +2 并掉锦囊", passive:"答对 +2 时有机会额外 +1。", hint:"爆发型，适合强答题手。"},
+  captain:{icon:"将", art:"assets/role-general.jpg", name:"虎威将军", skill:"免费建府或收军令费", passive:"收租时租金 +1。", hint:"经营型，越早建府越有压迫感。"},
+  vanguard:{icon:"骑", art:"assets/role-vanguard.jpg", name:"白袍先锋", skill:"急行军 + 轻骑兵", passive:"答对 +2 时可能额外获得 1 军粮。", hint:"机动型，适合快速推进国力。"},
+  foodie:{icon:"粮", art:"assets/role-quartermaster.jpg", name:"青囊粮官", skill:"粮道补给 + 锦囊", passive:"答题后更容易掉锦囊。", hint:"资源型，稳定拿卡和追分。"},
+  director:{icon:"谋", art:"assets/role-tactician.jpg", name:"绯羽策士", skill:"向第一名发檄文", passive:"触发战鼓时可能获得锦囊牌。", hint:"反领先型，适合追击第一名。"},
+  detective:{icon:"星", art:"assets/role-adviser.jpg", name:"星河参谋", skill:"预判下一次奇谋", passive:"每次答题微升锦囊概率。", hint:"控概率型，适合赌传说和神话。"}
+};
+const roleOrder = ["mage","captain","vanguard","foodie","director","detective"];
+const properties = [
+  {key:"grainMarket", name:"军粮市集", rent:1},
+  {key:"harborDock", name:"赤壁渡口", rent:1},
+  {key:"supplyCart", name:"粮草车军府", rent:1},
+  {key:"warDrumWorkshop", name:"战鼓工坊", rent:1},
+  {key:"banquetTent", name:"军中宴包间", rent:1}
+];
+const buildingCatalog = {
+  cottage:{icon:"庐", art:"assets/icon-academy.jpg", name:"茅庐书院", cost:3, rent:1, income:0, maxLevel:3, text:"低价起步，升级后租金更稳。"},
+  shop:{icon:"粮", art:"assets/icon-grain-market.jpg", name:"军粮市集", cost:5, rent:1, income:1, maxLevel:3, text:"每轮结算军粮收入，适合经营流。"},
+  tower:{icon:"谋", art:"assets/icon-strategy-platform.jpg", name:"谋略台", cost:6, rent:1, income:0, maxLevel:3, text:"提高锦囊和奇谋概率，适合谋略流。"},
+  barracks:{icon:"营", art:"assets/icon-barracks.jpg", name:"虎豹骑营", cost:7, rent:1, income:0, maxLevel:3, text:"解锁更好的招兵价格和攻击能力。"},
+  wall:{icon:"城", art:"assets/icon-wall.jpg", name:"城墙箭楼", cost:5, rent:0, income:0, maxLevel:3, text:"被攻击时优先抵挡损失。"},
+  castle:{icon:"府", art:"assets/icon-war-office.jpg", name:"三国军府", cost:10, rent:3, income:1, maxLevel:2, text:"高价地标，租金和收入都很强。"}
+};
+const buildingOrder = ["cottage","shop","tower","barracks","wall","castle"];
+const techCatalog = {
+  economy:{icon:"金", art:"assets/icon-tech-economy.jpg", name:"屯田经济", text:"答题和建筑收入更高。"},
+  building:{icon:"工", art:"assets/icon-tech-building.jpg", name:"城防工程", text:"可持有更多建筑，升级更便宜。"},
+  magic:{icon:"谋", art:"assets/icon-tech-strategy.jpg", name:"谋略奇术", text:"锦囊和奇谋事件更容易出现。"},
+  military:{icon:"剑", art:"assets/icon-tech-military.jpg", name:"兵法军备", text:"招兵更便宜，攻击更有力。"}
+};
+const techOrder = ["economy","building","magic","military"];
+const unitCatalog = {
+  knight:{icon:"骑", art:"assets/icon-unit-light-cavalry.jpg", name:"轻骑兵", cost:3, power:1, tech:0, text:"抢 1 军粮，最适合轻轻干扰。"},
+  archer:{icon:"弓", art:"assets/icon-unit-archer.jpg", name:"弩兵", cost:4, power:1, tech:1, text:"让对方一座建筑暂停 1 轮。"},
+  wizard:{icon:"谋", art:"assets/icon-unit-adviser.jpg", name:"谋士", cost:5, power:2, tech:2, text:"破坏对方一张锦囊牌，或抢 2 军粮。"},
+  dragon:{icon:"豹", art:"assets/icon-unit-tiger-cavalry.jpg", name:"虎豹骑", cost:8, power:3, tech:3, text:"强攻击，每次消耗 1 只，优先削弱建筑。"}
+};
+const unitOrder = ["knight","archer","wizard","dragon"];
+const boardTiles = [
+  {key:"start", name:"军府起点"},
+  {key:"market", name:"军粮集市"},
+  {key:"rent", name:"官道驿站"},
+  {key:"chest", name:"锦囊阁"},
+  {key:"tech", name:"太学府"},
+  {key:"empty", name:"荒地营盘"},
+  {key:"rent", name:"赤壁水道"},
+  {key:"harbor", name:"渡口传送"},
+  {key:"market", name:"屯田营"},
+  {key:"chest", name:"粮草车"},
+  {key:"fort", name:"城防营"},
+  {key:"rent", name:"王城大道"}
+];
+const STORAGE_KEY = "threeKingdomsClassroomStrategist.v1";
+const LEGACY_STORAGE_KEYS = ["castleClassroomScoreboard", "castleClassroomScoreboard.v2", "castleClassroomScoreboard.lite.v3"];
+let memoryState = "";
+let storageAvailable = null;
+let storageWarningShown = false;
+const lootCards = {
+  starKey:{name:"锦囊令", art:"assets/icon-card-command-token.jpg", type:"active", text:"使用后自己 +2。"},
+  shield:{name:"藤甲护符", art:"assets/icon-card-shield.jpg", type:"auto", text:"自动抵挡一次租金。"},
+  doubleCoupon:{name:"连策军令", art:"assets/icon-card-combo-order.jpg", type:"auto", text:"下次答题额外 +1。"},
+  fireworkTicket:{name:"檄文令", art:"assets/icon-card-edict.jpg", type:"active", text:"向第一名收 1 分。"},
+  map:{name:"军师沙盘", art:"assets/icon-card-map.jpg", type:"active", text:"提高奇谋概率并开小战鼓。"}
+};
+const rarityMeta = {
+  common:{label:"普通", key:"common", weight:42, fire:1},
+  rare:{label:"稀有", key:"rare", weight:28, fire:2},
+  epic:{label:"史诗", key:"epic", weight:18, fire:4},
+  legend:{label:"传说", key:"legend", weight:9, fire:6},
+  mythic:{label:"神话", key:"mythic", weight:3, fire:8}
+};
+const expeditionEnemies = [
+  {key:"yellowTurban", name:"黄巾先锋", icon:"黄", color:"#d69a39", hp:8, attack:2, trait:"新手关常见敌人，行动稳定。"},
+  {key:"mountainRaiders", name:"山越伏兵", icon:"伏", color:"#2f8a5f", hp:10, attack:2, trait:"会偷走粮草，适合练团队节奏。"},
+  {key:"ironGuard", name:"董卓铁卫", icon:"铁", color:"#8a6d42", hp:14, attack:3, trait:"血厚且会架盾，需要集中火力。"},
+  {key:"fireShip", name:"赤壁火船", icon:"火", color:"#c44736", hp:12, attack:4, trait:"攻击凶，过关奖励更高。"},
+  {key:"woodenOx", name:"机关木牛", icon:"木", color:"#5fc59d", hp:13, attack:2, trait:"会修复自身，拖久会麻烦。"},
+  {key:"darkStrategist", name:"乱世军师", icon:"谋", color:"#3f77b6", hp:15, attack:3, trait:"会扰乱军心，提高远征随机性。"},
+  {key:"sima", name:"暗谋司马", icon:"司", color:"#b85b73", hp:22, attack:4, boss:true, trait:"每 5 关出现的 Boss，拥有更强意图。"}
+];
+const expeditionRelics = {
+  warDrum:{name:"赤壁战鼓", icon:"鼓", pos:"0% 0%", text:"+2 答题额外造成 1 伤害。"},
+  tigerSeal:{name:"虎符军令", icon:"符", pos:"50% 0%", text:"每次答题基础伤害 +1。"},
+  greenBag:{name:"青囊医包", icon:"囊", pos:"100% 0%", text:"每过一关恢复 3 点军府耐久。"},
+  strategyMap:{name:"军师沙盘", icon:"图", pos:"0% 100%", text:"新关卡开始时获得 2 粮草。"},
+  fireToken:{name:"火攻令", icon:"火", pos:"50% 100%", text:"每关开局先造成 3 点火攻伤害。"},
+  fortGate:{name:"玄武城门", icon:"门", pos:"100% 100%", text:"敌人攻击伤害 -1。"},
+  crossbow:{name:"连弩阵", icon:"弩", pos:"50% 100%", text:"多人合作时，+2 答题额外造成 1 伤害。"},
+  grainRoute:{name:"屯田粮道", icon:"粮", pos:"0% 100%", text:"每次答题额外获得 1 粮草。"},
+  ironWall:{name:"铁壁阵图", icon:"壁", pos:"100% 100%", text:"每关开始获得 2 护阵。"},
+  bladeForge:{name:"百炼兵匣", icon:"兵", pos:"50% 0%", text:"商店的强弩齐射额外造成 2 伤害。"},
+  moraleBanner:{name:"会盟战旗", icon:"旗", pos:"0% 0%", text:"每关开始士气 +2。"},
+  luckyPouch:{name:"锦囊暗袋", icon:"袋", pos:"100% 0%", text:"选择遗物时额外获得 2 粮草。"},
+  thunderArrow:{name:"霹雳弩机", icon:"弩", pos:"50% 100%", text:"职业奇策额外造成 1 伤害。"},
+  quartermasterLedger:{name:"军需账册", icon:"账", pos:"0% 100%", text:"远征商店价格 -1，最低 1 粮草。"}
+};
+const expeditionRelicOrder = Object.keys(expeditionRelics);
+const expeditionShopItems = {
+  volley:{name:"强弩齐射", icon:"弩", cost:4, pos:"50% 100%", text:"造成 4 点伤害。会触发敌人行动。"},
+  guard:{name:"铁壁列阵", icon:"盾", cost:3, pos:"100% 100%", text:"获得 4 护阵，优先抵挡强攻。"},
+  heal:{name:"急救军帐", icon:"医", cost:3, pos:"100% 0%", text:"恢复 5 点军府耐久。"},
+  inspire:{name:"檄文鼓舞", icon:"令", cost:2, pos:"0% 0%", text:"士气 +4，并刷新敌人意图。"},
+  mystery:{name:"个人锦匣", icon:"匣", cost:2, pos:"100% 0%", text:"给一名没有宝物的玩家补一个神秘宝物。"},
+  scout:{name:"夜探军情", icon:"探", cost:2, pos:"0% 100%", text:"破盾 2，士气 +1，并刷新敌人意图。"},
+  ram:{name:"冲车破门", icon:"车", cost:5, pos:"50% 100%", text:"造成 6 点伤害。会触发敌人行动。"},
+  feast:{name:"犒赏三军", icon:"宴", cost:4, pos:"0% 0%", text:"士气 +2，全员奇策冷却 -1。"}
+};
+const expeditionShopOrder = Object.keys(expeditionShopItems);
+const expeditionTreasures = {
+  thunderCharm:{name:"雷火符", icon:"雷", pos:"50% 100%", text:"造成 3 点伤害。"},
+  bronzeMirror:{name:"护心铜镜", icon:"镜", pos:"100% 100%", text:"获得 3 护阵。"},
+  recoveryPill:{name:"回春丹", icon:"丹", pos:"100% 0%", text:"军府耐久 +4。"},
+  commandScroll:{name:"军机密卷", icon:"卷", pos:"0% 0%", text:"士气 +3，并刷新敌人意图。"},
+  grainPouch:{name:"粮草锦囊", icon:"粮", pos:"0% 100%", text:"团队粮草 +3。"},
+  breakerAwl:{name:"破盾锥", icon:"锥", pos:"50% 0%", text:"破盾 4，并造成 1 点伤害。"}
+};
+const expeditionTreasureOrder = Object.keys(expeditionTreasures);
+const expeditionIntentMeta = {
+  attack:{label:"强攻", icon:"战", text:"敌人将攻击军府耐久。"},
+  shield:{label:"架盾", icon:"盾", text:"敌人将获得护盾。"},
+  raid:{label:"劫粮", icon:"粮", text:"敌人将偷走团队粮草。"},
+  heal:{label:"修复", icon:"修", text:"敌人将恢复生命。"},
+  curse:{label:"扰乱", icon:"乱", text:"敌人将降低士气并拖慢节奏。"}
+};
+
+let players = [];
+let history = [];
+let eventLog = [];
+let expedition = createEmptyExpedition();
+let round = 1;
+let soundOn = true;
+let surpriseChance = 0.35;
+let lastBoosts = [];
+let selectedResponderId = null;
+let allAnswerMode = false;
+let forcedResponderId = null;
+let secretFlashId = null;
+let wheelRotation = 0;
+let isSpinning = false;
+let secretTap = {id:null, count:0, time:0};
+let activeAuxTab = "game";
+let activeStageTab = "score";
+let activeAction = {playerId:null, mode:"build"};
+let audioCtx = null;
+let wheelSignature = "";
+let fireworksRunning = false;
+
+const els = {
+  playerCount: document.getElementById("playerCount"),
+  nameGrid: document.getElementById("nameGrid"),
+  players: document.getElementById("players"),
+  leaderboard: document.getElementById("leaderboard"),
+  eventLog: document.getElementById("eventLog"),
+  leaderName: document.getElementById("leaderName"),
+  topScore: document.getElementById("topScore"),
+  chanceText: document.getElementById("chanceText"),
+  factionMap: document.getElementById("factionMap"),
+  powerList: document.getElementById("powerList"),
+  eventCount: document.getElementById("eventCount"),
+  roundInfo: document.getElementById("roundInfo"),
+  answerWheel: document.getElementById("answerWheel"),
+  wheelLabels: document.getElementById("wheelLabels"),
+  spinBtn: document.getElementById("spinBtn"),
+  selectedResult: document.getElementById("selectedResult"),
+  clearSelectionBtn: document.getElementById("clearSelectionBtn"),
+  quickUndoBtn: document.getElementById("quickUndoBtn"),
+  allPlusOneBtn: document.getElementById("allPlusOneBtn"),
+  allPlusTwoBtn: document.getElementById("allPlusTwoBtn"),
+  allChanceText: document.getElementById("allChanceText"),
+  quickSpinBtn: document.getElementById("quickSpinBtn"),
+  quickSelectedResult: document.getElementById("quickSelectedResult"),
+  quickClearSelectionBtn: document.getElementById("quickClearSelectionBtn"),
+  quickAllPlusOneBtn: document.getElementById("quickAllPlusOneBtn"),
+  quickAllPlusTwoBtn: document.getElementById("quickAllPlusTwoBtn"),
+  expeditionView: document.getElementById("expeditionView"),
+  stageButtons: [...document.querySelectorAll(".stage-tab")],
+  applyNames: document.getElementById("applyNames"),
+  resetBtn: document.getElementById("resetBtn"),
+  undoBtn: document.getElementById("undoBtn"),
+  soundBtn: document.getElementById("soundBtn"),
+  mysteryBtn: document.getElementById("mysteryBtn"),
+  modal: document.getElementById("mysteryModal"),
+  closeModal: document.getElementById("closeModal"),
+  revealBox: document.getElementById("revealBox"),
+  boxResult: document.getElementById("boxResult"),
+  resetModal: document.getElementById("resetModal"),
+  closeResetModal: document.getElementById("closeResetModal"),
+  cancelResetBtn: document.getElementById("cancelResetBtn"),
+  confirmResetBtn: document.getElementById("confirmResetBtn"),
+  actionModal: document.getElementById("actionModal"),
+  closeActionModal: document.getElementById("closeActionModal"),
+  actionTitle: document.getElementById("actionTitle"),
+  actionSummary: document.getElementById("actionSummary"),
+  actionTabs: document.getElementById("actionTabs"),
+  actionOptions: document.getElementById("actionOptions"),
+  toast: document.getElementById("toast"),
+  confetti: document.getElementById("confetti"),
+  easterHint: document.getElementById("easterHint"),
+  tabButtons: [...document.querySelectorAll(".tab-btn")]
+};
+
+function canUseStorage(){
+  if (storageAvailable !== null) return storageAvailable;
+  try{
+    const testKey = `${STORAGE_KEY}.test`;
+    localStorage.setItem(testKey, "1");
+    localStorage.removeItem(testKey);
+    storageAvailable = true;
+  }catch(err){
+    storageAvailable = false;
+  }
+  return storageAvailable;
+}
+
+function buildStatePayload(){
+  return JSON.stringify({
+    schema:4, players, eventLog, expedition, round, soundOn, surpriseChance, selectedResponderId, allAnswerMode, forcedResponderId, wheelRotation
+  });
+}
+
+function warnStorageOnce(){
+  if (storageWarningShown) return;
+  storageWarningShown = true;
+  showToast("浏览器限制了本地保存，本次课堂可继续，关闭后可能不会保留。");
+}
+
+function saveState(){
+  const payload = buildStatePayload();
+  memoryState = payload;
+  if (!canUseStorage()){
+    warnStorageOnce();
+    return;
+  }
+  try{
+    localStorage.setItem(STORAGE_KEY, payload);
+  }catch(err){
+    storageAvailable = false;
+    warnStorageOnce();
+  }
+}
+
+function loadState(){
+  let raw = null;
+  if (canUseStorage()){
+    try{
+      raw = localStorage.getItem(STORAGE_KEY);
+    }catch(err){
+      storageAvailable = false;
+    }
+  }
+  if (!raw && memoryState) raw = memoryState;
+  if (!raw) return false;
+  try{
+    const saved = JSON.parse(raw);
+    players = saved.players || [];
+    eventLog = saved.eventLog || [];
+    expedition = saved.expedition || createEmptyExpedition();
+    round = saved.round || 1;
+    soundOn = saved.soundOn !== false;
+    surpriseChance = saved.surpriseChance || 0.35;
+    selectedResponderId = saved.selectedResponderId || null;
+    allAnswerMode = saved.allAnswerMode || false;
+    forcedResponderId = saved.forcedResponderId || null;
+    wheelRotation = saved.wheelRotation || 0;
+    normalizePlayers();
+    normalizeExpedition();
+    return players.length >= 1;
+  }catch(err){
+    return false;
+  }
+}
+
+function clearSavedState(){
+  memoryState = "";
+  try{
+    localStorage.removeItem(STORAGE_KEY);
+    LEGACY_STORAGE_KEYS.forEach(key => localStorage.removeItem(key));
+  }catch(err){}
+}
+
+function createPlayers(count){
+  players = Array.from({length: count}, (_, index) => ({
+    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + index),
+    name: defaultNames[index],
+    score: 0,
+    coins: 2,
+    color: palettes[index],
+    frozen: false,
+    streak: 0,
+    role: roleOrder[index % roleOrder.length],
+    skillUsed: false,
+    skillCooldown: 0,
+    inventory: [],
+    property: null,
+    holdings: [],
+    tech: {economy:0, building:0, magic:0, military:0},
+    army: {},
+    expeditionTreasure:null,
+    position: 0,
+    shieldTurns: 0,
+    lastAttackTargetId: null
+  }));
+  eventLog = [];
+  history = [];
+  round = 1;
+  surpriseChance = 0.35;
+  expedition = createEmptyExpedition();
+  selectedResponderId = null;
+  allAnswerMode = false;
+  forcedResponderId = null;
+  wheelRotation = 0;
+}
+
+function createEmptyExpedition(){
+  return {
+    active:false,
+    runOver:false,
+    floor:1,
+    defeated:0,
+    teamHp:0,
+    maxTeamHp:0,
+    morale:0,
+    provisions:0,
+    enemy:null,
+    intent:null,
+    shield:0,
+    guard:0,
+    relics:[],
+    rewards:[],
+    shopOffers:[],
+    shopRefreshes:0,
+    shopOpen:false,
+    log:[]
+  };
+}
+
+function syncNameInputs(){
+  normalizePlayers();
+  els.nameGrid.innerHTML = "";
+  players.forEach((player, index) => {
+    const role = roles[player.role] || roles.mage;
+    const row = document.createElement("div");
+    row.className = "name-row";
+    row.innerHTML = `
+      <div class="token" style="background:${player.color}">${index + 1}</div>
+      <div class="role-mini" style="background-image:url('${escapeHtml(role.art || "assets/roles-roster.jpg")}')" aria-hidden="true"><span>${escapeHtml(role.icon)}</span></div>
+      <input aria-label="玩家 ${index + 1} 名字" value="${escapeHtml(player.name)}" maxlength="12">
+      <select class="role-select" aria-label="玩家 ${index + 1} 职业">
+        ${roleOrder.map(roleKey => `<option value="${roleKey}" ${player.role === roleKey ? "selected" : ""}>${roles[roleKey].icon} ${roles[roleKey].name}｜${roles[roleKey].skill}</option>`).join("")}
+      </select>
+    `;
+    els.nameGrid.appendChild(row);
+  });
+  els.playerCount.value = String(players.length);
+}
+
+function refreshRolePreview(select){
+  const row = select.closest(".name-row");
+  if (!row) return;
+  const role = roles[select.value] || roles.mage;
+  const mini = row.querySelector(".role-mini");
+  if (!mini) return;
+  mini.style.backgroundImage = `url('${role.art || "assets/roles-roster.jpg"}')`;
+  const label = mini.querySelector("span");
+  if (label) label.textContent = role.icon;
+}
+
+function normalizePlayers(){
+  players.forEach((player, index) => {
+    if (!player.role || !roles[player.role]) player.role = roleOrder[index % roleOrder.length];
+    if (typeof player.skillCooldown !== "number" || player.skillCooldown > 20) player.skillCooldown = 0;
+    if (typeof player.skillUsed !== "boolean") player.skillUsed = player.skillCooldown > 0;
+    if (typeof player.streak !== "number") player.streak = 0;
+    if (!Array.isArray(player.inventory)) player.inventory = [];
+    if (typeof player.property === "undefined") player.property = null;
+    if (typeof player.coins !== "number") player.coins = Math.max(0, Math.floor((player.score || 0) / 2));
+    if (!Array.isArray(player.holdings)) player.holdings = [];
+    if (player.property && !player.holdings.length){
+      const property = properties.find(item => item.key === player.property);
+      player.holdings.push({
+        id:`legacy-${player.property}`,
+        type:"cottage",
+        name: property ? property.name : "军粮市集",
+        level:1,
+        disabled:0
+      });
+    }
+    if (!player.tech || typeof player.tech !== "object") player.tech = {};
+    techOrder.forEach(key => {
+      if (typeof player.tech[key] !== "number") player.tech[key] = 0;
+      player.tech[key] = Math.max(0, Math.min(3, player.tech[key]));
+    });
+    if (!player.army || typeof player.army !== "object") player.army = {};
+    unitOrder.forEach(key => {
+      if (typeof player.army[key] !== "number") player.army[key] = 0;
+      player.army[key] = Math.max(0, Math.floor(player.army[key]));
+    });
+    if (!player.expeditionTreasure || !expeditionTreasures[player.expeditionTreasure]) player.expeditionTreasure = null;
+    player.holdings.forEach((holding, holdingIndex) => {
+      if (!holding.id) holding.id = `${player.id}-build-${holdingIndex}-${Date.now()}`;
+      if (!buildingCatalog[holding.type]) holding.type = "cottage";
+      if (!holding.name) holding.name = buildingCatalog[holding.type].name;
+      if (typeof holding.level !== "number") holding.level = 1;
+      if (typeof holding.disabled !== "number") holding.disabled = 0;
+      holding.level = Math.max(1, Math.min(buildingCatalog[holding.type].maxLevel, holding.level));
+      holding.disabled = Math.max(0, Math.floor(holding.disabled));
+    });
+    if (typeof player.position !== "number") player.position = 0;
+    player.position = ((Math.floor(player.position) % boardTiles.length) + boardTiles.length) % boardTiles.length;
+    if (typeof player.shieldTurns !== "number") player.shieldTurns = 0;
+    if (typeof player.lastAttackTargetId !== "string") player.lastAttackTargetId = null;
+  });
+}
+
+function normalizeExpedition(){
+  if (!expedition || typeof expedition !== "object") expedition = createEmptyExpedition();
+  if (!Array.isArray(expedition.relics)) expedition.relics = [];
+  if (!Array.isArray(expedition.rewards)) expedition.rewards = [];
+  if (!Array.isArray(expedition.shopOffers)) expedition.shopOffers = [];
+  if (!Array.isArray(expedition.log)) expedition.log = [];
+  if (typeof expedition.floor !== "number") expedition.floor = 1;
+  if (typeof expedition.defeated !== "number") expedition.defeated = 0;
+  if (typeof expedition.teamHp !== "number") expedition.teamHp = 0;
+  if (typeof expedition.maxTeamHp !== "number") expedition.maxTeamHp = 0;
+  if (typeof expedition.morale !== "number") expedition.morale = 0;
+  if (typeof expedition.provisions !== "number") expedition.provisions = 0;
+  if (typeof expedition.shield !== "number") expedition.shield = 0;
+  if (typeof expedition.guard !== "number") expedition.guard = 0;
+  if (typeof expedition.shopRefreshes !== "number") expedition.shopRefreshes = 0;
+  if (typeof expedition.shopOpen !== "boolean") expedition.shopOpen = false;
+  expedition.floor = Math.max(1, Math.floor(expedition.floor));
+  expedition.defeated = Math.max(0, Math.floor(expedition.defeated));
+  expedition.teamHp = Math.max(0, Math.floor(expedition.teamHp));
+  expedition.maxTeamHp = Math.max(0, Math.floor(expedition.maxTeamHp));
+  expedition.morale = Math.max(0, Math.floor(expedition.morale));
+  expedition.provisions = Math.max(0, Math.floor(expedition.provisions));
+  expedition.shield = Math.max(0, Math.floor(expedition.shield));
+  expedition.guard = Math.max(0, Math.floor(expedition.guard));
+  expedition.shopRefreshes = Math.max(0, Math.floor(expedition.shopRefreshes));
+  expedition.shopOffers = expedition.shopOffers.filter(key => expeditionShopItems[key]);
+  if (!expedition.enemy || typeof expedition.enemy !== "object") expedition.enemy = null;
+  if (!expedition.intent || typeof expedition.intent !== "object") expedition.intent = null;
+}
+
+function escapeHtml(value){
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"
+  }[char]));
+}
+
+const factionPositions = [
+  {x:"23%", y:"34%"},
+  {x:"72%", y:"32%"},
+  {x:"48%", y:"58%"},
+  {x:"30%", y:"73%"},
+  {x:"76%", y:"70%"}
+];
+
+function getPlayerPower(player){
+  const buildingPower = player.holdings.reduce((sum, holding) => sum + holding.level * 3, 0);
+  const techPower = techOrder.reduce((sum, key) => sum + getTechLevel(player, key) * 2, 0);
+  const armyPower = unitOrder.reduce((sum, key) => sum + (player.army[key] || 0) * (unitCatalog[key]?.power || 1), 0);
+  return Math.max(1, player.score * 2 + player.coins + buildingPower + techPower + armyPower);
+}
+
+function renderFactionPower(){
+  if (!els.factionMap || !els.powerList) return;
+  const powers = players.map((player, index) => ({
+    player,
+    index,
+    power:getPlayerPower(player)
+  }));
+  const maxPower = Math.max(1, ...powers.map(item => item.power));
+  els.factionMap.innerHTML = powers.map(item => {
+    const pos = factionPositions[item.index % factionPositions.length];
+    const label = escapeHtml(item.player.name.slice(0, 3));
+    return `<div class="map-marker" style="--x:${pos.x};--y:${pos.y};--color:${item.player.color}"><span class="pin">${item.index + 1}</span><span>${label}</span></div>`;
+  }).join("");
+  els.powerList.innerHTML = powers
+    .sort((a,b) => b.power - a.power)
+    .map(item => {
+      const percent = Math.max(8, Math.round(item.power / maxPower * 100));
+      return `<div class="power-row" style="--color:${item.player.color};--power:${percent}%"><span>${escapeHtml(item.player.name)}</span><small>${item.power}</small><div class="power-track"><div class="power-fill"></div></div></div>`;
+    }).join("");
+}
+
+function getTechLevel(player, key){
+  return Math.max(0, Math.min(3, player.tech?.[key] || 0));
+}
+
+function getMaxBuildings(player){
+  return 3 + getTechLevel(player, "building");
+}
+
+function getBuildCost(player, type){
+  const catalog = buildingCatalog[type];
+  const discount = getTechLevel(player, "building");
+  return Math.max(2, catalog.cost - discount);
+}
+
+function getUpgradeCost(player, holding){
+  const catalog = buildingCatalog[holding.type] || buildingCatalog.cottage;
+  const discount = getTechLevel(player, "building");
+  return Math.max(2, catalog.cost + holding.level * 2 - discount);
+}
+
+function getTechCost(player, key){
+  const nextLevel = getTechLevel(player, key) + 1;
+  return 3 + nextLevel * 3;
+}
+
+function getUnitCost(player, type){
+  const catalog = unitCatalog[type];
+  const discount = getTechLevel(player, "military");
+  const barracksBonus = hasBuildingType(player, "barracks") ? 1 : 0;
+  return Math.max(2, catalog.cost - discount - barracksBonus);
+}
+
+function hasBuildingType(player, type){
+  return player.holdings.some(holding => holding.type === type);
+}
+
+function getActiveHoldings(player){
+  return player.holdings.filter(holding => (holding.disabled || 0) <= 0);
+}
+
+function getBuildingRent(owner, holding){
+  const catalog = buildingCatalog[holding.type] || buildingCatalog.cottage;
+  return Math.max(0, catalog.rent * holding.level + (owner.role === "captain" ? 1 : 0) + Math.floor(getTechLevel(owner, "building") / 2));
+}
+
+function getBuildingIncome(owner, holding){
+  const catalog = buildingCatalog[holding.type] || buildingCatalog.cottage;
+  return Math.max(0, catalog.income * holding.level);
+}
+
+function getMagicBonus(player){
+  const towerBonus = player.holdings.filter(holding => holding.type === "tower" && (holding.disabled || 0) <= 0)
+    .reduce((sum, holding) => sum + holding.level * 0.03, 0);
+  return towerBonus + getTechLevel(player, "magic") * 0.04;
+}
+
+function getDefense(player){
+  const wallDefense = player.holdings.filter(holding => holding.type === "wall" && (holding.disabled || 0) <= 0)
+    .reduce((sum, holding) => sum + holding.level, 0);
+  return wallDefense + Math.max(0, player.shieldTurns || 0);
+}
+
+function getArmyTotal(player){
+  return unitOrder.reduce((sum, key) => sum + (player.army[key] || 0), 0);
+}
+
+function getBestAttackUnit(player){
+  return [...unitOrder]
+    .reverse()
+    .find(key => (player.army[key] || 0) > 0 && getTechLevel(player, "military") >= unitCatalog[key].tech);
+}
+
+function formatBuildings(player){
+  if (!player.holdings.length) return `建筑 0/${getMaxBuildings(player)}`;
+  const counts = {};
+  player.holdings.forEach(holding => {
+    const catalog = buildingCatalog[holding.type] || buildingCatalog.cottage;
+    const name = catalog.icon;
+    counts[name] = (counts[name] || 0) + 1;
+  });
+  const text = Object.entries(counts).map(([name, count]) => `${name}x${count}`).join(" / ");
+  return `建筑 ${player.holdings.length}/${getMaxBuildings(player)}：${text}`;
+}
+
+function formatTech(player){
+  const text = techOrder.map(key => `${techCatalog[key].icon}${getTechLevel(player, key)}`).join(" ");
+  return `科技 ${text}`;
+}
+
+function formatArmy(player){
+  const owned = unitOrder.filter(key => player.army[key] > 0).map(key => `${unitCatalog[key].icon}${player.army[key]}`);
+  return owned.length ? `兵力 ${owned.join(" ")}` : "兵力 暂无";
+}
+
+function renderAssetIcon(src, label, count){
+  const badge = count ? `<small>${escapeHtml(count)}</small>` : "";
+  return `<span class="asset-icon" style="background-image:url('${escapeHtml(src)}')" title="${escapeHtml(label)}">${badge}</span>`;
+}
+
+function renderPlayerAssetPanel(player){
+  const buildingIcons = player.holdings.length
+    ? player.holdings.slice(0, 6).map(holding => {
+        const catalog = buildingCatalog[holding.type] || buildingCatalog.cottage;
+        return renderAssetIcon(catalog.art, `${catalog.name} Lv.${holding.level}`, holding.level);
+      }).join("")
+    : `<span class="asset-empty">暂无建筑</span>`;
+  const techIcons = techOrder.map(key => {
+    const tech = techCatalog[key];
+    return renderAssetIcon(tech.art, `${tech.name} Lv.${getTechLevel(player, key)}`, getTechLevel(player, key));
+  }).join("");
+  const armyIcons = unitOrder.filter(key => player.army[key] > 0).map(key => {
+    const unit = unitCatalog[key];
+    return renderAssetIcon(unit.art, `${unit.name} x${player.army[key]}`, player.army[key]);
+  }).join("") || `<span class="asset-empty">暂无兵力</span>`;
+  const cardIcons = player.inventory.length
+    ? player.inventory.slice(0, 5).map(cardKey => {
+        const card = lootCards[cardKey] || lootCards.starKey;
+        return renderAssetIcon(card.art, card.name, "");
+      }).join("")
+    : `<span class="asset-empty">暂无锦囊</span>`;
+  return `
+    <div class="asset-group"><span class="asset-label">建筑</span><div class="icon-row">${buildingIcons}</div></div>
+    <div class="asset-group"><span class="asset-label">科技</span><div class="icon-row">${techIcons}</div></div>
+    <div class="asset-group"><span class="asset-label">兵力</span><div class="icon-row">${armyIcons}</div></div>
+    <div class="asset-group"><span class="asset-label">锦囊</span><div class="icon-row">${cardIcons}</div></div>
+  `;
+}
+
+function currentTile(player){
+  return boardTiles[player.position || 0] || boardTiles[0];
+}
+
+function renderEventArt(event){
+  if (!event.art) return "";
+  const stickerClass = event.art.src.includes("sticker") ? " sticker" : "";
+  return `<img class="result-art${stickerClass}" src="${escapeHtml(event.art.src)}" alt="${escapeHtml(event.art.alt)}">`;
+}
+
+function setAuxTab(tab){
+  activeAuxTab = tab;
+  document.body.dataset.auxTab = tab;
+  els.tabButtons.forEach(button => {
+    button.classList.toggle("active", button.dataset.tab === tab);
+  });
+}
+
+function setStageTab(tab){
+  activeStageTab = tab;
+  document.body.dataset.stageTab = tab;
+  els.stageButtons.forEach(button => {
+    button.classList.toggle("active", button.dataset.stageTab === tab);
+  });
+  if (tab === "expedition") renderExpedition();
+}
+
+function snapshot(){
+  history.push(JSON.stringify({players, eventLog, expedition, round, surpriseChance, lastBoosts, selectedResponderId, allAnswerMode, forcedResponderId, wheelRotation}));
+  if (history.length > 25) history.shift();
+}
+
+function restoreSnapshot(){
+  const raw = history.pop();
+  if (!raw){
+    showToast("还没有可以撤回的操作。");
+    return;
+  }
+  const state = JSON.parse(raw);
+  players = state.players;
+  eventLog = state.eventLog;
+  expedition = state.expedition || createEmptyExpedition();
+  round = state.round;
+  surpriseChance = state.surpriseChance;
+  lastBoosts = state.lastBoosts || [];
+  selectedResponderId = state.selectedResponderId || null;
+  allAnswerMode = state.allAnswerMode || false;
+  forcedResponderId = state.forcedResponderId || null;
+  wheelRotation = state.wheelRotation || 0;
+  secretFlashId = null;
+  secretTap = {id:null, count:0, time:0};
+  normalizeExpedition();
+  render();
+  saveState();
+  showToast("已撤回上一步。");
+}
+
+function discardSnapshot(){
+  history.pop();
+}
+
+function addScore(id, amount){
+  const player = players.find(item => item.id === id);
+  if (!player) return;
+  if (player.frozen){
+    snapshot();
+    player.frozen = false;
+    pushEvent(`${player.name} 刚刚解除暂停，这一轮先回到舞台中央。`);
+    playTone("soft");
+    render();
+    saveState();
+    return;
+  }
+  snapshot();
+  const finalAmount = applyScoreModifiers(player, amount);
+  player.score += finalAmount;
+  const earnedCoins = grantAnswerCoins(player, amount);
+  player.streak = amount === 2 ? player.streak + 1 : 0;
+  lastBoosts.push({id, amount});
+  if (lastBoosts.length > 5) lastBoosts.shift();
+  pushEvent(`${player.name} 获得 +${finalAmount} 分和 ${earnedCoins} 军粮，军旗升起。`);
+  playTone(amount === 2 ? "big" : "score");
+  sparkleCard(id);
+  burstConfetti(amount === 2 ? 18 : 10);
+  applyRolePassiveOnScore(player, amount);
+  if (player.streak >= 3){
+    player.streak = 0;
+    player.score += 2;
+    pushEvent(`${player.name} 连续三次 +2，触发卧龙暴击，额外 +2。`);
+    launchFireworks(4);
+    playTone("fanfare");
+  }
+  maybeDropChest(player, amount);
+  walkMonopolyBoard(player, amount);
+  maybeSurprise(player);
+  maybeCometEvent(player);
+  advanceRound();
+  render();
+  saveState();
+}
+
+function applyScoreModifiers(player, amount){
+  let finalAmount = amount;
+  const couponIndex = player.inventory.indexOf("doubleCoupon");
+  if (couponIndex >= 0){
+    player.inventory.splice(couponIndex, 1);
+    finalAmount += 1;
+    pushEvent(`${player.name} 自动使用 <strong>${lootCards.doubleCoupon.name}</strong>，本次额外 +1。`);
+  }
+  return finalAmount;
+}
+
+function grantAnswerCoins(player, amount){
+  const earned = amount + getTechLevel(player, "economy");
+  player.coins += earned;
+  return earned;
+}
+
+function applyRolePassiveOnScore(player, amount){
+  if (player.role === "mage" && amount === 2 && Math.random() < 0.35){
+    player.score += 1;
+    pushEvent(`<strong>卧龙军师被动</strong>｜${player.name} 触发谋略连击，额外 +1。`);
+    launchFireworks(1);
+  }
+  if (player.role === "director" && amount === 2 && Math.random() < 0.25){
+    addLootCard(player, "fireworkTicket");
+    pushEvent(`<strong>绯羽策士被动</strong>｜${player.name} 获得一张檄文令卡。`);
+  }
+  if (player.role === "vanguard" && amount === 2 && Math.random() < 0.3){
+    player.coins += 1;
+    pushEvent(`<strong>白袍先锋被动</strong>｜${player.name} 急行军得势，额外获得 1 军粮。`);
+  }
+  if (player.role === "detective"){
+    surpriseChance = Math.min(0.82, surpriseChance + 0.05);
+  }
+}
+
+function maybeDropChest(player, amount){
+  let chance = 0.2 + (amount === 2 ? 0.08 : 0) + getMagicBonus(player);
+  if (player.role === "foodie") chance += 0.14;
+  if (Math.random() >= chance) return;
+  const cardKey = drawLootCard(player);
+  addLootCard(player, cardKey);
+  pushEvent(`<strong>锦囊掉落</strong>｜${player.name} 获得 ${lootCards[cardKey].name}。`);
+  showToast(`${player.name} 掉出锦囊：${lootCards[cardKey].name}`);
+  burstConfetti(22);
+  playTone("mystery");
+}
+
+function drawLootCard(player){
+  const pool = ["starKey","shield","doubleCoupon","fireworkTicket","map"];
+  if (player.role === "captain") pool.push("shield");
+  if (player.role === "vanguard") pool.push("doubleCoupon", "starKey");
+  if (player.role === "foodie") pool.push("doubleCoupon", "map");
+  if (player.role === "director") pool.push("fireworkTicket");
+  if (player.role === "detective") pool.push("map");
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function addLootCard(player, cardKey){
+  if (player.inventory.length >= 3) player.inventory.shift();
+  player.inventory.push(cardKey);
+}
+
+function maybeRentVisit(visitor){
+  const owned = players.filter(player => player.id !== visitor.id && getActiveHoldings(player).some(holding => getBuildingRent(player, holding) > 0));
+  if (!owned.length || Math.random() >= 0.26) return;
+  const owner = owned[Math.floor(Math.random() * owned.length)];
+  const holding = getActiveHoldings(owner).filter(item => getBuildingRent(owner, item) > 0)[0];
+  const property = buildingCatalog[holding.type] || buildingCatalog.cottage;
+  let rent = getBuildingRent(owner, holding);
+  const shieldIndex = visitor.inventory.indexOf("shield");
+  if (shieldIndex >= 0){
+    visitor.inventory.splice(shieldIndex, 1);
+    pushEvent(`<strong>路过${property.name}</strong>｜${visitor.name} 用藤甲护符挡下租金。`);
+    showToast(`${visitor.name} 用护盾挡租金`);
+    return;
+  }
+  const paid = Math.min(rent, Math.max(0, visitor.coins));
+  visitor.coins -= paid;
+  owner.coins += paid;
+  pushEvent(`<strong>收租</strong>｜${visitor.name} 路过 ${owner.name} 的 ${property.name}，支付 ${paid} 军粮租金。`);
+  showToast(`${owner.name} 收到 ${property.name} 租金 +${paid}`);
+}
+
+function walkMonopolyBoard(player, amount){
+  const steps = amount + 1 + Math.floor(Math.random() * 2);
+  const previous = player.position || 0;
+  player.position = (previous + steps) % boardTiles.length;
+  if (previous + steps >= boardTiles.length){
+    player.coins += 2 + getTechLevel(player, "economy");
+    pushEvent(`<strong>经过起点</strong>｜${player.name} 经过军府起点，领取通行军粮。`);
+  }
+  const tile = currentTile(player);
+  if (tile.key === "market"){
+    const gain = 1 + Math.floor(getTechLevel(player, "economy") / 2);
+    player.coins += gain;
+    pushEvent(`<strong>${tile.name}</strong>｜${player.name} 停在军粮格，获得 ${gain} 军粮。`);
+  }else if (tile.key === "chest"){
+    const cardKey = drawLootCard(player);
+    addLootCard(player, cardKey);
+    pushEvent(`<strong>${tile.name}</strong>｜${player.name} 抽到 ${lootCards[cardKey].name}。`);
+  }else if (tile.key === "tech"){
+    surpriseChance = Math.min(0.86, surpriseChance + 0.04 + getMagicBonus(player) / 2);
+    pushEvent(`<strong>${tile.name}</strong>｜${player.name} 获得科技灵感，下一次奇谋概率提高。`);
+  }else if (tile.key === "empty"){
+    pushEvent(`<strong>${tile.name}</strong>｜${player.name} 发现空地，可以考虑点击“建造”。`);
+  }else if (tile.key === "harbor"){
+    player.coins += 1;
+    player.position = (player.position + 2) % boardTiles.length;
+    pushEvent(`<strong>${tile.name}</strong>｜${player.name} 搭战船前进到 ${currentTile(player).name}，并获得 1 军粮。`);
+  }else if (tile.key === "fort"){
+    player.shieldTurns = Math.max(player.shieldTurns || 0, 1);
+    pushEvent(`<strong>${tile.name}</strong>｜${player.name} 获得 1 回合护城保护。`);
+  }else if (tile.key === "rent"){
+    payBoardRent(player, tile.name);
+  }
+}
+
+function payBoardRent(visitor, tileName){
+  const landlords = players.filter(player => player.id !== visitor.id && getActiveHoldings(player).some(holding => getBuildingRent(player, holding) > 0));
+  if (!landlords.length){
+    visitor.coins += 1;
+    pushEvent(`<strong>${tileName}</strong>｜这里还没有房东，${visitor.name} 捡到 1 军粮。`);
+    return;
+  }
+  const owner = landlords[Math.floor(Math.random() * landlords.length)];
+  const rentable = getActiveHoldings(owner).filter(holding => getBuildingRent(owner, holding) > 0);
+  const holding = rentable[Math.floor(Math.random() * rentable.length)];
+  const catalog = buildingCatalog[holding.type] || buildingCatalog.cottage;
+  let rent = getBuildingRent(owner, holding);
+  const shieldIndex = visitor.inventory.indexOf("shield");
+  if (shieldIndex >= 0){
+    visitor.inventory.splice(shieldIndex, 1);
+    pushEvent(`<strong>${tileName}</strong>｜${visitor.name} 用藤甲护符挡下 ${catalog.name} 的租金。`);
+    return;
+  }
+  const paid = Math.min(rent, Math.max(0, visitor.coins));
+  visitor.coins -= paid;
+  owner.coins += paid;
+  pushEvent(`<strong>${tileName}</strong>｜${visitor.name} 路过 ${owner.name} 的 Lv.${holding.level} ${catalog.name}，支付 ${paid} 军粮。`);
+}
+
+function maybeCometEvent(player){
+  if (Math.random() >= 0.07) return;
+  const cardKey = drawLootCard(player);
+  addLootCard(player, cardKey);
+  surpriseChance = Math.min(0.86, surpriseChance + 0.08);
+  pushEvent(`<strong>天机星动</strong>｜赤壁军帐传来密报，${player.name} 获得 ${lootCards[cardKey].name}，奇谋概率小幅提高。`);
+  showToast(`天机星动：${player.name} 获得 ${lootCards[cardKey].name}`);
+  launchFireworks(2);
+}
+
+function advanceRound(){
+  round += 1;
+  players.forEach(player => {
+    if (player.skillCooldown > 0 && player.skillCooldown < 99) player.skillCooldown -= 1;
+    player.skillUsed = player.skillCooldown > 0;
+    player.shieldTurns = Math.max(0, (player.shieldTurns || 0) - 1);
+    player.holdings.forEach(holding => {
+      holding.disabled = Math.max(0, (holding.disabled || 0) - 1);
+    });
+  });
+  if ((round - 1) % Math.max(2, players.length) === 0) settleBuildingIncome();
+}
+
+function settleBuildingIncome(){
+  const gains = [];
+  players.forEach(player => {
+    const income = getActiveHoldings(player).reduce((sum, holding) => sum + getBuildingIncome(player, holding), 0);
+    const bonus = income > 0 ? Math.floor(getTechLevel(player, "economy") / 2) : 0;
+    const total = income + bonus;
+    if (total > 0){
+      player.coins += total;
+      gains.push(`${player.name} +${total}`);
+    }
+  });
+  if (gains.length){
+    pushEvent(`<strong>屯田收入</strong>｜${gains.join("，")} 军粮。`);
+  }
+}
+
+function maybeSurprise(triggerPlayer){
+  const behind = getBehindPlayers();
+  const isComeback = behind.some(item => item.id === triggerPlayer.id);
+  const chance = Math.min(0.72, surpriseChance + (isComeback ? 0.18 : 0) + getMagicBonus(triggerPlayer));
+  if (Math.random() < chance){
+    const event = pickMystery(triggerPlayer);
+    applyMystery(event);
+    surpriseChance = 0.28;
+  }else{
+    surpriseChance = Math.min(0.68, surpriseChance + 0.06);
+  }
+}
+
+function getBehindPlayers(){
+  const max = Math.max(...players.map(player => player.score));
+  return players.filter(player => player.score < max);
+}
+
+function pickMystery(triggerPlayer){
+  const target = triggerPlayer || players[Math.floor(Math.random() * players.length)];
+  const others = players.filter(player => player.id !== target.id);
+  const randomOther = others[Math.floor(Math.random() * others.length)] || target;
+  const lowScore = [...players].sort((a,b) => a.score - b.score)[0];
+  const leader = [...players].sort((a,b) => b.score - a.score)[0];
+  const events = [
+    {
+      rarityKey:"common",
+      title:"军旗顺风",
+      text:`${target.name} 抓住顺风战机，额外 +1。`,
+      run:() => target.score += 1
+    },
+    {
+      rarityKey:"common",
+      title:"粮草补给",
+      text:`${target.name} 及时补足粮草，额外 +1。`,
+      run:() => target.score += 1
+    },
+    {
+      rarityKey:"common",
+      title:"锦囊小计",
+      text:`翻到一张锦囊小计，${target.name} 获得清醒能量 +1。`,
+      art:memoryAssets.tacticsManual,
+      run:() => target.score += 1
+    },
+    {
+      rarityKey:"common",
+      title:"擂鼓助威",
+      text:`全班为 ${target.name} 擂鼓助威，${target.name} +1。`,
+      run:() => target.score += 1
+    },
+    {
+      rarityKey:"rare",
+      title:"赤壁同盟船",
+      text:`全员同乘赤壁战船，每位玩家 +1。`,
+      run:() => players.forEach(player => player.score += 1)
+    },
+    {
+      rarityKey:"rare",
+      title:"屯田急援",
+      text:`当前最低分的 ${lowScore.name} 获得屯田急援，+2 追赶。`,
+      run:() => lowScore.score += 2
+    },
+    {
+      rarityKey:"rare",
+      title:"粮草车抵达",
+      text:`粮草车及时抵达，${target.name} 士气提升 +2。`,
+      art:memoryAssets.commandTent,
+      run:() => target.score += 2
+    },
+    {
+      rarityKey:"rare",
+      title:"奇袭小道",
+      text:`${target.name} 找到奇袭小道，立即 +2。`,
+      run:() => target.score += 2
+    },
+    {
+      rarityKey:"rare",
+      title:"军师献策",
+      text:`军师献上一条妙计，${target.name} 获得 +2。`,
+      art:memoryAssets.strategyPouch,
+      run:() => target.score += 2
+    },
+    {
+      rarityKey:"rare",
+      title:"沙盘灵感",
+      text:`沙盘推演带来灵感，${target.name} +1，下一次奇谋概率提高。`,
+      art:memoryAssets.sandTableSpark,
+      run:() => {
+        target.score += 1;
+        surpriseChance = Math.min(0.78, surpriseChance + 0.12);
+      }
+    },
+    {
+      rarityKey:"epic",
+      title:"借东风变阵",
+      text:`${target.name} 和 ${randomOther.name} 交换分数，排行榜重新洗牌。`,
+      run:() => {
+        const score = target.score;
+        target.score = randomOther.score;
+        randomOther.score = score;
+      }
+    },
+    {
+      rarityKey:"epic",
+      title:"破釜沉舟",
+      text:`${lowScore.name} 破釜沉舟，直接追到倒数第二名附近。`,
+      run:() => {
+        const sorted = [...players].sort((a,b) => a.score - b.score);
+        const nextScore = sorted[1] ? sorted[1].score : lowScore.score;
+        lowScore.score = Math.max(lowScore.score + 1, nextScore);
+      }
+    },
+    {
+      rarityKey:"epic",
+      title:"粮道受阻",
+      text:`${leader.name} 的粮道暂时受阻，暂停一回合，给大家追赶机会。`,
+      run:() => leader.frozen = true
+    },
+    {
+      rarityKey:"epic",
+      title:"援军入营",
+      text:`援军入营，最低分的 ${lowScore.name} +3。`,
+      art:memoryAssets.reinforcementCamp,
+      run:() => lowScore.score += 3
+    },
+    {
+      rarityKey:"epic",
+      title:"军粮战术盘",
+      text:`军粮战术盘展开，最低分的 ${lowScore.name} +2，${target.name} +1。`,
+      art:memoryAssets.grainBoard,
+      run:() => {
+        lowScore.score += 2;
+        target.score += 1;
+      }
+    },
+    {
+      rarityKey:"epic",
+      title:"急行军令",
+      text:`急行军令送达，${target.name} +2，并清除自己的暂停状态。`,
+      art:memoryAssets.commandToken,
+      run:() => {
+        target.score += 2;
+        target.frozen = false;
+      }
+    },
+    {
+      rarityKey:"legend",
+      title:"赤壁战鼓",
+      text:`${target.name} 的答案振奋全营，额外 +3。`,
+      run:() => target.score += 3
+    },
+    {
+      rarityKey:"legend",
+      title:"同盟会师",
+      text:`${target.name} 促成同盟会师，全员 +1，自己再 +1。`,
+      run:() => {
+        players.forEach(player => player.score += 1);
+        target.score += 1;
+      }
+    },
+    {
+      rarityKey:"legend",
+      title:"天机密卷",
+      text:`天机密卷现世，所有玩家 +1，${target.name} 再 +2。`,
+      art:memoryAssets.rolesRoster,
+      run:() => {
+        players.forEach(player => player.score += 1);
+        target.score += 2;
+      }
+    },
+    {
+      rarityKey:"legend",
+      title:"七星坛妙计",
+      text:`七星坛妙计发动，${target.name} +3，并解除暂停状态。`,
+      art:memoryAssets.altarMap,
+      run:() => {
+        target.score += 3;
+        target.frozen = false;
+      }
+    },
+    {
+      rarityKey:"legend",
+      title:"连环计暴击",
+      text:`连环计触发暴击，${target.name} +2，最低分的 ${lowScore.name} +2。`,
+      art:memoryAssets.battleClose,
+      run:() => {
+        target.score += 2;
+        lowScore.score += 2;
+      }
+    },
+    {
+      rarityKey:"mythic",
+      title:"卧龙出山",
+      text:`全场谋略爆发，最低分玩家 +4，其余玩家 +1。`,
+      run:() => {
+        players.forEach(player => player.score += player.id === lowScore.id ? 4 : 1);
+      }
+    },
+    {
+      rarityKey:"mythic",
+      title:"天命虎符",
+      text:`${target.name} 找到天命虎符，分数翻倍后再 +1。`,
+      art:memoryAssets.tigerSeal,
+      run:() => target.score = target.score * 2 + 1
+    },
+    {
+      rarityKey:"mythic",
+      title:"三军会盟",
+      text:`三军会盟，全员 +2，最低分玩家额外 +2。`,
+      art:memoryAssets.endgameMap,
+      run:() => {
+        players.forEach(player => player.score += 2);
+        lowScore.score += 2;
+      }
+    }
+  ];
+  return pickWeightedEvent(events);
+}
+
+function pickWeightedEvent(events){
+  const weighted = events.map(event => ({
+    ...event,
+    rarity: rarityMeta[event.rarityKey] || rarityMeta.common
+  }));
+  const total = weighted.reduce((sum, event) => sum + event.rarity.weight, 0);
+  let roll = Math.random() * total;
+  for (const event of weighted){
+    roll -= event.rarity.weight;
+    if (roll <= 0) return event;
+  }
+  return weighted[0];
+}
+
+function applyMystery(event){
+  event.run();
+  pushEvent(`<strong>${event.title}</strong>｜${event.rarity.label}：${event.text}`);
+  showToast(`${event.title}：${event.text.replace(/<[^>]*>/g, "")}`);
+  launchFireworks(event.rarity.fire || 2);
+  if (event.rarity.key === "legend" || event.rarity.key === "mythic"){
+    players.filter(player => player.role === "director").forEach(player => {
+      if (Math.random() < 0.5){
+        addLootCard(player, "fireworkTicket");
+        pushEvent(`<strong>绯羽策士被动</strong>｜${player.name} 从大型战鼓中获得一张檄文令卡。`);
+      }
+    });
+  }
+  burstConfetti(event.rarity.key === "mythic" ? 70 : event.rarity.key === "legend" ? 52 : 30);
+  playTone(event.rarity.key === "mythic" || event.rarity.key === "legend" ? "fanfare" : "mystery");
+}
+
+function pushEvent(message){
+  eventLog.unshift({message, time: new Date().toLocaleTimeString("zh-CN", {hour:"2-digit", minute:"2-digit"})});
+  if (eventLog.length > 32) eventLog.pop();
+}
+
+function render(){
+  normalizePlayers();
+  normalizeExpedition();
+  if (selectedResponderId && !players.some(player => player.id === selectedResponderId)){
+    selectedResponderId = null;
+  }
+  if (forcedResponderId && !players.some(player => player.id === forcedResponderId)){
+    forcedResponderId = null;
+  }
+  const sorted = [...players].sort((a,b) => b.score - a.score);
+  const leader = sorted[0];
+  const topScore = leader ? leader.score : 0;
+  els.leaderName.textContent = leader ? leader.name : "准备中";
+  els.topScore.textContent = String(topScore);
+  els.chanceText.textContent = `${Math.round(surpriseChance * 100)}%`;
+  els.eventCount.textContent = `${eventLog.length} 件事`;
+  els.roundInfo.textContent = `第 ${round} 回合`;
+  els.soundBtn.textContent = `声音：${soundOn ? "开" : "关"}`;
+  els.easterHint.textContent = hkHints[round % hkHints.length];
+  const selected = players.find(player => player.id === selectedResponderId);
+  els.selectedResult.innerHTML = allAnswerMode
+    ? `全员抢答！<span class="answer-all">所有玩家都有机会答题。</span>`
+    : selected
+      ? `本题答题者：<span style="color:${selected.color}">${escapeHtml(selected.name)}</span>`
+      : "还没有选中答题者。";
+  els.quickSelectedResult.innerHTML = els.selectedResult.innerHTML;
+  els.spinBtn.disabled = isSpinning;
+  els.quickSpinBtn.disabled = isSpinning;
+  els.spinBtn.textContent = isSpinning ? "点将中..." : "随机点名：选答题者";
+  els.quickSpinBtn.textContent = isSpinning ? "随机中..." : "随机点名";
+  if (activeStageTab === "wheel") renderWheelLabels();
+
+  const playerFragment = document.createDocumentFragment();
+  players.forEach(player => {
+    const rank = sorted.findIndex(item => item.id === player.id) + 1;
+    const role = roles[player.role] || roles.mage;
+    const skillText = player.skillCooldown > 0
+      ? `冷却 ${player.skillCooldown}`
+      : role.skill;
+    const canBuildNew = player.holdings.length < getMaxBuildings(player) && buildingOrder.some(type => player.coins >= getBuildCost(player, type));
+    const canUpgradeBuilding = player.holdings.some(holding => {
+      const catalog = buildingCatalog[holding.type] || buildingCatalog.cottage;
+      return holding.level < catalog.maxLevel && player.coins >= getUpgradeCost(player, holding);
+    });
+    const canOpenBuildPanel = canBuildNew || canUpgradeBuilding;
+    const canUpgradeTech = techOrder.some(key => getTechLevel(player, key) < 3 && player.coins >= getTechCost(player, key));
+    const recruitOptions = getActionOptions(player, "recruit");
+    const canRecruit = recruitOptions.some(option => !option.disabled);
+    const canAttack = !!getBestAttackUnit(player) && players.some(target => target.id !== player.id && canAttackTarget(player, target));
+    const card = document.createElement("article");
+    card.className = `player-card ${rank === 1 ? "leader" : ""} ${player.frozen ? "frozen" : ""} ${selectedResponderId === player.id ? "selected" : ""} ${allAnswerMode ? "all-answer" : ""} ${secretFlashId === player.id ? "secret-flash" : ""}`;
+    card.style.setProperty("--player-color", player.color);
+    card.dataset.playerId = player.id;
+    card.innerHTML = `
+      <div class="player-head">
+        <div style="display:flex;align-items:center;gap:8px;min-width:0">
+          <div class="badge">${rank}</div>
+          <h3 class="player-name" data-secret-id="${player.id}">${escapeHtml(player.name)}</h3>
+        </div>
+        <div class="rank">第 ${rank}</div>
+      </div>
+      <div class="role-line">
+        <div class="role-pill" title="${escapeHtml(role.hint)}"><span class="role-pill-art" style="background-image:url('${escapeHtml(role.art || "assets/roles-roster.jpg")}')"></span><span>${escapeHtml(role.icon)} ${escapeHtml(role.name)}</span></div>
+        <div class="skill-state">${escapeHtml(skillText)}</div>
+      </div>
+      <div class="role-art" style="background-image:url('${escapeHtml(role.art || "assets/roles-roster.jpg")}')" aria-hidden="true"></div>
+      <div class="resource-strip">
+        <span class="mini-tag">军粮：${player.coins}</span>
+        <span class="mini-tag">国力：${getPlayerPower(player)}</span>
+        <span class="mini-tag">位置：${escapeHtml(currentTile(player).name)}</span>
+      </div>
+      <div class="asset-dashboard">${renderPlayerAssetPanel(player)}</div>
+      <div>
+        <div class="score">${player.score}</div>
+        <div class="score-label">课堂积分</div>
+      </div>
+      <div class="score-actions">
+        <button type="button" data-id="${player.id}" data-score="1">+1</button>
+        <button type="button" data-id="${player.id}" data-score="2">+2</button>
+        <button class="skill-btn" type="button" data-skill-id="${player.id}" ${player.skillCooldown > 0 ? "disabled" : ""}>技能</button>
+        <button class="build-btn" type="button" data-action-id="${player.id}" data-action-mode="build" ${canOpenBuildPanel ? "" : "disabled"}>建造</button>
+        <button class="tech-btn" type="button" data-action-id="${player.id}" data-action-mode="tech" ${canUpgradeTech ? "" : "disabled"}>科技</button>
+        <button class="recruit-btn" type="button" data-action-id="${player.id}" data-action-mode="recruit" ${canRecruit ? "" : "disabled"}>招兵</button>
+        <button class="attack-btn" type="button" data-action-id="${player.id}" data-action-mode="attack" ${canAttack ? "" : "disabled"}>攻击</button>
+        <button class="card-btn" type="button" data-card-id="${player.id}" ${hasUsableCard(player) ? "" : "disabled"}>锦囊牌</button>
+      </div>
+    `;
+    playerFragment.appendChild(card);
+  });
+  els.players.replaceChildren(playerFragment);
+
+  els.leaderboard.innerHTML = "";
+  sorted.forEach((player, index) => {
+    const row = document.createElement("div");
+    row.className = "leader-row";
+    row.innerHTML = `<span>${index + 1}</span><span>${escapeHtml(player.name)} · ${player.coins}军粮</span><strong>${player.score}</strong>`;
+    els.leaderboard.appendChild(row);
+  });
+  renderFactionPower();
+
+  els.eventLog.innerHTML = eventLog.length ? "" : `<div class="event">还没有事件。第一位加分的玩家会点亮军府。</div>`;
+  eventLog.slice(0, 30).forEach(event => {
+    const item = document.createElement("div");
+    item.className = "event";
+    item.innerHTML = `<strong>${event.time}</strong> ${event.message}`;
+    els.eventLog.appendChild(item);
+  });
+  renderExpedition();
+}
+
+function getRelicLevel(key){
+  return expedition.relics.filter(item => item === key).length;
+}
+
+function getRelicIconStyle(key){
+  const relic = expeditionRelics[key] || expeditionRelics.warDrum;
+  return getExpeditionIconStyle(relic.pos);
+}
+
+function getExpeditionIconStyle(pos){
+  return `--icon-pos:${pos || "0% 0%"}`;
+}
+
+function drawUniqueKeys(keys, count){
+  const pool = [...keys];
+  const picks = [];
+  while (picks.length < count && pool.length){
+    const index = Math.floor(Math.random() * pool.length);
+    picks.push(pool.splice(index, 1)[0]);
+  }
+  return picks;
+}
+
+function drawExpeditionShopOffers(){
+  return drawUniqueKeys(expeditionShopOrder, Math.min(4, expeditionShopOrder.length));
+}
+
+function drawExpeditionTreasure(){
+  return expeditionTreasureOrder[Math.floor(Math.random() * expeditionTreasureOrder.length)];
+}
+
+function grantRandomExpeditionTreasure(){
+  const candidates = players.filter(player => !player.expeditionTreasure);
+  const target = candidates[Math.floor(Math.random() * candidates.length)];
+  if (!target) return null;
+  target.expeditionTreasure = drawExpeditionTreasure();
+  return target;
+}
+
+function pushExpeditionLog(message){
+  if (!Array.isArray(expedition.log)) expedition.log = [];
+  expedition.log.unshift({message, time:new Date().toLocaleTimeString("zh-CN", {hour:"2-digit", minute:"2-digit"})});
+  if (expedition.log.length > 24) expedition.log.pop();
+}
+
+function startExpedition(){
+  snapshot();
+  expedition = createEmptyExpedition();
+  expedition.active = true;
+  expedition.runOver = false;
+  expedition.floor = 1;
+  expedition.maxTeamHp = 12 + players.length * 4;
+  expedition.teamHp = expedition.maxTeamHp;
+  expedition.provisions = players.length + 1;
+  expedition.morale = 0;
+  expedition.relics = [];
+  expedition.log = [];
+  players.forEach(player => {
+    player.expeditionTreasure = drawExpeditionTreasure();
+  });
+  startExpeditionFloor();
+  pushEvent(`<strong>军师远征</strong>｜${players.length === 1 ? "单人闯关" : `${players.length} 人合作讨伐`}开始，第 1 关敌军现身。`);
+  showToast("军师远征开始。");
+  playTone("mystery");
+  render();
+  saveState();
+}
+
+function restartExpedition(){
+  startExpedition();
+}
+
+function startExpeditionFloor(){
+  expedition.enemy = createExpeditionEnemy(expedition.floor);
+  expedition.shield = 0;
+  expedition.rewards = [];
+  expedition.shopOffers = drawExpeditionShopOffers();
+  expedition.shopRefreshes = 0;
+  expedition.shopOpen = false;
+  if (getRelicLevel("ironWall")){
+    const guard = 2 * getRelicLevel("ironWall");
+    expedition.guard += guard;
+    pushExpeditionLog(`铁壁阵图展开，队伍获得 ${guard} 护阵。`);
+  }
+  if (getRelicLevel("moraleBanner")){
+    const morale = 2 * getRelicLevel("moraleBanner");
+    expedition.morale += morale;
+    pushExpeditionLog(`会盟战旗鼓舞全队，士气 +${morale}。`);
+  }
+  if (getRelicLevel("strategyMap")){
+    const gain = 2 * getRelicLevel("strategyMap");
+    expedition.provisions += gain;
+    pushExpeditionLog(`军师沙盘预判路线，开局获得 ${gain} 粮草。`);
+  }
+  if (getRelicLevel("fireToken")){
+    const burn = 3 * getRelicLevel("fireToken");
+    expedition.enemy.hp = Math.max(1, expedition.enemy.hp - burn);
+    pushExpeditionLog(`火攻令先发制人，${expedition.enemy.name} 受到 ${burn} 点伤害。`);
+  }
+  expedition.intent = rollExpeditionIntent(expedition.enemy);
+  pushExpeditionLog(`第 ${expedition.floor} 关：${expedition.enemy.name} 出现。`);
+}
+
+function createExpeditionEnemy(floor){
+  const bossFloor = floor % 5 === 0;
+  const pool = expeditionEnemies.filter(enemy => bossFloor ? enemy.boss : !enemy.boss);
+  const base = pool[Math.floor(Math.random() * pool.length)] || expeditionEnemies[0];
+  const playerScale = Math.max(1, players.length);
+  const maxHp = Math.round(base.hp + floor * (bossFloor ? 4.2 : 2.8) + playerScale * (bossFloor ? 4 : 2.6));
+  return {
+    ...base,
+    hp:maxHp,
+    maxHp,
+    attack:base.attack + Math.floor(floor / 4) + (bossFloor ? 1 : 0)
+  };
+}
+
+function rollExpeditionIntent(enemy){
+  const pool = ["attack", "attack", "shield", "raid"];
+  if (enemy.key === "woodenOx") pool.push("heal", "heal");
+  if (enemy.key === "ironGuard") pool.push("shield", "shield");
+  if (enemy.key === "fireShip") pool.push("attack", "attack");
+  if (enemy.key === "darkStrategist" || enemy.boss) pool.push("curse", "curse");
+  const type = pool[Math.floor(Math.random() * pool.length)];
+  const meta = expeditionIntentMeta[type] || expeditionIntentMeta.attack;
+  const value = Math.max(1, enemy.attack + Math.floor(Math.random() * 2) + (type === "shield" ? 1 : 0));
+  return {type, value, label:meta.label, icon:meta.icon, text:meta.text};
+}
+
+function getExpeditionDamage(player, amount, finalAmount){
+  let damage = finalAmount;
+  damage += getRelicLevel("tigerSeal");
+  if (amount === 2) damage += getRelicLevel("warDrum");
+  if (amount === 2 && players.length >= 2) damage += getRelicLevel("crossbow");
+  if (player.role === "mage" && amount === 2) damage += 1;
+  if (player.role === "vanguard" && amount === 2) damage += 1;
+  if (player.role === "director" && expedition.enemy?.boss) damage += 1;
+  if (expedition.morale >= 6 && amount === 2) damage += 1;
+  return Math.max(1, damage);
+}
+
+function strikeExpeditionEnemy(label, damage, player){
+  if (!expedition.enemy) return false;
+  const absorbed = Math.min(expedition.shield, damage);
+  expedition.shield -= absorbed;
+  const realDamage = Math.max(0, damage - absorbed);
+  expedition.enemy.hp = Math.max(0, expedition.enemy.hp - realDamage);
+  pushExpeditionLog(`${label}造成 ${damage} 伤害${absorbed ? `，破盾 ${absorbed}` : ""}。`);
+  if (expedition.enemy.hp <= 0){
+    finishExpeditionFloor(player || players[0]);
+    return true;
+  }
+  return false;
+}
+
+function expeditionAnswer(id, amount){
+  if (!expedition.active || expedition.runOver || expedition.rewards.length) return;
+  const player = players.find(item => item.id === id);
+  if (!player || !expedition.enemy) return;
+  if (player.frozen){
+    snapshot();
+    player.frozen = false;
+    pushExpeditionLog(`${player.name} 解除暂停，回到讨伐阵线。`);
+    render();
+    saveState();
+    return;
+  }
+  snapshot();
+  const finalAmount = applyScoreModifiers(player, amount);
+  player.score += finalAmount;
+  const earnedCoins = grantAnswerCoins(player, amount);
+  player.streak = amount === 2 ? player.streak + 1 : 0;
+  const damage = getExpeditionDamage(player, amount, finalAmount);
+  const absorbed = Math.min(expedition.shield, damage);
+  expedition.shield -= absorbed;
+  const realDamage = damage - absorbed;
+  expedition.enemy.hp = Math.max(0, expedition.enemy.hp - realDamage);
+  expedition.morale += amount;
+  expedition.provisions += amount + getRelicLevel("grainRoute");
+  pushExpeditionLog(`${player.name} 答对 +${amount}，造成 ${damage} 伤害${absorbed ? `，破盾 ${absorbed}` : ""}，获得 ${earnedCoins} 军粮。`);
+  if (player.role === "foodie" && Math.random() < 0.35){
+    expedition.teamHp = Math.min(expedition.maxTeamHp, expedition.teamHp + 1);
+    pushExpeditionLog(`${player.name} 的青囊补给生效，军府耐久 +1。`);
+  }
+  if (player.role === "detective"){
+    expedition.morale += 1;
+  }
+  if (player.streak >= 3){
+    player.streak = 0;
+    expedition.enemy.hp = Math.max(0, expedition.enemy.hp - 2);
+    pushExpeditionLog(`${player.name} 连续三次 +2，卧龙暴击追加 2 点伤害。`);
+  }
+  maybeDropChest(player, amount);
+  if (expedition.enemy.hp <= 0){
+    finishExpeditionFloor(player);
+  }else{
+    applyEnemyIntent();
+    if (!expedition.runOver) expedition.intent = rollExpeditionIntent(expedition.enemy);
+  }
+  advanceRound();
+  render();
+  saveState();
+}
+
+function applyEnemyIntent(){
+  const enemy = expedition.enemy;
+  const intent = expedition.intent || rollExpeditionIntent(enemy);
+  if (!enemy || !intent) return;
+  if (intent.type === "attack"){
+    const guardBlock = Math.min(expedition.guard || 0, intent.value);
+    expedition.guard = Math.max(0, (expedition.guard || 0) - guardBlock);
+    const block = getRelicLevel("fortGate") + guardBlock;
+    const damage = Math.max(0, intent.value - block);
+    expedition.teamHp = Math.max(0, expedition.teamHp - damage);
+    pushExpeditionLog(`${enemy.name} 发动${intent.label}，军府耐久 -${damage}${block ? `，护阵抵挡 ${block}` : ""}。`);
+  }else if (intent.type === "shield"){
+    expedition.shield += intent.value + Math.floor(expedition.floor / 3);
+    pushExpeditionLog(`${enemy.name} 架起盾阵，获得 ${intent.value} 护盾。`);
+  }else if (intent.type === "raid"){
+    const lost = Math.min(expedition.provisions, intent.value);
+    expedition.provisions -= lost;
+    pushExpeditionLog(`${enemy.name} 劫掠粮道，团队粮草 -${lost}。`);
+  }else if (intent.type === "heal"){
+    const heal = intent.value + 1;
+    enemy.hp = Math.min(enemy.maxHp, enemy.hp + heal);
+    pushExpeditionLog(`${enemy.name} 修复阵线，生命 +${heal}。`);
+  }else if (intent.type === "curse"){
+    const lost = Math.min(expedition.morale, intent.value);
+    expedition.morale -= lost;
+    pushExpeditionLog(`${enemy.name} 扰乱军心，士气 -${lost}。`);
+  }
+  if (expedition.teamHp <= 0) finishExpeditionRun(false);
+}
+
+function finishExpeditionFloor(player){
+  const enemy = expedition.enemy;
+  expedition.defeated += 1;
+  expedition.morale += enemy.boss ? 4 : 2;
+  expedition.provisions += enemy.boss ? 4 : 2;
+  player.score += enemy.boss ? 2 : 1;
+  if (getRelicLevel("greenBag")){
+    const heal = 3 * getRelicLevel("greenBag");
+    expedition.teamHp = Math.min(expedition.maxTeamHp, expedition.teamHp + heal);
+    pushExpeditionLog(`青囊医包修整队伍，军府耐久 +${heal}。`);
+  }
+  expedition.rewards = drawExpeditionRewards();
+  pushExpeditionLog(`${enemy.name} 被击败。选择一件遗物后进入下一关。`);
+  pushEvent(`<strong>远征告捷</strong>｜${player.name} 击败 ${enemy.name}，远征推进到第 ${expedition.floor + 1} 关。`);
+  launchFireworks(enemy.boss ? 4 : 2);
+  burstConfetti(enemy.boss ? 38 : 24);
+  playTone(enemy.boss ? "fanfare" : "big");
+}
+
+function finishExpeditionRun(victory){
+  expedition.runOver = true;
+  expedition.active = false;
+  expedition.rewards = [];
+  pushExpeditionLog(victory ? "远征凯旋，军府留名。" : "军府耐久归零，本次远征结束。");
+  pushEvent(`<strong>远征结束</strong>｜本次到达第 ${expedition.floor} 关，击败 ${expedition.defeated} 名敌军。`);
+  showToast(`远征结束：击败 ${expedition.defeated} 名敌军。`);
+  playTone(victory ? "fanfare" : "soft");
+}
+
+function drawExpeditionRewards(){
+  const pool = [...expeditionRelicOrder];
+  const picks = [];
+  while (picks.length < 3 && pool.length){
+    const index = Math.floor(Math.random() * pool.length);
+    picks.push(pool.splice(index, 1)[0]);
+  }
+  return picks;
+}
+
+function chooseExpeditionReward(key){
+  if (!expedition.rewards.includes(key)) return;
+  snapshot();
+  expedition.relics.push(key);
+  const relic = expeditionRelics[key];
+  expedition.rewards = [];
+  if (getRelicLevel("luckyPouch")){
+    const gain = 2 * getRelicLevel("luckyPouch");
+    expedition.provisions += gain;
+    pushExpeditionLog(`锦囊暗袋带来补给，粮草 +${gain}。`);
+  }
+  expedition.floor += 1;
+  startExpeditionFloor();
+  const treasureTarget = grantRandomExpeditionTreasure();
+  if (treasureTarget){
+    pushExpeditionLog(`${treasureTarget.name} 获得一个个人神秘宝物。`);
+  }
+  pushExpeditionLog(`获得遗物：${relic.name}。`);
+  showToast(`获得遗物：${relic.name}`);
+  render();
+  saveState();
+}
+
+function restExpeditionTeam(){
+  if (!expedition.active || expedition.runOver || expedition.provisions < 3) return;
+  snapshot();
+  expedition.provisions -= 3;
+  const heal = 4 + getRelicLevel("greenBag");
+  expedition.teamHp = Math.min(expedition.maxTeamHp, expedition.teamHp + heal);
+  pushExpeditionLog(`消耗 3 粮草修整，军府耐久 +${heal}。`);
+  render();
+  saveState();
+}
+
+function getExpeditionShopCost(key){
+  const item = expeditionShopItems[key];
+  if (!item) return 99;
+  return Math.max(1, item.cost - Math.min(1, getRelicLevel("quartermasterLedger")));
+}
+
+function openExpeditionShop(){
+  if (!expedition.active || expedition.runOver || expedition.rewards.length) return;
+  expedition.shopOpen = true;
+  render();
+}
+
+function closeExpeditionShop(){
+  expedition.shopOpen = false;
+  render();
+}
+
+function refreshExpeditionShop(){
+  if (!expedition.active || expedition.runOver || expedition.rewards.length) return;
+  const cost = expedition.shopRefreshes > 0 ? 2 : 1;
+  if (expedition.provisions < cost){
+    showToast("粮草不足，暂时不能刷新商店。");
+    return;
+  }
+  snapshot();
+  expedition.provisions -= cost;
+  expedition.shopRefreshes += 1;
+  expedition.shopOffers = drawExpeditionShopOffers();
+  pushExpeditionLog(`远征商店刷新，本层货架换了一批宝物，消耗 ${cost} 粮草。`);
+  render();
+  saveState();
+}
+
+function buyExpeditionShopItem(key){
+  if (!expedition.active || expedition.runOver || expedition.rewards.length) return;
+  const item = expeditionShopItems[key];
+  if (!item) return;
+  if (!expedition.shopOffers.includes(key)) return;
+  const cost = getExpeditionShopCost(key);
+  if (expedition.provisions < cost){
+    showToast("团队粮草不足，暂时买不了这个宝物。");
+    return;
+  }
+  snapshot();
+  expedition.provisions -= cost;
+  let usedTurn = false;
+  if (key === "volley"){
+    const damage = 4 + getRelicLevel("bladeForge") * 2;
+    usedTurn = !strikeExpeditionEnemy(`商店宝物「${item.name}」`, damage, players[0]);
+  }else if (key === "guard"){
+    const guard = 4 + getRelicLevel("fortGate");
+    expedition.guard += guard;
+    pushExpeditionLog(`购买 ${item.name}，队伍获得 ${guard} 护阵。`);
+  }else if (key === "heal"){
+    const heal = 5 + getRelicLevel("greenBag");
+    expedition.teamHp = Math.min(expedition.maxTeamHp, expedition.teamHp + heal);
+    pushExpeditionLog(`购买 ${item.name}，军府耐久 +${heal}。`);
+  }else if (key === "inspire"){
+    expedition.morale += 4;
+    expedition.intent = rollExpeditionIntent(expedition.enemy);
+    pushExpeditionLog(`购买 ${item.name}，士气 +4，并重新判断敌军意图。`);
+  }else if (key === "mystery"){
+    const target = grantRandomExpeditionTreasure();
+    if (target){
+      pushExpeditionLog(`购买 ${item.name}，${target.name} 获得一个个人神秘宝物。`);
+    }else{
+      expedition.provisions += cost;
+      pushExpeditionLog(`所有玩家都已有宝物，${item.name} 暂时无法使用。`);
+    }
+  }else if (key === "scout"){
+    const broken = Math.min(expedition.shield, 2);
+    expedition.shield -= broken;
+    expedition.morale += 1;
+    expedition.intent = rollExpeditionIntent(expedition.enemy);
+    pushExpeditionLog(`购买 ${item.name}，破盾 ${broken}，士气 +1，并刷新敌军意图。`);
+  }else if (key === "ram"){
+    usedTurn = !strikeExpeditionEnemy(`商店宝物「${item.name}」`, 6, players[0]);
+  }else if (key === "feast"){
+    expedition.morale += 2;
+    players.forEach(player => {
+      player.skillCooldown = Math.max(0, (player.skillCooldown || 0) - 1);
+      player.skillUsed = player.skillCooldown > 0;
+    });
+    pushExpeditionLog(`购买 ${item.name}，士气 +2，全员奇策冷却 -1。`);
+  }
+  expedition.shopOffers = expedition.shopOffers.filter(itemKey => itemKey !== key);
+  if (usedTurn && !expedition.runOver){
+    applyEnemyIntent();
+    if (!expedition.runOver) expedition.intent = rollExpeditionIntent(expedition.enemy);
+  }
+  render();
+  saveState();
+}
+
+function useExpeditionTreasure(id){
+  if (!expedition.active || expedition.runOver || expedition.rewards.length) return;
+  const player = players.find(item => item.id === id);
+  if (!player || !player.expeditionTreasure) return;
+  const key = player.expeditionTreasure;
+  const treasure = expeditionTreasures[key] || expeditionTreasures.thunderCharm;
+  snapshot();
+  player.expeditionTreasure = null;
+  let damage = 0;
+  let message = `${player.name} 揭开个人神秘宝物：${treasure.name}。`;
+  if (key === "thunderCharm"){
+    damage = 3;
+  }else if (key === "bronzeMirror"){
+    expedition.guard += 3;
+    message += " 队伍护阵 +3。";
+  }else if (key === "recoveryPill"){
+    expedition.teamHp = Math.min(expedition.maxTeamHp, expedition.teamHp + 4);
+    message += " 军府耐久 +4。";
+  }else if (key === "commandScroll"){
+    expedition.morale += 3;
+    expedition.intent = rollExpeditionIntent(expedition.enemy);
+    message += " 士气 +3，并刷新敌军意图。";
+  }else if (key === "grainPouch"){
+    expedition.provisions += 3;
+    message += " 团队粮草 +3。";
+  }else if (key === "breakerAwl"){
+    const broken = Math.min(expedition.shield, 4);
+    expedition.shield -= broken;
+    damage = 1;
+    message += ` 破盾 ${broken}。`;
+  }
+  pushExpeditionLog(message);
+  if (damage > 0) strikeExpeditionEnemy(`个人宝物「${treasure.name}」`, damage, player);
+  pushEvent(`<strong>个人宝物</strong>｜${message}`);
+  playTone(damage > 0 ? "big" : "mystery");
+  render();
+  saveState();
+}
+
+function useExpeditionSkill(id){
+  if (!expedition.active || expedition.runOver || expedition.rewards.length) return;
+  const player = players.find(item => item.id === id);
+  if (!player || player.skillCooldown > 0) return;
+  const role = roles[player.role] || roles.mage;
+  snapshot();
+  let damage = 0;
+  let message = "";
+  if (player.role === "mage"){
+    damage = 4;
+    addLootCard(player, drawLootCard(player));
+    message = `${player.name} 释放卧龙奇策，打出爆发并获得锦囊。`;
+  }else if (player.role === "captain"){
+    expedition.provisions += 4;
+    expedition.guard += 2;
+    message = `${player.name} 立下虎威军令，粮草 +4，护阵 +2。`;
+  }else if (player.role === "vanguard"){
+    damage = 3;
+    expedition.morale += 2;
+    message = `${player.name} 白袍突进，士气 +2。`;
+  }else if (player.role === "foodie"){
+    const heal = 5;
+    expedition.teamHp = Math.min(expedition.maxTeamHp, expedition.teamHp + heal);
+    expedition.provisions += 1;
+    message = `${player.name} 开启青囊军帐，军府耐久 +${heal}，粮草 +1。`;
+  }else if (player.role === "director"){
+    const broken = Math.min(expedition.shield, 4);
+    expedition.shield -= broken;
+    damage = 2;
+    expedition.morale += 1;
+    message = `${player.name} 发出绯羽檄文，破盾 ${broken}，士气 +1。`;
+  }else if (player.role === "detective"){
+    damage = 1;
+    expedition.morale += 3;
+    expedition.intent = rollExpeditionIntent(expedition.enemy);
+    message = `${player.name} 观星预判，士气 +3，并刷新敌军意图。`;
+  }else{
+    damage = 1;
+    message = `${player.name} 使用职业奇策。`;
+  }
+  if (damage > 0) damage += getRelicLevel("thunderArrow");
+  player.skillCooldown = 3;
+  player.skillUsed = true;
+  pushExpeditionLog(message);
+  if (damage > 0) strikeExpeditionEnemy(`${role.name}奇策`, damage, player);
+  pushEvent(`<strong>远征奇策</strong>｜${message}`);
+  playTone(damage >= 4 ? "fanfare" : "mystery");
+  render();
+  saveState();
+}
+
+function useExpeditionCard(id){
+  if (!expedition.active || expedition.runOver || expedition.rewards.length) return;
+  const player = players.find(item => item.id === id);
+  if (!player) return;
+  const cardIndex = player.inventory.findIndex(cardKey => lootCards[cardKey] && lootCards[cardKey].type === "active");
+  if (cardIndex < 0) return;
+  snapshot();
+  const cardKey = player.inventory.splice(cardIndex, 1)[0];
+  const card = lootCards[cardKey] || lootCards.starKey;
+  let damage = 1;
+  let message = `${player.name} 使用 ${card.name}，协助远征破阵。`;
+  if (cardKey === "starKey"){
+    damage = 3;
+    message = `${player.name} 使用 ${card.name}，对敌军造成强力打击。`;
+  }else if (cardKey === "fireworkTicket"){
+    damage = 2;
+    expedition.provisions += 1;
+    message = `${player.name} 使用 ${card.name}，伤害敌军并夺回 1 粮草。`;
+  }else if (cardKey === "map"){
+    damage = 1;
+    expedition.morale += 4;
+    expedition.intent = rollExpeditionIntent(expedition.enemy);
+    message = `${player.name} 展开 ${card.name}，士气 +4，并刷新敌军意图。`;
+  }
+  pushExpeditionLog(message);
+  strikeExpeditionEnemy(`锦囊「${card.name}」`, damage, player);
+  pushEvent(`<strong>远征锦囊</strong>｜${message}`);
+  playTone("mystery");
+  render();
+  saveState();
+}
+
+function renderRelics(){
+  if (!expedition.relics.length) return `<div class="event">还没有遗物。击败敌人后会出现三选一奖励。</div>`;
+  const counts = {};
+  expedition.relics.forEach(key => counts[key] = (counts[key] || 0) + 1);
+  return Object.entries(counts).map(([key, count]) => {
+    const relic = expeditionRelics[key] || expeditionRelics.warDrum;
+    return `<div class="relic-chip"><span class="relic-icon" style="${getRelicIconStyle(key)}"></span><span>${escapeHtml(relic.name)}${count > 1 ? ` x${count}` : ""}</span></div>`;
+  }).join("");
+}
+
+function renderExpedition(){
+  if (!els.expeditionView) return;
+  normalizeExpedition();
+  const modeText = players.length === 1 ? "单人闯关" : `${players.length} 人合作讨伐`;
+  if (!expedition.active && !expedition.runOver){
+    els.expeditionView.innerHTML = `
+      <div class="expedition-hero">
+        <section class="expedition-panel">
+          <div class="expedition-art" aria-hidden="true"></div>
+          <div class="expedition-copy">
+            <h2>军师远征</h2>
+            <p>${modeText}。每次开局都会随机敌人、意图、个人宝物和遗物路线；击败敌人后三选一升级。</p>
+            <div class="expedition-actions">
+              <button class="primary-btn" type="button" data-expedition-start="1">开始远征</button>
+              <button class="ghost-btn" type="button" data-expedition-undo="1">撤回远征操作</button>
+              <span class="chip">1-6 人可玩</span>
+              <span class="chip">Roguelike 三选一</span>
+            </div>
+          </div>
+        </section>
+        <section class="expedition-panel enemy-card">
+          <div class="enemy-top">
+            <div class="enemy-seal" style="--enemy-color:#d69a39">讨</div>
+            <div>
+              <h2>挑战 NPC</h2>
+              <p>单人时追求更高层数，多人时一起守住军府耐久。老师可以点 +1 / +2，也可以使用奇策、锦囊和远征商店。</p>
+            </div>
+            <span class="enemy-badge">新模式</span>
+          </div>
+          <div class="expedition-stats">
+            <div class="expedition-stat"><small>起始军府耐久</small><strong>${12 + players.length * 4}</strong></div>
+            <div class="expedition-stat"><small>队伍规模</small><strong>${players.length}</strong></div>
+            <div class="expedition-stat"><small>奖励方式</small><strong>三选一</strong></div>
+            <div class="expedition-stat"><small>敌人刷新</small><strong>随机</strong></div>
+          </div>
+        </section>
+      </div>
+    `;
+    return;
+  }
+  const enemy = expedition.enemy || createExpeditionEnemy(expedition.floor);
+  const hpPercent = Math.max(0, Math.round((enemy.hp || 0) / Math.max(1, enemy.maxHp || 1) * 100));
+  const teamPercent = Math.max(0, Math.round(expedition.teamHp / Math.max(1, expedition.maxTeamHp) * 100));
+  const intent = expedition.intent || expeditionIntentMeta.attack;
+  const rewardHtml = expedition.rewards.length ? `
+    <section class="expedition-panel expedition-copy">
+      <h2>选择遗物</h2>
+      <p>每次过关只能选一件。重复获得同名遗物会叠加效果。</p>
+      <div class="reward-grid">
+        ${expedition.rewards.map(key => {
+          const relic = expeditionRelics[key];
+          return `<button class="reward-card" type="button" data-expedition-reward="${escapeHtml(key)}">
+            <span class="reward-icon" style="${getRelicIconStyle(key)}"></span>
+            <strong>${escapeHtml(relic.name)}</strong>
+            <span>${escapeHtml(relic.text)}</span>
+          </button>`;
+        }).join("")}
+      </div>
+    </section>
+  ` : "";
+  const shopOverlayHtml = expedition.shopOpen ? `
+    <div class="expedition-shop-drawer" data-expedition-shop-backdrop="1">
+      <section class="expedition-shop-panel" role="dialog" aria-modal="true" aria-label="远征商店">
+        <div class="expedition-shop-top">
+          <h2>远征商店</h2>
+          <div class="expedition-actions">
+            <span class="chip">粮草 ${expedition.provisions}</span>
+            <button class="ghost-btn" type="button" data-expedition-shop-refresh="1" ${expedition.provisions >= (expedition.shopRefreshes > 0 ? 2 : 1) ? "" : "disabled"}>刷新 ${expedition.shopRefreshes > 0 ? 2 : 1}</button>
+            <button class="close-btn" type="button" data-expedition-shop-close="button" aria-label="关闭">X</button>
+          </div>
+        </div>
+        <div class="expedition-shop-body">
+          <div class="shop-grid">
+        ${(expedition.shopOffers.length ? expedition.shopOffers : expeditionShopOrder.slice(0, 4)).map(key => {
+          const item = expeditionShopItems[key];
+          const cost = getExpeditionShopCost(key);
+          const noTreasureTarget = key === "mystery" && players.every(player => player.expeditionTreasure);
+          const disabled = !expedition.active || expedition.provisions < cost || noTreasureTarget;
+          return `<button class="shop-card" type="button" data-expedition-shop="${escapeHtml(key)}" ${disabled ? "disabled" : ""}>
+            <span class="relic-icon" style="${getExpeditionIconStyle(item.pos)}"></span>
+            <strong>${escapeHtml(item.icon)} ${escapeHtml(item.name)}</strong>
+            <small>${cost} 粮草</small>
+            <span>${escapeHtml(noTreasureTarget ? "全员已有宝物，暂时无需购买。" : item.text)}</span>
+          </button>`;
+        }).join("")}
+          </div>
+        </div>
+      </section>
+    </div>
+  ` : "";
+  const rosterHtml = players.map(player => {
+    const role = roles[player.role] || roles.mage;
+    const activeCardKey = player.inventory.find(cardKey => lootCards[cardKey] && lootCards[cardKey].type === "active");
+    const activeCard = activeCardKey ? lootCards[activeCardKey] : null;
+    const treasure = player.expeditionTreasure ? expeditionTreasures[player.expeditionTreasure] : null;
+    const disabledByReward = expedition.rewards.length || expedition.runOver;
+    return `<article class="expedition-player" style="--player-color:${player.color}">
+      <h3>${escapeHtml(player.name)} · ${escapeHtml(role.icon)} ${escapeHtml(role.name)}</h3>
+      <div class="resource-strip">
+        <span class="mini-tag">积分：${player.score}</span>
+        <span class="mini-tag">军粮：${player.coins}</span>
+        <span class="mini-tag">奇策：${player.skillCooldown > 0 ? `冷却 ${player.skillCooldown}` : "可用"}</span>
+        <span class="mini-tag">宝物：${treasure ? "已备" : "空"}</span>
+      </div>
+      <div class="expedition-hit-actions">
+        <button class="primary-btn" type="button" data-expedition-hit="${player.id}" data-expedition-score="1" ${disabledByReward ? "disabled" : ""}>+1</button>
+        <button class="primary-btn" type="button" data-expedition-hit="${player.id}" data-expedition-score="2" ${disabledByReward ? "disabled" : ""}>+2</button>
+        <button class="ghost-btn" type="button" data-expedition-skill="${player.id}" ${disabledByReward || player.skillCooldown > 0 ? "disabled" : ""}>奇策</button>
+        <button class="ghost-btn" type="button" data-expedition-card="${player.id}" ${disabledByReward || !activeCard ? "disabled" : ""}>锦囊</button>
+        <button class="ghost-btn" type="button" data-expedition-treasure="${player.id}" ${disabledByReward || !treasure ? "disabled" : ""}>宝物</button>
+      </div>
+      <div class="mini-tag wide-action">${activeCard ? `可用锦囊：${escapeHtml(activeCard.name)}` : "暂无主动锦囊"}</div>
+    </article>`;
+  }).join("");
+  els.expeditionView.innerHTML = `
+    <div class="expedition-hero">
+      <section class="expedition-panel enemy-card" style="--enemy-color:${enemy.color || "#d69a39"}">
+        <div class="enemy-top">
+          <div class="enemy-seal">${escapeHtml(enemy.icon || "敌")}</div>
+          <div>
+            <h2>${escapeHtml(enemy.name || "未知敌军")}</h2>
+            <p>${escapeHtml(enemy.trait || "敌军正在集结。")}</p>
+          </div>
+          <span class="enemy-badge">${enemy.boss ? "Boss" : `第 ${expedition.floor} 关`}</span>
+        </div>
+        <div>
+          <div class="hp-shell" title="敌军血量"><div class="hp-fill" style="--hp:${hpPercent}%"></div></div>
+          <div class="resource-strip" style="margin-top:7px">
+            <span class="mini-tag">敌军血量：${enemy.hp}/${enemy.maxHp}</span>
+            <span class="mini-tag">护盾：${expedition.shield}</span>
+            <span class="mini-tag">我方护阵：${expedition.guard}</span>
+          </div>
+        </div>
+        <div class="intent-row">
+          <div class="intent-box"><small>下一步意图</small><strong>${escapeHtml(intent.icon || "战")} ${escapeHtml(intent.label || "强攻")} ${intent.value ? `· ${intent.value}` : ""}</strong></div>
+          <div class="intent-box"><small>意图说明</small><strong>${escapeHtml(intent.text || "敌人将攻击军府耐久。")}</strong></div>
+        </div>
+        <div class="hp-shell" title="军府耐久"><div class="hp-fill" style="--hp:${teamPercent}%"></div></div>
+      </section>
+      <section class="expedition-panel expedition-copy">
+        <h2>远征控台</h2>
+        <div class="expedition-stats">
+          <div class="expedition-stat"><small>军府耐久</small><strong>${expedition.teamHp}/${expedition.maxTeamHp}</strong></div>
+          <div class="expedition-stat"><small>当前层数</small><strong>${expedition.floor}</strong></div>
+          <div class="expedition-stat"><small>已击败</small><strong>${expedition.defeated}</strong></div>
+          <div class="expedition-stat"><small>粮草 / 士气 / 护阵</small><strong>${expedition.provisions} / ${expedition.morale} / ${expedition.guard}</strong></div>
+        </div>
+        <div class="expedition-actions">
+          <button class="ghost-btn" type="button" data-expedition-rest="1" ${expedition.provisions >= 3 && expedition.active ? "" : "disabled"}>粮草修整</button>
+          <button class="primary-btn" type="button" data-expedition-shop-open="1" ${expedition.active && !expedition.rewards.length ? "" : "disabled"}>远征商店</button>
+          <button class="ghost-btn" type="button" data-expedition-undo="1">撤回</button>
+          <button class="ghost-btn" type="button" data-expedition-restart="1">重开</button>
+        </div>
+        <div class="relic-strip">${renderRelics()}</div>
+      </section>
+    </div>
+    ${rewardHtml}
+    ${shopOverlayHtml}
+    <section class="expedition-panel expedition-copy">
+      <h2>出战队伍</h2>
+      <div class="expedition-roster">${rosterHtml}</div>
+    </section>
+    <section class="expedition-panel expedition-copy">
+      <h2>远征战报</h2>
+      <div class="expedition-log">
+        ${expedition.log.length ? expedition.log.slice(0, 16).map(item => `<div class="event"><strong>${escapeHtml(item.time)}</strong> ${escapeHtml(item.message)}</div>`).join("") : `<div class="event">还没有远征战报。</div>`}
+      </div>
+    </section>
+  `;
+}
+
+function renderWheelLabels(){
+  const choices = getWheelChoices();
+  const segment = 360 / choices.length;
+  const signature = choices.map(choice => `${choice.id}:${choice.shortName}:${choice.color}`).join("|");
+  if (signature !== wheelSignature){
+    wheelSignature = signature;
+    const stops = choices.map((choice, index) => {
+      const start = index * segment;
+      const end = (index + 1) * segment;
+      return `${choice.color} ${start}deg ${end}deg`;
+    }).join(", ");
+    els.answerWheel.style.background = `conic-gradient(${stops})`;
+    els.wheelLabels.innerHTML = "";
+    choices.forEach((choice, index) => {
+      const label = document.createElement("div");
+      label.className = "wheel-label";
+      label.style.setProperty("--angle", `${index * segment + segment / 2}deg`);
+      label.textContent = choice.shortName;
+      els.wheelLabels.appendChild(label);
+    });
+  }
+  els.answerWheel.style.transform = `rotate(${wheelRotation}deg)`;
+  els.wheelLabels.style.transform = `rotate(${wheelRotation}deg)`;
+}
+
+function getWheelChoices(){
+  return [
+    ...players.map(player => ({
+      type:"player",
+      id:player.id,
+      name:player.name,
+      shortName:player.name,
+      color:player.color
+    })),
+    {
+      type:"all",
+      id:"all",
+      name:"全员抢答",
+      shortName:"全员",
+      color:"#ffd36b"
+    }
+  ];
+}
+
+function spinResponderWheel(){
+  if (isSpinning) return;
+  snapshot();
+  isSpinning = true;
+  render();
+  const quickMode = activeStageTab !== "wheel";
+  const choices = getWheelChoices();
+  const allIndex = choices.findIndex(choice => choice.type === "all");
+  let selectedIndex = forcedResponderId
+    ? choices.findIndex(choice => choice.id === forcedResponderId)
+    : Math.floor(Math.random() * players.length);
+  if (selectedIndex < 0) selectedIndex = Math.floor(Math.random() * players.length);
+  if (!forcedResponderId && Math.random() < 0.18 && allIndex >= 0) selectedIndex = allIndex;
+  const segment = 360 / choices.length;
+  const targetAngle = selectedIndex * segment + segment / 2;
+  const current = ((wheelRotation % 360) + 360) % 360;
+  const delta = (360 - ((current + targetAngle) % 360)) % 360;
+  wheelRotation += 1440 + delta;
+  if (!quickMode){
+    renderWheelLabels();
+    els.answerWheel.style.transform = `rotate(${wheelRotation}deg)`;
+    els.wheelLabels.style.transform = `rotate(${wheelRotation}deg)`;
+    playTone("spin");
+  }else{
+    playTone("soft");
+  }
+  setTimeout(() => {
+    const choice = choices[selectedIndex];
+    isSpinning = false;
+    allAnswerMode = choice.type === "all";
+    selectedResponderId = allAnswerMode ? null : choice.id;
+    const wasForced = forcedResponderId && choice.id === forcedResponderId;
+    if (wasForced) forcedResponderId = null;
+    if (allAnswerMode){
+      pushEvent("<strong>随机点名</strong>｜全员抢答：所有玩家都有机会答题。");
+      showToast("随机点名：全员抢答！");
+      launchFireworks(3);
+      burstConfetti(36);
+      playTone("fanfare");
+    }else{
+      pushEvent(`<strong>随机点名</strong>｜${choice.name} 获得本题答题机会${wasForced ? "。" : "。"}`);
+      showToast(`随机点名选中：${choice.name}`);
+      sparkleCard(choice.id);
+      playTone("big");
+    }
+    render();
+    saveState();
+  }, quickMode ? 260 : 3300);
+}
+
+function clearSelection(){
+  snapshot();
+  selectedResponderId = null;
+  allAnswerMode = false;
+  pushEvent("答题者选择已清除，下一题可以重新随机。");
+  render();
+  saveState();
+}
+
+function handleSecretNameTap(id){
+  const now = Date.now();
+  if (secretTap.id !== id || now - secretTap.time > 1100){
+    secretTap = {id, count:1, time:now};
+    return;
+  }
+  secretTap.count += 1;
+  secretTap.time = now;
+  if (secretTap.count < 3) return;
+  snapshot();
+  forcedResponderId = id;
+  secretFlashId = id;
+  secretTap = {id:null, count:0, time:0};
+  render();
+  saveState();
+  setTimeout(() => {
+    if (secretFlashId !== id) return;
+    secretFlashId = null;
+    render();
+  }, 520);
+}
+
+function awardAll(amount){
+  snapshot();
+  players.forEach(player => player.score += amount);
+  pushEvent(`<strong>全员抢答</strong>｜这是课堂辅助奖励，不是个人策略技能。每位玩家 +${amount}。`);
+  launchFireworks(amount === 2 ? 4 : 2);
+  burstConfetti(amount === 2 ? 42 : 24);
+  playTone(amount === 2 ? "fanfare" : "big");
+  advanceRound();
+  render();
+  saveState();
+}
+
+function useRoleSkill(id){
+  const player = players.find(item => item.id === id);
+  if (!player || player.skillCooldown > 0) return;
+  snapshot();
+  const role = roles[player.role] || roles.mage;
+  const lowScore = [...players].sort((a,b) => a.score - b.score)[0];
+  const leader = [...players].sort((a,b) => b.score - a.score)[0];
+  let message = "";
+  let art = role.art ? {src:role.art, alt:role.name} : null;
+  if (player.role === "mage"){
+    player.score += 2;
+    addLootCard(player, drawLootCard(player));
+    message = `${player.name} 使用卧龙军师技能，自己 +2，并获得一个锦囊奖励。`;
+    launchFireworks(2);
+  }else if (player.role === "captain"){
+    if (player.holdings.length < getMaxBuildings(player)){
+      const holding = openCompanyFor(player, true);
+      const catalog = buildingCatalog[holding.type] || buildingCatalog.cottage;
+      message = `${player.name} 使用虎威将军技能，免费建造 ${catalog.name}。`;
+    }else{
+      const paid = collectFromLeader(player, 1);
+      message = `${player.name} 使用虎威将军技能，向第一名收取 ${paid} 分军令费。`;
+    }
+  }else if (player.role === "foodie"){
+    player.score += 1;
+    lowScore.score += 1;
+    addLootCard(player, drawLootCard(player));
+    message = `${player.name} 使用青囊粮官技能，自己 +1，最低分的 ${lowScore.name} +1，并获得粮道锦囊。`;
+  }else if (player.role === "vanguard"){
+    player.score += 1;
+    player.coins += 1;
+    player.army.knight = (player.army.knight || 0) + 1;
+    walkMonopolyBoard(player, 1);
+    message = `${player.name} 使用白袍先锋技能，自己 +1，获得 1 军粮和 1 轻骑兵，并推进势力地图。`;
+  }else if (player.role === "director"){
+    const paid = collectFromLeader(player, 2);
+    addLootCard(player, "fireworkTicket");
+    message = `${player.name} 使用绯羽策士技能，向第一名收取 ${paid} 分檄文，并获得檄文令卡。`;
+    launchFireworks(4);
+    burstConfetti(38);
+  }else if (player.role === "detective"){
+    player.score += 1;
+    surpriseChance = Math.min(0.9, surpriseChance + 0.35);
+    addLootCard(player, "map");
+    message = `${player.name} 使用星河参谋技能，自己 +1，获得军师沙盘，并大幅提高下一次奇谋概率。`;
+  }else{
+    player.score += 1;
+    message = `${player.name} 使用职业技能，自己 +1。`;
+  }
+  player.skillCooldown = 3;
+  player.skillUsed = true;
+  pushEvent(`<strong>${role.name}</strong>｜${message}`);
+  showToast(message);
+  if (art) showSkillArt(role, message, art);
+  playTone(player.role === "director" || player.role === "vanguard" ? "fanfare" : "mystery");
+  render();
+  saveState();
+}
+
+function collectFromLeader(player, amount){
+  const leader = [...players].sort((a,b) => b.score - a.score)[0];
+  if (!leader || leader.id === player.id) return 0;
+  const paid = Math.min(amount, Math.max(0, leader.score));
+  leader.score -= paid;
+  player.score += paid;
+  return paid;
+}
+
+function openCompany(id){
+  openActionPanel(id, "build");
+}
+
+function openCompanyFor(player, free){
+  return buildForPlayer(player, "cottage", free);
+}
+
+function openActionPanel(id, mode){
+  activeAction = {playerId:id, mode:mode || "build"};
+  renderActionPanel();
+  els.actionModal.classList.add("open");
+}
+
+function renderActionPanel(){
+  const player = players.find(item => item.id === activeAction.playerId);
+  if (!player) return;
+  const mode = activeAction.mode || "build";
+  const modeName = {build:"建造与升级", tech:"科技升级", recruit:"购买兵种", attack:"攻击对手"}[mode] || "行动";
+  els.actionTitle.textContent = `${player.name} · ${modeName}`;
+  els.actionSummary.textContent = `${player.score} 分｜${player.coins} 军粮｜${currentTile(player).name}｜${formatBuildings(player)}`;
+  [...els.actionTabs.querySelectorAll("button")].forEach(button => {
+    button.classList.toggle("active", button.dataset.actionMode === mode);
+  });
+  const options = getActionOptions(player, mode);
+  els.actionOptions.innerHTML = options.length
+    ? options.map(renderActionOption).join("")
+    : `<div class="action-empty">当前没有可用行动。先答题赚军粮，或建造兵营、升级军事科技。</div>`;
+}
+
+function getActionOptions(player, mode){
+  if (mode === "build"){
+    const options = [];
+    const hasSpace = player.holdings.length < getMaxBuildings(player);
+    buildingOrder.forEach(type => {
+      const catalog = buildingCatalog[type];
+      const cost = getBuildCost(player, type);
+      options.push({
+        kind:"build",
+        key:type,
+        title:`${catalog.icon} 建造 ${catalog.name}`,
+        image:catalog.art,
+        price:`${cost} 军粮`,
+        text:`${catalog.text} 租金 ${catalog.rent}，收入 ${catalog.income}。`,
+        disabled:!hasSpace || player.coins < cost,
+        reason:!hasSpace ? "建筑位已满" : player.coins < cost ? "军粮不足" : ""
+      });
+    });
+    player.holdings.forEach(holding => {
+      const catalog = buildingCatalog[holding.type] || buildingCatalog.cottage;
+      const cost = getUpgradeCost(player, holding);
+      const atMax = holding.level >= catalog.maxLevel;
+      options.push({
+        kind:"upgrade",
+        key:holding.id,
+        title:`升级 Lv.${holding.level} ${catalog.name}`,
+        image:catalog.art,
+        price:atMax ? "已满级" : `${cost} 军粮`,
+        text:`升级后租金、收入或防御效果提高。${holding.disabled ? "当前暂停中。" : ""}`,
+        disabled:atMax || player.coins < cost,
+        reason:atMax ? "已满级" : player.coins < cost ? "军粮不足" : ""
+      });
+    });
+    return options;
+  }
+  if (mode === "tech"){
+    return techOrder.map(key => {
+      const tech = techCatalog[key];
+      const level = getTechLevel(player, key);
+      const cost = getTechCost(player, key);
+      return {
+        kind:"tech",
+        key,
+        title:`${tech.icon} ${tech.name} Lv.${level} → ${Math.min(3, level + 1)}`,
+        image:tech.art,
+        price:level >= 3 ? "已满级" : `${cost} 军粮`,
+        text:tech.text,
+        disabled:level >= 3 || player.coins < cost,
+        reason:level >= 3 ? "已满级" : player.coins < cost ? "军粮不足" : ""
+      };
+    });
+  }
+  if (mode === "recruit"){
+    return unitOrder.map(key => {
+      const unit = unitCatalog[key];
+      const cost = getUnitCost(player, key);
+      const locked = getTechLevel(player, "military") < unit.tech || (key !== "knight" && !hasBuildingType(player, "barracks"));
+      return {
+        kind:"recruit",
+        key,
+        title:`${unit.icon} 购买 ${unit.name}`,
+        image:unit.art,
+        price:`${cost} 军粮`,
+        text:`${unit.text} 当前拥有 ${player.army[key] || 0}。`,
+        disabled:locked || player.coins < cost,
+        reason:locked ? "需要兵营或军事科技" : player.coins < cost ? "军粮不足" : ""
+      };
+    });
+  }
+  if (mode === "attack"){
+    const unitKey = getBestAttackUnit(player);
+    if (!unitKey) return [];
+    const unit = unitCatalog[unitKey];
+    return players.filter(target => target.id !== player.id).map(target => {
+      const blocked = !canAttackTarget(player, target);
+      return {
+        kind:"attack",
+        key:target.id,
+        title:`用 ${unit.name} 攻击 ${target.name}`,
+        image:unit.art || roles[target.role]?.art,
+        price:`消耗 1 ${unit.name}`,
+        text:`目标：${target.coins} 军粮，${target.holdings.length} 座建筑，防御 ${getDefense(target)}。`,
+        disabled:blocked,
+        reason:blocked ? "本轮受保护或刚攻击过" : ""
+      };
+    });
+  }
+  return [];
+}
+
+function renderActionOption(option){
+  const reason = option.reason ? `<span>${escapeHtml(option.reason)}</span>` : "";
+  const art = option.image ? `<span class="action-art" style="background-image:url('${escapeHtml(option.image)}')" aria-hidden="true"></span>` : "";
+  return `
+    <button class="action-option" type="button" data-action-kind="${escapeHtml(option.kind)}" data-action-key="${escapeHtml(option.key)}" ${option.disabled ? "disabled" : ""}>
+      ${art}
+      <strong>${escapeHtml(option.title)}<em class="action-price">${escapeHtml(option.price)}</em></strong>
+      <span>${escapeHtml(option.text)}</span>
+      ${reason}
+    </button>
+  `;
+}
+
+function handleActionChoice(kind, key){
+  const player = players.find(item => item.id === activeAction.playerId);
+  if (!player) return;
+  snapshot();
+  let message = "";
+  if (kind === "build"){
+    const holding = buildForPlayer(player, key, false);
+    if (!holding){ discardSnapshot(); return; }
+    const catalog = buildingCatalog[holding.type];
+    message = `${player.name} 建造了 ${catalog.name}，军府沙盘多了一块新资产。`;
+  }else if (kind === "upgrade"){
+    message = upgradeBuilding(player, key);
+  }else if (kind === "tech"){
+    message = upgradeTech(player, key);
+  }else if (kind === "recruit"){
+    message = recruitUnit(player, key);
+  }else if (kind === "attack"){
+    message = attackTarget(player, key);
+  }
+  if (!message){ discardSnapshot(); return; }
+  pushEvent(message);
+  showToast(message.replace(/<[^>]*>/g, ""));
+  playTone(kind === "attack" ? "big" : "mystery");
+  render();
+  saveState();
+  renderActionPanel();
+}
+
+function buildForPlayer(player, type, free){
+  const catalog = buildingCatalog[type] || buildingCatalog.cottage;
+  if (player.holdings.length >= getMaxBuildings(player)) return null;
+  const cost = free ? 0 : getBuildCost(player, type);
+  if (player.coins < cost) return null;
+  if (!free) player.coins -= cost;
+  const holding = {
+    id:`${player.id}-${type}-${Date.now()}-${Math.floor(Math.random() * 999)}`,
+    type,
+    name:catalog.name,
+    level:1,
+    disabled:0
+  };
+  player.holdings.push(holding);
+  if (!player.property) player.property = type;
+  return holding;
+}
+
+function upgradeBuilding(player, holdingId){
+  const holding = player.holdings.find(item => item.id === holdingId);
+  if (!holding) return "";
+  const catalog = buildingCatalog[holding.type] || buildingCatalog.cottage;
+  if (holding.level >= catalog.maxLevel) return "";
+  const cost = getUpgradeCost(player, holding);
+  if (player.coins < cost) return "";
+  player.coins -= cost;
+  holding.level += 1;
+  return `<strong>建筑升级</strong>｜${player.name} 花费 ${cost} 军粮，将 ${catalog.name} 升到 Lv.${holding.level}。`;
+}
+
+function upgradeTech(player, key){
+  const tech = techCatalog[key];
+  if (!tech) return "";
+  const level = getTechLevel(player, key);
+  if (level >= 3) return "";
+  const cost = getTechCost(player, key);
+  if (player.coins < cost) return "";
+  player.coins -= cost;
+  player.tech[key] = level + 1;
+  return `<strong>科技升级</strong>｜${player.name} 花费 ${cost} 军粮，${tech.name} 升到 Lv.${player.tech[key]}。`;
+}
+
+function recruitUnit(player, key){
+  const unit = unitCatalog[key];
+  if (!unit) return "";
+  if (getTechLevel(player, "military") < unit.tech || (key !== "knight" && !hasBuildingType(player, "barracks"))) return "";
+  const cost = getUnitCost(player, key);
+  if (player.coins < cost) return "";
+  player.coins -= cost;
+  player.army[key] = (player.army[key] || 0) + 1;
+  return `<strong>招兵买马</strong>｜${player.name} 花费 ${cost} 军粮，购买了 1 个${unit.name}。`;
+}
+
+function canAttackTarget(attacker, target){
+  if (!target || attacker.id === target.id) return false;
+  if (attacker.lastAttackTargetId === target.id) return false;
+  const minScore = Math.min(...players.map(player => player.score));
+  if (players.length > 2 && target.score === minScore && attacker.score > target.score) return false;
+  return true;
+}
+
+function absorbAttack(target, power){
+  let remaining = power;
+  if (remaining > 0 && target.shieldTurns > 0){
+    target.shieldTurns = 0;
+    remaining -= 1;
+  }
+  while (remaining > 0){
+    const wall = target.holdings.find(holding => holding.type === "wall" && (holding.disabled || 0) <= 0);
+    if (!wall) break;
+    wall.disabled = 2;
+    remaining -= 1;
+  }
+  return remaining;
+}
+
+function attackTarget(attacker, targetId){
+  const target = players.find(item => item.id === targetId);
+  if (!canAttackTarget(attacker, target)) return "";
+  const unitKey = getBestAttackUnit(attacker);
+  if (!unitKey) return "";
+  const unit = unitCatalog[unitKey];
+  attacker.army[unitKey] -= 1;
+  attacker.lastAttackTargetId = target.id;
+  let power = unit.power + Math.floor(getTechLevel(attacker, "military") / 2);
+  const beforePower = power;
+  power = absorbAttack(target, power);
+  if (power <= 0){
+    return `<strong>攻击被挡</strong>｜${attacker.name} 派出${unit.name}，但 ${target.name} 的防御挡住了 ${beforePower} 点攻击。`;
+  }
+  if (unitKey === "archer"){
+    const holding = target.holdings.find(item => item.type !== "wall" && (item.disabled || 0) <= 0);
+    if (holding) holding.disabled = 2;
+    return `<strong>远程攻击</strong>｜${attacker.name} 的${unit.name}让 ${target.name} 的${holding ? buildingCatalog[holding.type].name : "建筑"}暂停。`;
+  }
+  if (unitKey === "wizard"){
+    if (target.inventory.length){
+      const removed = target.inventory.shift();
+      return `<strong>谋略攻击</strong>｜${attacker.name} 的${unit.name}打散了 ${target.name} 的 ${lootCards[removed]?.name || "锦囊牌"}。`;
+    }
+    const stolen = stealCoins(attacker, target, Math.min(2, power));
+    return `<strong>谋略攻击</strong>｜${attacker.name} 的${unit.name}从 ${target.name} 那里夺走 ${stolen} 军粮。`;
+  }
+  if (unitKey === "dragon"){
+    const holding = [...target.holdings].sort((a,b) => b.level - a.level)[0];
+    let extra = "";
+    if (holding){
+      if (holding.level > 1) holding.level -= 1;
+      holding.disabled = 2;
+      extra = `，并削弱 ${buildingCatalog[holding.type].name}`;
+    }
+    const stolen = stealCoins(attacker, target, Math.min(3, power));
+    return `<strong>虎豹突袭</strong>｜${attacker.name} 的${unit.name}夺走 ${stolen} 军粮${extra}。`;
+  }
+  const stolen = stealCoins(attacker, target, Math.min(1 + power, 2));
+  return `<strong>轻骑冲阵</strong>｜${attacker.name} 的${unit.name}从 ${target.name} 那里夺走 ${stolen} 军粮。`;
+}
+
+function stealCoins(attacker, target, amount){
+  const stolen = Math.min(amount, Math.max(0, target.coins));
+  target.coins -= stolen;
+  attacker.coins += stolen;
+  return stolen;
+}
+
+function hasUsableCard(player){
+  return player.inventory.some(cardKey => lootCards[cardKey] && lootCards[cardKey].type === "active");
+}
+
+function useCard(id){
+  const player = players.find(item => item.id === id);
+  if (!player) return;
+  const cardIndex = player.inventory.findIndex(cardKey => lootCards[cardKey] && lootCards[cardKey].type === "active");
+  if (cardIndex < 0) return;
+  snapshot();
+  const cardKey = player.inventory.splice(cardIndex, 1)[0];
+  const card = lootCards[cardKey];
+  let message = "";
+  if (cardKey === "starKey"){
+    player.score += 2;
+    message = `${player.name} 使用 ${card.name}，自己 +2。`;
+    launchFireworks(2);
+  }else if (cardKey === "fireworkTicket"){
+    const paid = collectFromLeader(player, 1);
+    message = `${player.name} 使用 ${card.name}，向第一名收取 ${paid} 分。`;
+    launchFireworks(2);
+  }else if (cardKey === "map"){
+    surpriseChance = Math.min(0.9, surpriseChance + 0.3);
+    message = `${player.name} 使用 ${card.name}，下一次奇谋概率大幅提高。`;
+    launchFireworks(1);
+  }else{
+    player.score += 1;
+    message = `${player.name} 使用 ${card.name}，自己 +1。`;
+  }
+  pushEvent(`<strong>技能卡</strong>｜${message}`);
+  showToast(message);
+  showCardArt(card, message);
+  playTone("mystery");
+  render();
+  saveState();
+}
+
+function showCardArt(card, message){
+  els.modal.classList.add("open", "revealed");
+  els.boxResult.className = "result rare";
+  const art = card.art ? {src:card.art, alt:card.name} : null;
+  els.boxResult.innerHTML = `${renderEventArt({art})}<div class="rarity-badge">锦囊牌</div><h3>${escapeHtml(card.name)}</h3><p>${escapeHtml(message)}</p>`;
+  els.revealBox.disabled = true;
+}
+
+function showSkillArt(role, message, art){
+  els.modal.classList.add("open", "revealed");
+  els.boxResult.className = "result epic";
+  els.boxResult.innerHTML = `${renderEventArt({art})}<div class="rarity-badge">职业技能</div><h3>${escapeHtml(role.name)}</h3><p>${escapeHtml(message)}</p>`;
+  els.revealBox.disabled = true;
+}
+
+function sparkleCard(id){
+  const card = document.querySelector(`[data-player-id="${id}"]`);
+  if (!card) return;
+  card.animate([
+    {transform:"translateY(0) scale(1)"},
+    {transform:"translateY(-7px) scale(1.025)"},
+    {transform:"translateY(0) scale(1)"}
+  ], {duration:360, easing:"ease-out"});
+}
+
+function showToast(message){
+  els.toast.textContent = message;
+  els.toast.classList.add("show");
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => els.toast.classList.remove("show"), 2600);
+}
+
+function burstConfetti(count){
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const tabletMode = window.innerWidth <= 1180;
+  count = Math.min(count, tabletMode ? 22 : 34);
+  if (els.confetti.children.length > (tabletMode ? 48 : 64)) return;
+  const colors = ["#ffd36b","#c44736","#5fc59d","#5eb0c8","#cf6a45","#fff8e8"];
+  for (let index = 0; index < count; index++){
+    const piece = document.createElement("div");
+    piece.className = "confetti";
+    piece.style.left = `${Math.random() * 100}%`;
+    piece.style.top = `${-20 - Math.random() * 80}px`;
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDuration = `${900 + Math.random() * 900}ms`;
+    piece.style.transform = `rotate(${Math.random() * 180}deg)`;
+    els.confetti.appendChild(piece);
+    setTimeout(() => piece.remove(), 1900);
+  }
+}
+
+function initAudio(){
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+function playTone(type){
+  if (!soundOn) return;
+  initAudio();
+  const now = audioCtx.currentTime;
+  const notes = {
+    score:[523,659],
+    big:[523,784,1046],
+    soft:[392,523],
+    spin:[330,392,494,587],
+    mystery:[659,880,1174,1568],
+    fanfare:[523,659,784,1046,1318]
+  }[type] || [523];
+  notes.forEach((freq, index) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = index % 2 ? "triangle" : "sine";
+    osc.frequency.setValueAtTime(freq, now + index * .07);
+    gain.gain.setValueAtTime(0, now + index * .07);
+    gain.gain.linearRampToValueAtTime(.13, now + index * .07 + .018);
+    gain.gain.exponentialRampToValueAtTime(.001, now + index * .07 + .22);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(now + index * .07);
+    osc.stop(now + index * .07 + .24);
+  });
+}
+
+const canvas = document.getElementById("fireworks");
+const ctx = canvas.getContext("2d");
+let sparks = [];
+
+function resizeCanvas(){
+  const ratio = Math.min(window.devicePixelRatio || 1, window.innerWidth <= 1180 ? 1.25 : 1.75);
+  canvas.width = Math.ceil(window.innerWidth * ratio);
+  canvas.height = Math.ceil(window.innerHeight * ratio);
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+}
+
+function launchFireworks(count){
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const tabletMode = window.innerWidth <= 1180;
+  count = Math.min(count, tabletMode ? 3 : 4);
+  for (let i = 0; i < count; i++){
+    setTimeout(() => {
+      const x = window.innerWidth * (.18 + Math.random() * .64);
+      const y = window.innerHeight * (.15 + Math.random() * .32);
+      const color = ["#ffd36b","#c44736","#5fc59d","#5eb0c8","#fff8e8"][Math.floor(Math.random() * 5)];
+      const particleCount = tabletMode ? 20 : 28;
+      for (let j = 0; j < particleCount; j++){
+        const angle = Math.PI * 2 * (j / particleCount);
+        const speed = 1.1 + Math.random() * (tabletMode ? 3.2 : 3.8);
+        sparks.push({
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          life: 42 + Math.random() * (tabletMode ? 18 : 24),
+          color,
+          size:1.4 + Math.random() * (tabletMode ? 1.8 : 2.3),
+          spin:Math.random() * Math.PI,
+          shape:Math.random() < 0.38 ? "diamond" : "spark"
+        });
+      }
+      const maxSparks = tabletMode ? 180 : 280;
+      if (sparks.length > maxSparks) sparks.splice(0, sparks.length - maxSparks);
+      startFireworksLoop();
+    }, i * (tabletMode ? 180 : 220));
+  }
+}
+
+function startFireworksLoop(){
+  if (fireworksRunning) return;
+  fireworksRunning = true;
+  requestAnimationFrame(animateFireworks);
+}
+
+function animateFireworks(){
+  if (!sparks.length){
+    ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+    fireworksRunning = false;
+    return;
+  }
+  ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+  sparks = sparks.filter(spark => spark.life > 0);
+  sparks.forEach(spark => {
+    spark.x += spark.vx;
+    spark.y += spark.vy;
+    spark.vy += .035;
+    spark.spin += .08;
+    spark.life -= 1;
+    ctx.globalAlpha = Math.max(0, spark.life / 62);
+    ctx.fillStyle = spark.color;
+    if (spark.shape === "diamond"){
+      ctx.save();
+      ctx.translate(spark.x, spark.y);
+      ctx.rotate(spark.spin);
+      const size = spark.size || 2.3;
+      ctx.beginPath();
+      ctx.moveTo(0, -size * 1.8);
+      ctx.lineTo(size, 0);
+      ctx.lineTo(0, size * 1.8);
+      ctx.lineTo(-size, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }else{
+      ctx.beginPath();
+      ctx.arc(spark.x, spark.y, spark.size || 2.1, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+  ctx.globalAlpha = 1;
+  requestAnimationFrame(animateFireworks);
+}
+
+function openModal(autoEvent){
+  els.modal.classList.add("open");
+  els.modal.classList.remove("revealed");
+  els.boxResult.className = "result";
+  els.boxResult.innerHTML = `<h3>准备开锦囊</h3><p>点击下方按钮，看看军师锦囊里藏着什么奇谋。</p>`;
+  els.revealBox.disabled = false;
+  els.revealBox.dataset.autoEvent = autoEvent ? "1" : "";
+}
+
+function revealManualBox(){
+  snapshot();
+  const event = pickMystery();
+  els.modal.classList.add("revealed");
+  els.boxResult.className = `result ${event.rarity.key}`;
+  els.boxResult.innerHTML = `${renderEventArt(event)}<div class="rarity-badge">${escapeHtml(event.rarity.label)}</div><h3>${escapeHtml(event.title)}</h3><p>${escapeHtml(event.text)}</p>`;
+  els.revealBox.disabled = true;
+  applyMystery(event);
+  surpriseChance = 0.35;
+  render();
+  saveState();
+}
+
+function applyNames(){
+  const inputs = [...els.nameGrid.querySelectorAll("input")];
+  const roleSelects = [...els.nameGrid.querySelectorAll("select")];
+  snapshot();
+  players.forEach((player, index) => {
+    const value = inputs[index].value.trim();
+    player.name = value || defaultNames[index] || `玩家 ${index + 1}`;
+    const nextRole = roleSelects[index] ? roleSelects[index].value : player.role;
+    if (nextRole !== player.role){
+      player.skillUsed = false;
+      player.skillCooldown = 0;
+    }
+    player.role = nextRole;
+  });
+  pushEvent("玩家名称和职业已更新，新的军师队伍准备出发。");
+  render();
+  saveState();
+}
+
+function resetGame(){
+  els.resetModal.classList.add("open");
+}
+
+function confirmResetGame(){
+  const count = Number(els.playerCount.value) || players.length || 4;
+  const oldPlayers = players;
+  players = Array.from({length: count}, (_, index) => {
+    const oldPlayer = oldPlayers[index] || {};
+    return {
+      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + index),
+      name: oldPlayer.name || defaultNames[index] || `玩家 ${index + 1}`,
+      score: 0,
+      coins: 2,
+      color: palettes[index],
+      frozen: false,
+      streak: 0,
+      role: oldPlayer.role && roles[oldPlayer.role] ? oldPlayer.role : roleOrder[index % roleOrder.length],
+      skillUsed: false,
+      skillCooldown: 0,
+      inventory: [],
+      property: null,
+      holdings: [],
+      tech: {economy:0, building:0, magic:0, military:0},
+      army: {},
+      expeditionTreasure:null,
+      position: 0,
+      shieldTurns: 0,
+      lastAttackTargetId: null
+    };
+  });
+  eventLog = [];
+  history = [];
+  round = 1;
+  surpriseChance = 0.35;
+  expedition = createEmptyExpedition();
+  lastBoosts = [];
+  selectedResponderId = null;
+  allAnswerMode = false;
+  forcedResponderId = null;
+  secretFlashId = null;
+  secretTap = {id:null, count:0, time:0};
+  wheelRotation = 0;
+  wheelSignature = "";
+  clearSavedState();
+  syncNameInputs();
+  pushEvent("新一轮课堂积分赛开始。");
+  setStageTab("score");
+  els.resetModal.classList.remove("open");
+  render();
+  saveState();
+  showToast("已重置本轮，并清空旧存档。");
+  launchFireworks(1);
+}
+
+els.players.addEventListener("click", event => {
+  const nameTap = event.target.closest("[data-secret-id]");
+  if (nameTap){
+    handleSecretNameTap(nameTap.dataset.secretId);
+    return;
+  }
+  const skillButton = event.target.closest("button[data-skill-id]");
+  if (skillButton){
+    useRoleSkill(skillButton.dataset.skillId);
+    return;
+  }
+  const actionButton = event.target.closest("button[data-action-id]");
+  if (actionButton){
+    openActionPanel(actionButton.dataset.actionId, actionButton.dataset.actionMode);
+    return;
+  }
+  const cardButton = event.target.closest("button[data-card-id]");
+  if (cardButton){
+    useCard(cardButton.dataset.cardId);
+    return;
+  }
+  const button = event.target.closest("button[data-id]");
+  if (!button) return;
+  addScore(button.dataset.id, Number(button.dataset.score));
+});
+
+els.expeditionView.addEventListener("click", event => {
+  const shopClose = event.target.closest("button[data-expedition-shop-close]");
+  if (shopClose || event.target.dataset.expeditionShopBackdrop){
+    closeExpeditionShop();
+    return;
+  }
+  const undoButton = event.target.closest("button[data-expedition-undo]");
+  if (undoButton){
+    restoreSnapshot();
+    return;
+  }
+  const startButton = event.target.closest("button[data-expedition-start]");
+  if (startButton){
+    startExpedition();
+    return;
+  }
+  const restartButton = event.target.closest("button[data-expedition-restart]");
+  if (restartButton){
+    restartExpedition();
+    return;
+  }
+  const restButton = event.target.closest("button[data-expedition-rest]");
+  if (restButton && !restButton.disabled){
+    restExpeditionTeam();
+    return;
+  }
+  const shopOpenButton = event.target.closest("button[data-expedition-shop-open]");
+  if (shopOpenButton && !shopOpenButton.disabled){
+    openExpeditionShop();
+    return;
+  }
+  const shopRefreshButton = event.target.closest("button[data-expedition-shop-refresh]");
+  if (shopRefreshButton && !shopRefreshButton.disabled){
+    refreshExpeditionShop();
+    return;
+  }
+  const rewardButton = event.target.closest("button[data-expedition-reward]");
+  if (rewardButton){
+    chooseExpeditionReward(rewardButton.dataset.expeditionReward);
+    return;
+  }
+  const shopButton = event.target.closest("button[data-expedition-shop]");
+  if (shopButton && !shopButton.disabled){
+    buyExpeditionShopItem(shopButton.dataset.expeditionShop);
+    return;
+  }
+  const skillButton = event.target.closest("button[data-expedition-skill]");
+  if (skillButton && !skillButton.disabled){
+    useExpeditionSkill(skillButton.dataset.expeditionSkill);
+    return;
+  }
+  const cardButton = event.target.closest("button[data-expedition-card]");
+  if (cardButton && !cardButton.disabled){
+    useExpeditionCard(cardButton.dataset.expeditionCard);
+    return;
+  }
+  const treasureButton = event.target.closest("button[data-expedition-treasure]");
+  if (treasureButton && !treasureButton.disabled){
+    useExpeditionTreasure(treasureButton.dataset.expeditionTreasure);
+    return;
+  }
+  const hitButton = event.target.closest("button[data-expedition-hit]");
+  if (hitButton && !hitButton.disabled){
+    expeditionAnswer(hitButton.dataset.expeditionHit, Number(hitButton.dataset.expeditionScore));
+  }
+});
+
+els.playerCount.addEventListener("change", () => {
+  const count = Number(els.playerCount.value);
+  const oldPlayers = players;
+  snapshot();
+  players = Array.from({length: count}, (_, index) => oldPlayers[index] || {
+    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + index),
+    name: defaultNames[index] || `玩家 ${index + 1}`,
+    score: 0,
+    coins: 2,
+    color: palettes[index],
+    frozen: false,
+    streak: 0,
+    role: roleOrder[index % roleOrder.length],
+    skillUsed: false,
+    skillCooldown: 0,
+    inventory: [],
+    property: null,
+    holdings: [],
+    tech: {economy:0, building:0, magic:0, military:0},
+    army: {},
+    expeditionTreasure:null,
+    position: 0,
+    shieldTurns: 0,
+    lastAttackTargetId: null
+  });
+  players.forEach((player, index) => player.color = palettes[index]);
+  expedition = createEmptyExpedition();
+  normalizePlayers();
+  syncNameInputs();
+  pushEvent(`玩家人数调整为 ${count} 位。`);
+  render();
+  saveState();
+});
+
+els.nameGrid.addEventListener("change", event => {
+  const select = event.target.closest("select.role-select");
+  if (select) refreshRolePreview(select);
+});
+
+els.applyNames.addEventListener("click", applyNames);
+els.tabButtons.forEach(button => {
+  button.addEventListener("click", () => setAuxTab(button.dataset.tab));
+});
+els.stageButtons.forEach(button => {
+  button.addEventListener("click", () => setStageTab(button.dataset.stageTab));
+});
+els.spinBtn.addEventListener("click", spinResponderWheel);
+els.quickSpinBtn.addEventListener("click", spinResponderWheel);
+els.clearSelectionBtn.addEventListener("click", clearSelection);
+els.quickClearSelectionBtn.addEventListener("click", clearSelection);
+els.quickUndoBtn.addEventListener("click", restoreSnapshot);
+els.allPlusOneBtn.addEventListener("click", () => awardAll(1));
+els.allPlusTwoBtn.addEventListener("click", () => awardAll(2));
+els.quickAllPlusOneBtn.addEventListener("click", () => awardAll(1));
+els.quickAllPlusTwoBtn.addEventListener("click", () => awardAll(2));
+els.undoBtn.addEventListener("click", restoreSnapshot);
+els.resetBtn.addEventListener("click", resetGame);
+els.closeResetModal.addEventListener("click", () => els.resetModal.classList.remove("open"));
+els.cancelResetBtn.addEventListener("click", () => els.resetModal.classList.remove("open"));
+els.confirmResetBtn.addEventListener("click", confirmResetGame);
+els.resetModal.addEventListener("click", event => {
+  if (event.target === els.resetModal) els.resetModal.classList.remove("open");
+});
+els.soundBtn.addEventListener("click", () => {
+  soundOn = !soundOn;
+  if (soundOn) playTone("soft");
+  render();
+  saveState();
+});
+els.mysteryBtn.addEventListener("click", () => openModal(false));
+els.closeModal.addEventListener("click", () => els.modal.classList.remove("open"));
+els.modal.addEventListener("click", event => {
+  if (event.target === els.modal) els.modal.classList.remove("open");
+});
+els.closeActionModal.addEventListener("click", () => els.actionModal.classList.remove("open"));
+els.actionModal.addEventListener("click", event => {
+  if (event.target === els.actionModal) els.actionModal.classList.remove("open");
+});
+els.actionTabs.addEventListener("click", event => {
+  const button = event.target.closest("button[data-action-mode]");
+  if (!button) return;
+  activeAction.mode = button.dataset.actionMode;
+  renderActionPanel();
+});
+els.actionOptions.addEventListener("click", event => {
+  const button = event.target.closest("button[data-action-kind]");
+  if (!button || button.disabled) return;
+  handleActionChoice(button.dataset.actionKind, button.dataset.actionKey);
+});
+els.revealBox.addEventListener("click", revealManualBox);
+window.addEventListener("resize", resizeCanvas);
+
+if (!loadState()){
+  createPlayers(4);
+  pushEvent("三国军府亮灯，课堂积分赛准备开始。");
+}
+syncNameInputs();
+setAuxTab("game");
+setStageTab("score");
+resizeCanvas();
+render();
+</script>
+</body>
+</html>
