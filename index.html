@@ -2040,13 +2040,20 @@ body[data-stage-tab="scene"] .score-ribbon{
           </select>
         </div>
         <div class="field">
+          <label for="gameMode">课堂模式</label>
+          <select id="gameMode">
+            <option value="versus">军师争霸</option>
+            <option value="coop">合作闯关</option>
+          </select>
+        </div>
+        <div class="field">
           <label>玩家名字</label>
           <div class="name-grid" id="nameGrid"></div>
         </div>
         <button class="primary-btn" id="applyNames" type="button">应用名字</button>
         <div class="surprise-card">
           <h3>课堂玩法</h3>
-          <p>老师点击每位玩家的 +1 或 +2。可以 2-6 人争霸，也可以 1-6 人进入军师远征挑战 NPC。</p>
+          <p>老师点击每位玩家的 +1 或 +2。可以军师争霸，也可以切换合作闯关，共同算团队分挑战 NPC 和 Boss。</p>
         </div>
         <div class="surprise-card">
           <h3>三国军师提示</h3>
@@ -2084,9 +2091,9 @@ body[data-stage-tab="scene"] .score-ribbon{
         <button class="ghost-btn stage-tab" type="button" data-stage-tab="expedition">军师远征</button>
       </div>
       <div class="score-ribbon">
-        <div class="stat"><small>当前领先</small><strong id="leaderName">准备中</strong></div>
-        <div class="stat"><small>最高分</small><strong id="topScore">0</strong></div>
-        <div class="stat"><small>下一次奇谋概率</small><strong id="chanceText">35%</strong></div>
+        <div class="stat"><small id="leaderLabel">当前领先</small><strong id="leaderName">准备中</strong></div>
+        <div class="stat"><small id="topScoreLabel">最高分</small><strong id="topScore">0</strong></div>
+        <div class="stat"><small id="chanceLabel">下一次奇谋概率</small><strong id="chanceText">35%</strong></div>
       </div>
       <div class="quick-selector">
         <div class="selected-result" id="quickSelectedResult">还没有选中答题者。</div>
@@ -2180,7 +2187,7 @@ body[data-stage-tab="scene"] .score-ribbon{
             <div class="manual-item"><strong>3. 职业系统</strong><span>六个职业有被动和 3 回合冷却技能。军师爆发，将军经营，先锋机动，粮官拿资源，策士反领先，参谋控概率。</span></div>
             <div class="manual-item"><strong>4. 锦囊装备</strong><span>答题后可能掉锦囊，最多保留 3 张卡。锦囊令加分，藤甲挡租，连策军令下次额外 +1，檄文向第一名收费，沙盘提高锦囊概率。</span></div>
             <div class="manual-item"><strong>5. 大富翁经营</strong><span>军粮可建多种建筑并升级；科技能强化经济、建筑、谋略和军事，兵种攻击主要影响军粮、建筑和锦囊牌。</span></div>
-            <div class="manual-item"><strong>6. 军师远征</strong><span>1 人是单人闯关，2-6 人是合作讨伐。每关随机敌人、意图、商店货架和三选一遗物，队伍可用奇策、锦囊、个人宝物控场。</span></div>
+            <div class="manual-item"><strong>6. 军师远征</strong><span>1 人是单人闯关，2-6 人可合作讨伐。合作闯关会共同计算团队总分，职业轮换答题会触发连携伤害。</span></div>
           </div>
           <div class="manual-section-title">职业定位</div>
           <div class="manual-card-grid">
@@ -2385,6 +2392,10 @@ const LEGACY_STORAGE_KEYS = ["castleClassroomScoreboard", "castleClassroomScoreb
 let memoryState = "";
 let storageAvailable = null;
 let storageWarningShown = false;
+let gameMode = "versus";
+let teamScore = 0;
+let teamBestFloor = 1;
+let teamBossKills = 0;
 const lootCards = {
   starKey:{name:"锦囊令", art:"assets/icon-card-command-token.jpg", type:"active", text:"使用后自己 +2。"},
   shield:{name:"藤甲护符", art:"assets/icon-card-shield.jpg", type:"auto", text:"自动抵挡一次租金。"},
@@ -2406,7 +2417,10 @@ const expeditionEnemies = [
   {key:"fireShip", name:"赤壁火船", icon:"火", color:"#c44736", hp:12, attack:4, trait:"攻击凶，过关奖励更高。"},
   {key:"woodenOx", name:"机关木牛", icon:"木", color:"#5fc59d", hp:13, attack:2, trait:"会修复自身，拖久会麻烦。"},
   {key:"darkStrategist", name:"乱世军师", icon:"谋", color:"#3f77b6", hp:15, attack:3, trait:"会扰乱军心，提高远征随机性。"},
-  {key:"sima", name:"暗谋司马", icon:"司", color:"#b85b73", hp:22, attack:4, boss:true, trait:"每 5 关出现的 Boss，拥有更强意图。"}
+  {key:"sima", name:"暗谋司马", icon:"司", color:"#b85b73", hp:22, attack:4, boss:true, trait:"每 5 关出现的 Boss，拥有更强意图。"},
+  {key:"yilingFire", name:"夷陵火阵", icon:"焰", color:"#c44736", hp:24, attack:5, boss:true, trait:"Boss 会连续施压，适合用护阵和补给稳住。"},
+  {key:"wuzhangShadow", name:"五丈原影卫", icon:"影", color:"#3f77b6", hp:26, attack:4, boss:true, trait:"Boss 会扰乱士气，职业轮换越重要。"},
+  {key:"tigerGate", name:"虎牢关巨将", icon:"关", color:"#8a6d42", hp:28, attack:5, boss:true, trait:"Boss 血厚且容易架盾，需要集中破盾。"}
 ];
 const expeditionRelics = {
   warDrum:{name:"赤壁战鼓", icon:"鼓", pos:"0% 0%", text:"+2 答题额外造成 1 伤害。"},
@@ -2477,12 +2491,16 @@ let fireworksRunning = false;
 
 const els = {
   playerCount: document.getElementById("playerCount"),
+  gameMode: document.getElementById("gameMode"),
   nameGrid: document.getElementById("nameGrid"),
   players: document.getElementById("players"),
   leaderboard: document.getElementById("leaderboard"),
+  leaderLabel: document.getElementById("leaderLabel"),
   eventLog: document.getElementById("eventLog"),
   leaderName: document.getElementById("leaderName"),
+  topScoreLabel: document.getElementById("topScoreLabel"),
   topScore: document.getElementById("topScore"),
+  chanceLabel: document.getElementById("chanceLabel"),
   chanceText: document.getElementById("chanceText"),
   factionMap: document.getElementById("factionMap"),
   powerList: document.getElementById("powerList"),
@@ -2544,7 +2562,7 @@ function canUseStorage(){
 
 function buildStatePayload(){
   return JSON.stringify({
-    schema:4, players, eventLog, expedition, round, soundOn, surpriseChance, selectedResponderId, allAnswerMode, forcedResponderId, wheelRotation
+    schema:5, players, eventLog, expedition, round, soundOn, surpriseChance, selectedResponderId, allAnswerMode, forcedResponderId, wheelRotation, gameMode, teamScore, teamBestFloor, teamBossKills
   });
 }
 
@@ -2592,6 +2610,10 @@ function loadState(){
     allAnswerMode = saved.allAnswerMode || false;
     forcedResponderId = saved.forcedResponderId || null;
     wheelRotation = saved.wheelRotation || 0;
+    gameMode = saved.gameMode === "coop" ? "coop" : "versus";
+    teamScore = Math.max(0, Math.floor(saved.teamScore || 0));
+    teamBestFloor = Math.max(1, Math.floor(saved.teamBestFloor || 1));
+    teamBossKills = Math.max(0, Math.floor(saved.teamBossKills || 0));
     normalizePlayers();
     normalizeExpedition();
     return players.length >= 1;
@@ -2634,7 +2656,14 @@ function createPlayers(count){
   history = [];
   round = 1;
   surpriseChance = 0.35;
+  teamScore = 0;
+  teamBestFloor = 1;
+  teamBossKills = 0;
   expedition = createEmptyExpedition();
+  gameMode = "versus";
+  teamScore = 0;
+  teamBestFloor = 1;
+  teamBossKills = 0;
   selectedResponderId = null;
   allAnswerMode = false;
   forcedResponderId = null;
@@ -2651,6 +2680,9 @@ function createEmptyExpedition(){
     maxTeamHp:0,
     morale:0,
     provisions:0,
+    runScore:0,
+    coopCombo:0,
+    lastRole:null,
     enemy:null,
     intent:null,
     shield:0,
@@ -2682,6 +2714,7 @@ function syncNameInputs(){
     els.nameGrid.appendChild(row);
   });
   els.playerCount.value = String(players.length);
+  els.gameMode.value = gameMode;
 }
 
 function refreshRolePreview(select){
@@ -2754,6 +2787,9 @@ function normalizeExpedition(){
   if (typeof expedition.maxTeamHp !== "number") expedition.maxTeamHp = 0;
   if (typeof expedition.morale !== "number") expedition.morale = 0;
   if (typeof expedition.provisions !== "number") expedition.provisions = 0;
+  if (typeof expedition.runScore !== "number") expedition.runScore = 0;
+  if (typeof expedition.coopCombo !== "number") expedition.coopCombo = 0;
+  if (typeof expedition.lastRole !== "string") expedition.lastRole = null;
   if (typeof expedition.shield !== "number") expedition.shield = 0;
   if (typeof expedition.guard !== "number") expedition.guard = 0;
   if (typeof expedition.shopRefreshes !== "number") expedition.shopRefreshes = 0;
@@ -2764,6 +2800,9 @@ function normalizeExpedition(){
   expedition.maxTeamHp = Math.max(0, Math.floor(expedition.maxTeamHp));
   expedition.morale = Math.max(0, Math.floor(expedition.morale));
   expedition.provisions = Math.max(0, Math.floor(expedition.provisions));
+  expedition.runScore = Math.max(0, Math.floor(expedition.runScore));
+  expedition.coopCombo = Math.max(0, Math.floor(expedition.coopCombo));
+  if (expedition.lastRole && !roles[expedition.lastRole]) expedition.lastRole = null;
   expedition.shield = Math.max(0, Math.floor(expedition.shield));
   expedition.guard = Math.max(0, Math.floor(expedition.guard));
   expedition.shopRefreshes = Math.max(0, Math.floor(expedition.shopRefreshes));
@@ -2969,8 +3008,45 @@ function setStageTab(tab){
   if (tab === "expedition") renderExpedition();
 }
 
+function isCoopMode(){
+  return gameMode === "coop";
+}
+
+function getModeName(){
+  return isCoopMode() ? "合作闯关" : "军师争霸";
+}
+
+function getTeamRoleDiversity(){
+  return new Set(players.map(player => player.role)).size;
+}
+
+function getCoopHpBonus(){
+  return isCoopMode() ? getTeamRoleDiversity() * 2 : 0;
+}
+
+function grantTeamScore(amount, reason){
+  if (!isCoopMode() || amount <= 0) return;
+  teamScore += amount;
+  if (expedition && typeof expedition.runScore === "number") expedition.runScore += amount;
+  if (reason) pushExpeditionLog(`团队总分 +${amount}：${reason}。`);
+}
+
+function switchGameMode(mode){
+  const nextMode = mode === "coop" ? "coop" : "versus";
+  if (nextMode === gameMode) return;
+  snapshot();
+  gameMode = nextMode;
+  selectedResponderId = null;
+  allAnswerMode = false;
+  expedition = createEmptyExpedition();
+  pushEvent(`<strong>课堂模式</strong>｜已切换为 ${getModeName()}。`);
+  showToast(`已切换为${getModeName()}`);
+  render();
+  saveState();
+}
+
 function snapshot(){
-  history.push(JSON.stringify({players, eventLog, expedition, round, surpriseChance, lastBoosts, selectedResponderId, allAnswerMode, forcedResponderId, wheelRotation}));
+  history.push(JSON.stringify({players, eventLog, expedition, round, surpriseChance, lastBoosts, selectedResponderId, allAnswerMode, forcedResponderId, wheelRotation, gameMode, teamScore, teamBestFloor, teamBossKills}));
   if (history.length > 25) history.shift();
 }
 
@@ -2991,6 +3067,10 @@ function restoreSnapshot(){
   allAnswerMode = state.allAnswerMode || false;
   forcedResponderId = state.forcedResponderId || null;
   wheelRotation = state.wheelRotation || 0;
+  gameMode = state.gameMode || "versus";
+  teamScore = Math.max(0, Math.floor(state.teamScore || 0));
+  teamBestFloor = Math.max(1, Math.floor(state.teamBestFloor || 1));
+  teamBossKills = Math.max(0, Math.floor(state.teamBossKills || 0));
   secretFlashId = null;
   secretTap = {id:null, count:0, time:0};
   normalizeExpedition();
@@ -3018,11 +3098,14 @@ function addScore(id, amount){
   snapshot();
   const finalAmount = applyScoreModifiers(player, amount);
   player.score += finalAmount;
+  if (isCoopMode()) teamScore += finalAmount;
   const earnedCoins = grantAnswerCoins(player, amount);
   player.streak = amount === 2 ? player.streak + 1 : 0;
   lastBoosts.push({id, amount});
   if (lastBoosts.length > 5) lastBoosts.shift();
-  pushEvent(`${player.name} 获得 +${finalAmount} 分和 ${earnedCoins} 军粮，军旗升起。`);
+  pushEvent(isCoopMode()
+    ? `${player.name} 贡献 +${finalAmount} 团队分和 ${earnedCoins} 军粮，军旗升起。`
+    : `${player.name} 获得 +${finalAmount} 分和 ${earnedCoins} 军粮，军旗升起。`);
   playTone(amount === 2 ? "big" : "score");
   sparkleCard(id);
   burstConfetti(amount === 2 ? 18 : 10);
@@ -3491,12 +3574,16 @@ function render(){
   const sorted = [...players].sort((a,b) => b.score - a.score);
   const leader = sorted[0];
   const topScore = leader ? leader.score : 0;
-  els.leaderName.textContent = leader ? leader.name : "准备中";
-  els.topScore.textContent = String(topScore);
-  els.chanceText.textContent = `${Math.round(surpriseChance * 100)}%`;
+  els.leaderLabel.textContent = isCoopMode() ? "当前模式" : "当前领先";
+  els.leaderName.textContent = isCoopMode() ? "合作闯关" : leader ? leader.name : "准备中";
+  els.topScoreLabel.textContent = isCoopMode() ? "团队总分" : "最高分";
+  els.topScore.textContent = isCoopMode() ? String(teamScore) : String(topScore);
+  els.chanceLabel.textContent = isCoopMode() ? "最高层 / Boss" : "下一次奇谋概率";
+  els.chanceText.textContent = isCoopMode() ? `${teamBestFloor} / ${teamBossKills}` : `${Math.round(surpriseChance * 100)}%`;
   els.eventCount.textContent = `${eventLog.length} 件事`;
   els.roundInfo.textContent = `第 ${round} 回合`;
   els.soundBtn.textContent = `声音：${soundOn ? "开" : "关"}`;
+  els.gameMode.value = gameMode;
   els.easterHint.textContent = hkHints[round % hkHints.length];
   const selected = players.find(player => player.id === selectedResponderId);
   els.selectedResult.innerHTML = allAnswerMode
@@ -3553,7 +3640,7 @@ function render(){
       <div class="asset-dashboard">${renderPlayerAssetPanel(player)}</div>
       <div>
         <div class="score">${player.score}</div>
-        <div class="score-label">课堂积分</div>
+        <div class="score-label">${isCoopMode() ? "团队贡献" : "课堂积分"}</div>
       </div>
       <div class="score-actions">
         <button type="button" data-id="${player.id}" data-score="1">+1</button>
@@ -3574,7 +3661,7 @@ function render(){
   sorted.forEach((player, index) => {
     const row = document.createElement("div");
     row.className = "leader-row";
-    row.innerHTML = `<span>${index + 1}</span><span>${escapeHtml(player.name)} · ${player.coins}军粮</span><strong>${player.score}</strong>`;
+    row.innerHTML = `<span>${index + 1}</span><span>${escapeHtml(player.name)} · ${player.coins}军粮</span><strong>${player.score}${isCoopMode() ? "贡献" : ""}</strong>`;
     els.leaderboard.appendChild(row);
   });
   renderFactionPower();
@@ -3640,17 +3727,20 @@ function startExpedition(){
   expedition.active = true;
   expedition.runOver = false;
   expedition.floor = 1;
-  expedition.maxTeamHp = 12 + players.length * 4;
+  expedition.maxTeamHp = 12 + players.length * 4 + getCoopHpBonus();
   expedition.teamHp = expedition.maxTeamHp;
   expedition.provisions = players.length + 1;
   expedition.morale = 0;
+  expedition.runScore = 0;
+  expedition.coopCombo = 0;
+  expedition.lastRole = null;
   expedition.relics = [];
   expedition.log = [];
   players.forEach(player => {
     player.expeditionTreasure = drawExpeditionTreasure();
   });
   startExpeditionFloor();
-  pushEvent(`<strong>军师远征</strong>｜${players.length === 1 ? "单人闯关" : `${players.length} 人合作讨伐`}开始，第 1 关敌军现身。`);
+  pushEvent(`<strong>军师远征</strong>｜${isCoopMode() ? `合作闯关开始，${getTeamRoleDiversity()} 种职业组成同盟` : players.length === 1 ? "单人闯关" : `${players.length} 人合作讨伐`}，第 1 关敌军现身。`);
   showToast("军师远征开始。");
   playTone("mystery");
   render();
@@ -3697,12 +3787,13 @@ function createExpeditionEnemy(floor){
   const pool = expeditionEnemies.filter(enemy => bossFloor ? enemy.boss : !enemy.boss);
   const base = pool[Math.floor(Math.random() * pool.length)] || expeditionEnemies[0];
   const playerScale = Math.max(1, players.length);
-  const maxHp = Math.round(base.hp + floor * (bossFloor ? 4.2 : 2.8) + playerScale * (bossFloor ? 4 : 2.6));
+  const longRunEase = isCoopMode() ? 0.86 : 1;
+  const maxHp = Math.round(base.hp + floor * (bossFloor ? 4.2 : 2.8) * longRunEase + playerScale * (bossFloor ? 4 : 2.6));
   return {
     ...base,
     hp:maxHp,
     maxHp,
-    attack:base.attack + Math.floor(floor / 4) + (bossFloor ? 1 : 0)
+    attack:base.attack + Math.floor(floor / (isCoopMode() ? 5 : 4)) + (bossFloor ? 1 : 0)
   };
 }
 
@@ -3718,6 +3809,33 @@ function rollExpeditionIntent(enemy){
   return {type, value, label:meta.label, icon:meta.icon, text:meta.text};
 }
 
+function getCoopSynergyDamage(player, amount){
+  if (!isCoopMode()) return 0;
+  let bonus = 0;
+  const diversity = getTeamRoleDiversity();
+  if (diversity >= 3 && amount === 2) bonus += 1;
+  if (expedition.lastRole && expedition.lastRole !== player.role) bonus += 1;
+  if ((expedition.coopCombo || 0) >= 4 && amount === 2) bonus += 1;
+  return bonus;
+}
+
+function recordCoopAnswer(player, amount, finalAmount, synergy){
+  if (!isCoopMode()) return;
+  teamScore += finalAmount;
+  expedition.runScore += finalAmount;
+  if (expedition.lastRole && expedition.lastRole !== player.role){
+    expedition.coopCombo += 1;
+  }else if (!expedition.lastRole){
+    expedition.coopCombo = 1;
+  }else{
+    expedition.coopCombo = Math.max(1, Math.floor(expedition.coopCombo / 2));
+  }
+  expedition.lastRole = player.role;
+  if (synergy > 0){
+    pushExpeditionLog(`合作连携生效，${roles[player.role]?.name || "队员"} 追加 ${synergy} 协作伤害。`);
+  }
+}
+
 function getExpeditionDamage(player, amount, finalAmount){
   let damage = finalAmount;
   damage += getRelicLevel("tigerSeal");
@@ -3727,6 +3845,7 @@ function getExpeditionDamage(player, amount, finalAmount){
   if (player.role === "vanguard" && amount === 2) damage += 1;
   if (player.role === "director" && expedition.enemy?.boss) damage += 1;
   if (expedition.morale >= 6 && amount === 2) damage += 1;
+  damage += getCoopSynergyDamage(player, amount);
   return Math.max(1, damage);
 }
 
@@ -3761,7 +3880,9 @@ function expeditionAnswer(id, amount){
   player.score += finalAmount;
   const earnedCoins = grantAnswerCoins(player, amount);
   player.streak = amount === 2 ? player.streak + 1 : 0;
+  const synergyDamage = getCoopSynergyDamage(player, amount);
   const damage = getExpeditionDamage(player, amount, finalAmount);
+  recordCoopAnswer(player, amount, finalAmount, synergyDamage);
   const absorbed = Math.min(expedition.shield, damage);
   expedition.shield -= absorbed;
   const realDamage = damage - absorbed;
@@ -3829,6 +3950,12 @@ function finishExpeditionFloor(player){
   expedition.morale += enemy.boss ? 4 : 2;
   expedition.provisions += enemy.boss ? 4 : 2;
   player.score += enemy.boss ? 2 : 1;
+  if (isCoopMode()){
+    const clearScore = enemy.boss ? 8 : 3;
+    grantTeamScore(clearScore, enemy.boss ? "Boss 讨伐奖励" : "关卡推进奖励");
+    teamBestFloor = Math.max(teamBestFloor, expedition.floor + 1);
+    if (enemy.boss) teamBossKills += 1;
+  }
   if (getRelicLevel("greenBag")){
     const heal = 3 * getRelicLevel("greenBag");
     expedition.teamHp = Math.min(expedition.maxTeamHp, expedition.teamHp + heal);
@@ -3847,8 +3974,8 @@ function finishExpeditionRun(victory){
   expedition.active = false;
   expedition.rewards = [];
   pushExpeditionLog(victory ? "远征凯旋，军府留名。" : "军府耐久归零，本次远征结束。");
-  pushEvent(`<strong>远征结束</strong>｜本次到达第 ${expedition.floor} 关，击败 ${expedition.defeated} 名敌军。`);
-  showToast(`远征结束：击败 ${expedition.defeated} 名敌军。`);
+  pushEvent(`<strong>远征结束</strong>｜本次到达第 ${expedition.floor} 关，击败 ${expedition.defeated} 名敌军${isCoopMode() ? `，团队总分 ${teamScore}` : ""}。`);
+  showToast(`远征结束：击败 ${expedition.defeated} 名敌军${isCoopMode() ? `，团队总分 ${teamScore}` : ""}。`);
   playTone(victory ? "fanfare" : "soft");
 }
 
@@ -4022,6 +4149,7 @@ function useExpeditionTreasure(id){
     message += ` 破盾 ${broken}。`;
   }
   pushExpeditionLog(message);
+  if (isCoopMode()) grantTeamScore(1, "个人宝物协作");
   if (damage > 0) strikeExpeditionEnemy(`个人宝物「${treasure.name}」`, damage, player);
   pushEvent(`<strong>个人宝物</strong>｜${message}`);
   playTone(damage > 0 ? "big" : "mystery");
@@ -4073,6 +4201,7 @@ function useExpeditionSkill(id){
   player.skillCooldown = 3;
   player.skillUsed = true;
   pushExpeditionLog(message);
+  if (isCoopMode()) grantTeamScore(1, "职业奇策协作");
   if (damage > 0) strikeExpeditionEnemy(`${role.name}奇策`, damage, player);
   pushEvent(`<strong>远征奇策</strong>｜${message}`);
   playTone(damage >= 4 ? "fanfare" : "mystery");
@@ -4125,7 +4254,7 @@ function renderRelics(){
 function renderExpedition(){
   if (!els.expeditionView) return;
   normalizeExpedition();
-  const modeText = players.length === 1 ? "单人闯关" : `${players.length} 人合作讨伐`;
+  const modeText = isCoopMode() ? `${players.length} 人合作闯关` : players.length === 1 ? "单人闯关" : `${players.length} 人合作讨伐`;
   if (!expedition.active && !expedition.runOver){
     els.expeditionView.innerHTML = `
       <div class="expedition-hero">
@@ -4152,10 +4281,10 @@ function renderExpedition(){
             <span class="enemy-badge">新模式</span>
           </div>
           <div class="expedition-stats">
-            <div class="expedition-stat"><small>起始军府耐久</small><strong>${12 + players.length * 4}</strong></div>
+            <div class="expedition-stat"><small>起始军府耐久</small><strong>${12 + players.length * 4 + getCoopHpBonus()}</strong></div>
             <div class="expedition-stat"><small>队伍规模</small><strong>${players.length}</strong></div>
-            <div class="expedition-stat"><small>奖励方式</small><strong>三选一</strong></div>
-            <div class="expedition-stat"><small>敌人刷新</small><strong>随机</strong></div>
+            <div class="expedition-stat"><small>${isCoopMode() ? "团队总分" : "奖励方式"}</small><strong>${isCoopMode() ? teamScore : "三选一"}</strong></div>
+            <div class="expedition-stat"><small>${isCoopMode() ? "职业搭配" : "敌人刷新"}</small><strong>${isCoopMode() ? `${getTeamRoleDiversity()} 种` : "随机"}</strong></div>
           </div>
         </section>
       </div>
@@ -4221,7 +4350,7 @@ function renderExpedition(){
     return `<article class="expedition-player" style="--player-color:${player.color}">
       <h3>${escapeHtml(player.name)} · ${escapeHtml(role.icon)} ${escapeHtml(role.name)}</h3>
       <div class="resource-strip">
-        <span class="mini-tag">积分：${player.score}</span>
+        <span class="mini-tag">${isCoopMode() ? "贡献" : "积分"}：${player.score}</span>
         <span class="mini-tag">军粮：${player.coins}</span>
         <span class="mini-tag">奇策：${player.skillCooldown > 0 ? `冷却 ${player.skillCooldown}` : "可用"}</span>
         <span class="mini-tag">宝物：${treasure ? "已备" : "空"}</span>
@@ -4265,9 +4394,10 @@ function renderExpedition(){
         <h2>远征控台</h2>
         <div class="expedition-stats">
           <div class="expedition-stat"><small>军府耐久</small><strong>${expedition.teamHp}/${expedition.maxTeamHp}</strong></div>
-          <div class="expedition-stat"><small>当前层数</small><strong>${expedition.floor}</strong></div>
-          <div class="expedition-stat"><small>已击败</small><strong>${expedition.defeated}</strong></div>
+          <div class="expedition-stat"><small>${isCoopMode() ? "团队总分" : "当前层数"}</small><strong>${isCoopMode() ? teamScore : expedition.floor}</strong></div>
+          <div class="expedition-stat"><small>${isCoopMode() ? "连携 / 职业" : "已击败"}</small><strong>${isCoopMode() ? `${expedition.coopCombo} / ${getTeamRoleDiversity()}` : expedition.defeated}</strong></div>
           <div class="expedition-stat"><small>粮草 / 士气 / 护阵</small><strong>${expedition.provisions} / ${expedition.morale} / ${expedition.guard}</strong></div>
+          ${isCoopMode() ? `<div class="expedition-stat"><small>本次远征</small><strong>${expedition.runScore}</strong></div><div class="expedition-stat"><small>最高层 / Boss</small><strong>${teamBestFloor} / ${teamBossKills}</strong></div>` : ""}
         </div>
         <div class="expedition-actions">
           <button class="ghost-btn" type="button" data-expedition-rest="1" ${expedition.provisions >= 3 && expedition.active ? "" : "disabled"}>粮草修整</button>
@@ -4421,7 +4551,10 @@ function handleSecretNameTap(id){
 function awardAll(amount){
   snapshot();
   players.forEach(player => player.score += amount);
-  pushEvent(`<strong>全员抢答</strong>｜这是课堂辅助奖励，不是个人策略技能。每位玩家 +${amount}。`);
+  if (isCoopMode()) teamScore += amount * players.length;
+  pushEvent(isCoopMode()
+    ? `<strong>全员抢答</strong>｜全队协作答题，每位玩家贡献 +${amount}，团队总分 +${amount * players.length}。`
+    : `<strong>全员抢答</strong>｜这是课堂辅助奖励，不是个人策略技能。每位玩家 +${amount}。`);
   launchFireworks(amount === 2 ? 4 : 2);
   burstConfetti(amount === 2 ? 42 : 24);
   playTone(amount === 2 ? "fanfare" : "big");
@@ -5210,6 +5343,10 @@ els.playerCount.addEventListener("change", () => {
   pushEvent(`玩家人数调整为 ${count} 位。`);
   render();
   saveState();
+});
+
+els.gameMode.addEventListener("change", () => {
+  switchGameMode(els.gameMode.value);
 });
 
 els.nameGrid.addEventListener("change", event => {
