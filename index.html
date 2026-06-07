@@ -835,10 +835,13 @@ body[data-stage-tab="scene"] .score-ribbon{
   gap:10px;
   align-items:center;
 }
-.enemy-seal{
-  width:54px;
-  height:54px;
+.enemy-seal,.enemy-portrait{
+  width:62px;
+  height:62px;
   border-radius:var(--radius);
+  flex:0 0 auto;
+}
+.enemy-seal{
   display:grid;
   place-items:center;
   font-size:27px;
@@ -848,6 +851,24 @@ body[data-stage-tab="scene"] .score-ribbon{
     linear-gradient(135deg, rgba(255,255,255,.22), transparent 38%),
     var(--enemy-color, var(--gold));
   box-shadow:0 0 0 1px rgba(255,255,255,.28), 0 10px 22px rgba(0,0,0,.26);
+}
+.enemy-portrait{
+  position:relative;
+  overflow:hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.08), rgba(3,7,20,.16)),
+    url("assets/enemy-boss-sheet.jpg") var(--enemy-pos, 0% 0%) / 400% 200% no-repeat;
+  border:2px solid var(--enemy-color, var(--gold));
+  box-shadow:0 0 0 1px rgba(255,255,255,.2), 0 12px 26px rgba(0,0,0,.35), 0 0 18px color-mix(in srgb, var(--enemy-color, var(--gold)) 42%, transparent);
+}
+.enemy-portrait:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  box-shadow:inset 0 -24px 22px rgba(3,7,20,.3), inset 0 0 18px rgba(255,211,107,.16);
+}
+.enemy-card.enemy-hidden .enemy-portrait{
+  animation:mythicPulse 1.9s ease-in-out infinite;
 }
 .enemy-badge{
   min-height:28px;
@@ -862,6 +883,23 @@ body[data-stage-tab="scene"] .score-ribbon{
   font-size:12px;
   font-weight:900;
   white-space:nowrap;
+}
+.enemy-badge.enemy-tier{
+  background:color-mix(in srgb, var(--enemy-color, var(--gold)) 24%, rgba(3,7,20,.3));
+  border-color:color-mix(in srgb, var(--enemy-color, var(--gold)) 54%, rgba(255,255,255,.12));
+  color:#fff8e8;
+}
+.enemy-card.enemy-elite{
+  border-color:rgba(132,204,255,.28);
+}
+.enemy-card.enemy-boss{
+  border-color:rgba(255,211,107,.34);
+  box-shadow:0 16px 34px rgba(0,0,0,.3), 0 0 22px rgba(255,211,107,.12);
+}
+.enemy-card.enemy-hidden{
+  --rarity-glow:rgba(255,89,104,.42);
+  border-color:rgba(255,85,85,.46);
+  box-shadow:0 16px 34px rgba(0,0,0,.34), 0 0 28px rgba(255,62,78,.2);
 }
 .hp-shell{
   height:18px;
@@ -908,6 +946,14 @@ body[data-stage-tab="scene"] .score-ribbon{
   background:rgba(255,255,255,.08);
   padding:7px;
 }
+.relic-chip,.reward-card,.shop-card{
+  --rarity-color:#b8bec7;
+  --rarity-glow:rgba(184,190,199,.18);
+}
+.relic-chip{
+  border-color:color-mix(in srgb, var(--rarity-color) 38%, rgba(255,255,255,.12));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 0 14px var(--rarity-glow);
+}
 .relic-icon,.reward-icon{
   display:block;
   border-radius:7px;
@@ -939,27 +985,68 @@ body[data-stage-tab="scene"] .score-ribbon{
   grid-template-columns:repeat(3, minmax(0,1fr));
 }
 .reward-card{
+  position:relative;
   min-height:112px;
   text-align:left;
   border-radius:var(--radius);
-  border:1px solid rgba(255,223,146,.18);
+  border:1px solid color-mix(in srgb, var(--rarity-color) 44%, rgba(255,223,146,.18));
   background:
-    linear-gradient(135deg, rgba(255,211,107,.18), transparent 42%),
+    linear-gradient(135deg, color-mix(in srgb, var(--rarity-color) 24%, transparent), transparent 42%),
     linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.055));
   color:#fff;
   padding:9px;
   display:grid;
+  grid-template-columns:clamp(54px, 7.2vw, 76px) 1fr;
   grid-template-rows:auto auto 1fr;
   gap:7px;
-  align-content:start;
+  align-items:center;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.12), 0 0 18px var(--rarity-glow);
+}
+.reward-card.rarity-legend,.reward-card.rarity-mythic{
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 0 24px var(--rarity-glow);
+}
+.reward-card.rarity-mythic{
+  animation:mythicPulse 2s ease-in-out infinite;
 }
 .reward-icon{
   width:clamp(54px, 7.2vw, 76px);
   height:clamp(54px, 7.2vw, 76px);
+  grid-row:1 / span 3;
   justify-self:center;
 }
 .reward-card strong{color:var(--gold);font-size:13px;line-height:1.2}
 .reward-card span{color:rgba(255,255,255,.76);font-size:11px;line-height:1.32}
+.reward-card .rarity-badge{
+  justify-self:start;
+}
+.reward-card .rarity-badge,
+.reward-card strong,
+.reward-card > span:not(.reward-icon){
+  grid-column:2;
+}
+.rarity-badge{
+  display:inline-flex;
+  width:max-content;
+  min-height:20px;
+  align-items:center;
+  justify-content:center;
+  padding:0 7px;
+  border-radius:999px;
+  border:1px solid color-mix(in srgb, var(--rarity-color) 62%, rgba(255,255,255,.16));
+  background:color-mix(in srgb, var(--rarity-color) 20%, rgba(3,7,20,.52));
+  color:#fff8e8;
+  font-size:10px;
+  font-weight:950;
+}
+.rarity-common{--rarity-color:#aeb6bf;--rarity-glow:rgba(174,182,191,.16)}
+.rarity-rare{--rarity-color:#5eb0c8;--rarity-glow:rgba(94,176,200,.22)}
+.rarity-epic{--rarity-color:#a879ff;--rarity-glow:rgba(168,121,255,.26)}
+.rarity-legend{--rarity-color:#ffd36b;--rarity-glow:rgba(255,211,107,.34)}
+.rarity-mythic{--rarity-color:#ff5968;--rarity-glow:rgba(255,89,104,.38)}
+@keyframes mythicPulse{
+  0%,100%{filter:saturate(1);box-shadow:inset 0 1px 0 rgba(255,255,255,.18), 0 0 18px var(--rarity-glow)}
+  50%{filter:saturate(1.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.24), 0 0 32px var(--rarity-glow)}
+}
 .shop-grid{
   grid-template-columns:repeat(4, minmax(0,1fr));
 }
@@ -967,13 +1054,16 @@ body[data-stage-tab="scene"] .score-ribbon{
   min-height:112px;
   text-align:left;
   border-radius:var(--radius);
-  border:1px solid rgba(255,223,146,.16);
-  background:linear-gradient(180deg, rgba(255,211,107,.12), rgba(255,255,255,.05));
+  border:1px solid color-mix(in srgb, var(--rarity-color) 36%, rgba(255,223,146,.16));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--rarity-color) 18%, transparent), transparent 44%),
+    linear-gradient(180deg, rgba(255,211,107,.12), rgba(255,255,255,.05));
   color:#fff;
   padding:10px;
   display:grid;
   gap:6px;
   align-content:start;
+  box-shadow:0 0 16px var(--rarity-glow);
 }
 .shop-card strong{
   color:var(--gold);
@@ -996,6 +1086,16 @@ body[data-stage-tab="scene"] .score-ribbon{
   color:var(--gold);
   font-size:11px;
   font-weight:950;
+}
+.shop-card .rarity-badge{
+  background:color-mix(in srgb, var(--rarity-color) 20%, rgba(3,7,20,.52));
+  border-color:color-mix(in srgb, var(--rarity-color) 62%, rgba(255,255,255,.16));
+  color:#fff8e8;
+}
+.mini-tag.rarity-common,.mini-tag.rarity-rare,.mini-tag.rarity-epic,.mini-tag.rarity-legend,.mini-tag.rarity-mythic{
+  border-color:color-mix(in srgb, var(--rarity-color) 46%, rgba(255,255,255,.13));
+  color:#fff8e8;
+  box-shadow:0 0 10px var(--rarity-glow);
 }
 .shop-card:disabled,.reward-card:disabled{opacity:.45;cursor:not-allowed}
 .expedition-shop-drawer{
@@ -1077,6 +1177,82 @@ body[data-stage-tab="scene"] .score-ribbon{
 }
 .expedition-log .event{
   margin:0;
+}
+.expedition-result{
+  display:grid;
+  gap:10px;
+}
+.result-panel{
+  position:relative;
+  overflow:hidden;
+  padding:14px;
+  background:
+    linear-gradient(135deg, rgba(255,211,107,.18), transparent 35%, rgba(255,89,104,.1)),
+    linear-gradient(180deg, rgba(31,20,15,.9), rgba(5,8,12,.96)),
+    url("assets/coop-route-chart.jpg") center / cover no-repeat;
+}
+.result-panel:before{
+  content:"MYSKME";
+  position:absolute;
+  right:14px;
+  bottom:10px;
+  color:rgba(255,235,175,.36);
+  font-size:13px;
+  font-weight:950;
+  letter-spacing:3px;
+}
+.result-title{
+  display:grid;
+  gap:5px;
+  max-width:760px;
+}
+.result-title h2{
+  margin:0;
+  font-size:clamp(25px, 4vw, 42px);
+}
+.result-title p{
+  margin:0;
+  color:rgba(255,255,255,.8);
+  line-height:1.42;
+}
+.result-stats,.achievement-grid,.contribution-grid{
+  display:grid;
+  gap:8px;
+}
+.result-stats{
+  grid-template-columns:repeat(6, minmax(0,1fr));
+  margin-top:12px;
+}
+.achievement-grid{
+  grid-template-columns:repeat(auto-fit, minmax(150px,1fr));
+}
+.achievement-card,.contribution-card{
+  border-radius:var(--radius);
+  border:1px solid rgba(255,223,146,.16);
+  background:rgba(3,7,20,.42);
+  padding:9px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+}
+.achievement-card strong,.contribution-card strong{
+  display:block;
+  color:var(--gold);
+  font-size:13px;
+}
+.achievement-card span,.contribution-card span{
+  display:block;
+  margin-top:3px;
+  color:rgba(255,255,255,.72);
+  font-size:11px;
+  line-height:1.35;
+}
+.contribution-grid{
+  grid-template-columns:repeat(auto-fit, minmax(170px,1fr));
+}
+.result-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:12px;
 }
 
 .players{
@@ -1520,7 +1696,8 @@ body[data-stage-tab="scene"] .score-ribbon{
 }
 .visual-card[style*="expedition-icons"],
 .visual-card[style*="boss-relic-icons"],
-.visual-card[style*="coop-route-chart"]{
+.visual-card[style*="coop-route-chart"],
+.visual-card[style*="enemy-boss-sheet"]{
   background-size:contain;
   background-repeat:no-repeat;
   background-color:#05080c;
@@ -1835,7 +2012,7 @@ body[data-stage-tab="scene"] .score-ribbon{
   object-fit:contain;
   background:linear-gradient(135deg, rgba(255,236,176,.12), rgba(3,7,20,.4));
 }
-.rarity-badge{
+.result > .rarity-badge{
   display:inline-flex;
   align-items:center;
   justify-content:center;
@@ -1963,6 +2140,7 @@ body[data-stage-tab="scene"] .score-ribbon{
   .shop-grid{grid-template-columns:repeat(2, minmax(0,1fr))}
   .expedition-view{padding:9px;min-height:auto}
   .expedition-stats{grid-template-columns:repeat(2, minmax(0,1fr))}
+  .result-stats{grid-template-columns:repeat(3, minmax(0,1fr))}
   .expedition-art{min-height:150px}
   .role-gallery{grid-template-columns:repeat(3, minmax(0,1fr))}
   .icon-showcase{grid-template-columns:repeat(4, minmax(0,1fr))}
@@ -2018,6 +2196,12 @@ body[data-stage-tab="scene"] .score-ribbon{
     width:58px;
     height:58px;
   }
+  .reward-card .rarity-badge,
+  .reward-card strong,
+  .reward-card > span:not(.reward-icon){
+    grid-column:2;
+  }
+  .result-stats{grid-template-columns:repeat(2, minmax(0,1fr))}
   .shop-grid,.expedition-hit-actions{grid-template-columns:repeat(2, minmax(0,1fr))}
   .expedition-hit-actions .wide-action{grid-column:span 2}
   .expedition-shop-drawer{padding:10px}
@@ -2198,6 +2382,7 @@ body[data-stage-tab="scene"] .score-ribbon{
             <div class="visual-card" style="background-image:url('assets/tech-building-upgrade.jpg')"><span>建筑科技路线</span></div>
             <div class="visual-card" style="background-image:url('assets/tactics-units.jpg')"><span>锦囊兵种战术</span></div>
             <div class="visual-card" style="background-image:url('assets/coop-route-chart.jpg')"><span>合作闯关路线</span></div>
+            <div class="visual-card" style="background-image:url('assets/enemy-boss-sheet.jpg')"><span>黑化 Boss 图鉴</span></div>
             <div class="visual-card" style="background-image:url('assets/expedition-icons.jpg')"><span>远征遗物图鉴</span></div>
             <div class="visual-card" style="background-image:url('assets/boss-relic-icons.jpg')"><span>Boss 掉落宝物</span></div>
           </div>
@@ -2432,60 +2617,92 @@ const lootCards = {
   fireworkTicket:{name:"檄文令", art:"assets/icon-card-edict.jpg", type:"active", text:"向第一名收 1 分。"},
   map:{name:"军师沙盘", art:"assets/icon-card-map.jpg", type:"active", text:"提高奇谋概率并开小战鼓。"}
 };
+const rarityRank = ["common", "rare", "epic", "legend", "mythic"];
 const rarityMeta = {
-  common:{label:"普通", key:"common", weight:42, fire:1},
-  rare:{label:"稀有", key:"rare", weight:28, fire:2},
-  epic:{label:"史诗", key:"epic", weight:18, fire:4},
-  legend:{label:"传说", key:"legend", weight:9, fire:6},
-  mythic:{label:"神话", key:"mythic", weight:3, fire:8}
+  common:{label:"普通", key:"common", weight:42, fire:1, color:"#aeb6bf"},
+  rare:{label:"稀有", key:"rare", weight:28, fire:2, color:"#5eb0c8"},
+  epic:{label:"史诗", key:"epic", weight:18, fire:4, color:"#a879ff"},
+  legend:{label:"传说", key:"legend", weight:9, fire:6, color:"#ffd36b"},
+  mythic:{label:"神话", key:"mythic", weight:3, fire:8, color:"#ff5968"}
+};
+const enemyTierMeta = {
+  normal:{label:"恶势力", color:"#d69a39", reward:"normal"},
+  elite:{label:"精英名将", color:"#5eb0c8", reward:"elite"},
+  boss:{label:"黑化 Boss", color:"#ffd36b", reward:"boss"},
+  hidden:{label:"隐藏超强 Boss", color:"#ff5968", reward:"hidden"}
+};
+const enemyPortraits = {
+  zhuge:"0% 0%",
+  lubu:"33.333% 0%",
+  dongzhuo:"66.666% 0%",
+  sima:"100% 0%",
+  zhouyu:"0% 100%",
+  zhangjiao:"33.333% 100%",
+  huaxiong:"66.666% 100%",
+  cavalry:"100% 100%"
 };
 const expeditionEnemies = [
-  {key:"yellowTurban", name:"黄巾先锋", icon:"黄", color:"#d69a39", hp:8, attack:2, trait:"新手关常见敌人，行动稳定。"},
-  {key:"mountainRaiders", name:"山越伏兵", icon:"伏", color:"#2f8a5f", hp:10, attack:2, trait:"会偷走粮草，适合练团队节奏。"},
-  {key:"ironGuard", name:"董卓铁卫", icon:"铁", color:"#8a6d42", hp:14, attack:3, trait:"血厚且会架盾，需要集中火力。"},
-  {key:"fireShip", name:"赤壁火船", icon:"火", color:"#c44736", hp:12, attack:4, trait:"攻击凶，过关奖励更高。"},
-  {key:"woodenOx", name:"机关木牛", icon:"木", color:"#5fc59d", hp:13, attack:2, trait:"会修复自身，拖久会麻烦。"},
-  {key:"darkStrategist", name:"乱世军师", icon:"谋", color:"#3f77b6", hp:15, attack:3, trait:"会扰乱军心，提高远征随机性。"},
-  {key:"sima", name:"暗谋司马", icon:"司", color:"#b85b73", hp:22, attack:4, boss:true, trait:"每 5 关出现的 Boss，拥有更强意图。"},
-  {key:"yilingFire", name:"夷陵火阵", icon:"焰", color:"#c44736", hp:24, attack:5, boss:true, trait:"Boss 会连续施压，适合用护阵和补给稳住。"},
-  {key:"wuzhangShadow", name:"五丈原影卫", icon:"影", color:"#3f77b6", hp:26, attack:4, boss:true, trait:"Boss 会扰乱士气，职业轮换越重要。"},
-  {key:"tigerGate", name:"虎牢关巨将", icon:"关", color:"#8a6d42", hp:28, attack:5, boss:true, trait:"Boss 血厚且容易架盾，需要集中破盾。"}
+  {key:"yellowTurban", name:"黑旗黄巾军", icon:"黄", tier:"normal", portrait:"zhangjiao", color:"#d69a39", hp:8, attack:2, trait:"被邪符驱使的黄巾残部，行动稳定，适合热身。"},
+  {key:"mountainRaiders", name:"山越暗袭队", icon:"伏", tier:"normal", portrait:"cavalry", color:"#2f8a5f", hp:10, attack:2, trait:"擅长偷袭粮道，会让队伍补给吃紧。"},
+  {key:"ironGuard", name:"董卓黑甲兵", icon:"铁", tier:"normal", portrait:"dongzhuo", color:"#8a6d42", hp:14, attack:3, trait:"血厚且会架盾，需要集中火力破阵。"},
+  {key:"fireShip", name:"赤壁幽火船", icon:"火", tier:"normal", portrait:"zhouyu", color:"#c44736", hp:12, attack:4, trait:"火势凶猛，攻击压力更高。"},
+  {key:"woodenOx", name:"失控木牛流马", icon:"木", tier:"normal", portrait:"zhuge", color:"#5fc59d", hp:13, attack:2, trait:"会修复自身，拖久会越来越麻烦。"},
+  {key:"darkStrategist", name:"乱世黑谋士", icon:"谋", tier:"normal", portrait:"sima", color:"#3f77b6", hp:15, attack:3, trait:"会扰乱军心，提高远征随机性。"},
+  {key:"zhangJiao", name:"黑化张角", icon:"角", tier:"elite", elite:true, portrait:"zhangjiao", color:"#d6b039", hp:18, attack:3, trait:"精英敌人，会用妖雷扰乱士气，击败后更容易掉稀有遗物。"},
+  {key:"huaXiong", name:"暴走华雄", icon:"华", tier:"elite", elite:true, portrait:"huaxiong", color:"#b86a39", hp:20, attack:4, trait:"精英猛将，攻击高，适合用护阵硬扛。"},
+  {key:"liRu", name:"毒策李儒", icon:"毒", tier:"elite", elite:true, portrait:"sima", color:"#8d5bd6", hp:17, attack:3, trait:"精英谋士，常常劫粮和扰乱，拖慢课堂节奏。"},
+  {key:"shadowZhangLiao", name:"影袭张辽", icon:"辽", tier:"elite", elite:true, portrait:"cavalry", color:"#5eb0c8", hp:19, attack:4, trait:"精英突骑，连续强攻时压迫感很强。"},
+  {key:"jiaXu", name:"鬼谋贾诩", icon:"诩", tier:"elite", elite:true, portrait:"sima", color:"#725b8f", hp:18, attack:3, trait:"精英智将，意图变化多，考验老师临场调度。"},
+  {key:"whiteGate", name:"白门残魂", icon:"魂", tier:"elite", elite:true, portrait:"lubu", color:"#b85b73", hp:21, attack:4, trait:"精英残魂，护盾与强攻交替出现。"},
+  {key:"dongzhuoBoss", name:"黑化董卓", icon:"董", tier:"boss", boss:true, portrait:"dongzhuo", color:"#d69a39", hp:28, attack:5, trait:"黑化 Boss，厚血重甲，容易架盾。"},
+  {key:"simaBoss", name:"堕影司马懿", icon:"司", tier:"boss", boss:true, portrait:"sima", color:"#8d5bd6", hp:27, attack:5, trait:"黑化 Boss，擅长扰乱士气和偷走粮草。"},
+  {key:"zhouyuBoss", name:"赤壁魔周瑜", icon:"瑜", tier:"boss", boss:true, portrait:"zhouyu", color:"#c44736", hp:26, attack:6, trait:"黑化 Boss，火攻猛烈，适合用急救军帐稳住。"},
+  {key:"lubuBoss", name:"虎牢魔吕布", icon:"布", tier:"boss", boss:true, portrait:"lubu", color:"#ff5968", hp:31, attack:6, trait:"黑化 Boss，强攻压迫感极高，击败成就感很足。"},
+  {key:"wuzhangBoss", name:"五丈原影阵", icon:"阵", tier:"boss", boss:true, portrait:"zhuge", color:"#5eb0c8", hp:29, attack:5, trait:"黑化 Boss，影阵会扰乱士气，职业轮换越重要。"},
+  {key:"darkZhuge", name:"黑化诸葛亮", icon:"诸", tier:"hidden", boss:true, hidden:true, portrait:"zhuge", color:"#5eb0c8", hp:40, attack:7, trait:"隐藏超强 Boss。羽扇一挥，雷影成阵，击败后保底高稀有遗物。"},
+  {key:"darkLubu", name:"黑化吕布", icon:"吕", tier:"hidden", boss:true, hidden:true, portrait:"lubu", color:"#ff5968", hp:44, attack:8, trait:"隐藏超强 Boss。无双魔戟压阵，是远征里最刺激的遭遇之一。"}
 ];
 const expeditionRelics = {
-  warDrum:{name:"赤壁战鼓", icon:"鼓", pos:"0% 0%", text:"+2 答题额外造成 1 伤害。"},
-  tigerSeal:{name:"虎符军令", icon:"符", pos:"50% 0%", text:"每次答题基础伤害 +1。"},
-  greenBag:{name:"青囊医包", icon:"囊", pos:"100% 0%", text:"每过一关恢复 3 点军府耐久。"},
-  strategyMap:{name:"军师沙盘", icon:"图", pos:"0% 100%", text:"新关卡开始时获得 2 粮草。"},
-  fireToken:{name:"火攻令", icon:"火", pos:"50% 100%", text:"每关开局先造成 3 点火攻伤害。"},
-  fortGate:{name:"玄武城门", icon:"门", pos:"100% 100%", text:"敌人攻击伤害 -1。"},
-  crossbow:{name:"连弩阵", icon:"弩", pos:"50% 100%", text:"多人合作时，+2 答题额外造成 1 伤害。"},
-  grainRoute:{name:"屯田粮道", icon:"粮", pos:"0% 100%", text:"每次答题额外获得 1 粮草。"},
-  ironWall:{name:"铁壁阵图", icon:"壁", pos:"100% 100%", text:"每关开始获得 2 护阵。"},
-  bladeForge:{name:"百炼兵匣", icon:"兵", pos:"50% 0%", text:"商店的强弩齐射额外造成 2 伤害。"},
-  moraleBanner:{name:"会盟战旗", icon:"旗", pos:"0% 0%", text:"每关开始士气 +2。"},
-  luckyPouch:{name:"锦囊暗袋", icon:"袋", pos:"100% 0%", text:"选择遗物时额外获得 2 粮草。"},
-  thunderArrow:{name:"霹雳弩机", icon:"弩", pos:"50% 100%", text:"职业奇策额外造成 1 伤害。"},
-  quartermasterLedger:{name:"军需账册", icon:"账", pos:"0% 100%", text:"远征商店价格 -1，最低 1 粮草。"}
+  warDrum:{name:"赤壁战鼓", rarity:"common", icon:"鼓", pos:"0% 0%", text:"+2 答题额外造成 1 伤害。"},
+  greenBag:{name:"青囊医包", rarity:"common", icon:"囊", pos:"100% 0%", text:"每过一关恢复 3 点军府耐久。"},
+  strategyMap:{name:"军师沙盘", rarity:"common", icon:"图", pos:"0% 100%", text:"新关卡开始时获得 2 粮草。"},
+  grainRoute:{name:"屯田粮道", rarity:"common", icon:"粮", pos:"0% 100%", text:"每次答题额外获得 1 粮草。"},
+  tigerSeal:{name:"虎符军令", rarity:"rare", icon:"符", pos:"50% 0%", text:"每次答题基础伤害 +1。"},
+  fortGate:{name:"玄武城门", rarity:"rare", icon:"门", pos:"100% 100%", text:"敌人攻击伤害 -1。"},
+  ironWall:{name:"铁壁阵图", rarity:"rare", icon:"壁", pos:"100% 100%", text:"每关开始获得 2 护阵。"},
+  luckyPouch:{name:"锦囊暗袋", rarity:"rare", icon:"袋", pos:"100% 0%", text:"选择遗物时额外获得 2 粮草。"},
+  fireToken:{name:"火攻令", rarity:"epic", icon:"火", pos:"50% 100%", text:"每关开局先造成 3 点火攻伤害。"},
+  crossbow:{name:"连弩阵", rarity:"epic", icon:"弩", pos:"50% 100%", text:"多人合作时，+2 答题额外造成 1 伤害。"},
+  bladeForge:{name:"百炼兵匣", rarity:"epic", icon:"兵", pos:"50% 0%", text:"商店的强弩齐射额外造成 2 伤害。"},
+  moraleBanner:{name:"会盟战旗", rarity:"epic", icon:"旗", pos:"0% 0%", text:"每关开始士气 +2。"},
+  thunderArrow:{name:"霹雳弩机", rarity:"legend", icon:"弩", pos:"50% 100%", text:"职业奇策额外造成 1 伤害。"},
+  quartermasterLedger:{name:"军需账册", rarity:"legend", icon:"账", pos:"0% 100%", text:"远征商店价格 -1，最低 1 粮草。"},
+  emperorJade:{name:"传国玉玺", rarity:"legend", icon:"玺", pos:"0% 0%", text:"击败 Boss 时团队总分额外 +6。"},
+  starFormation:{name:"七星续命灯", rarity:"mythic", icon:"星", pos:"100% 0%", text:"每关开局额外火攻，且士气 +3。"},
+  demonHalberd:{name:"无双魔戟", rarity:"mythic", icon:"戟", pos:"50% 100%", text:"+2 答题对 Boss 额外造成 2 伤害。"},
+  wolongBook:{name:"卧龙天书", rarity:"mythic", icon:"书", pos:"0% 100%", text:"职业奇策额外造成 2 伤害，并刷新敌军意图。"}
 };
 const expeditionRelicOrder = Object.keys(expeditionRelics);
 const expeditionShopItems = {
-  volley:{name:"强弩齐射", icon:"弩", cost:4, pos:"50% 100%", text:"造成 4 点伤害。会触发敌人行动。"},
-  guard:{name:"铁壁列阵", icon:"盾", cost:3, pos:"100% 100%", text:"获得 4 护阵，优先抵挡强攻。"},
-  heal:{name:"急救军帐", icon:"医", cost:3, pos:"100% 0%", text:"恢复 5 点军府耐久。"},
-  inspire:{name:"檄文鼓舞", icon:"令", cost:2, pos:"0% 0%", text:"士气 +4，并刷新敌人意图。"},
-  mystery:{name:"个人锦匣", icon:"匣", cost:2, pos:"100% 0%", text:"给一名没有宝物的玩家补一个神秘宝物。"},
-  scout:{name:"夜探军情", icon:"探", cost:2, pos:"0% 100%", text:"破盾 2，士气 +1，并刷新敌人意图。"},
-  ram:{name:"冲车破门", icon:"车", cost:5, pos:"50% 100%", text:"造成 6 点伤害。会触发敌人行动。"},
-  feast:{name:"犒赏三军", icon:"宴", cost:4, pos:"0% 0%", text:"士气 +2，全员奇策冷却 -1。"}
+  volley:{name:"强弩齐射", rarity:"rare", icon:"弩", cost:4, pos:"50% 100%", text:"造成 4 点伤害。会触发敌人行动。"},
+  guard:{name:"铁壁列阵", rarity:"common", icon:"盾", cost:3, pos:"100% 100%", text:"获得 4 护阵，优先抵挡强攻。"},
+  heal:{name:"急救军帐", rarity:"common", icon:"医", cost:3, pos:"100% 0%", text:"恢复 5 点军府耐久。"},
+  inspire:{name:"檄文鼓舞", rarity:"common", icon:"令", cost:2, pos:"0% 0%", text:"士气 +4，并刷新敌人意图。"},
+  mystery:{name:"个人锦匣", rarity:"rare", icon:"匣", cost:2, pos:"100% 0%", text:"给一名没有宝物的玩家补一个神秘宝物。"},
+  scout:{name:"夜探军情", rarity:"rare", icon:"探", cost:2, pos:"0% 100%", text:"破盾 2，士气 +1，并刷新敌人意图。"},
+  ram:{name:"冲车破门", rarity:"epic", icon:"车", cost:5, pos:"50% 100%", text:"造成 6 点伤害。会触发敌人行动。"},
+  feast:{name:"犒赏三军", rarity:"epic", icon:"宴", cost:4, pos:"0% 0%", text:"士气 +2，全员奇策冷却 -1。"}
 };
 const expeditionShopOrder = Object.keys(expeditionShopItems);
 const expeditionTreasures = {
-  thunderCharm:{name:"雷火符", icon:"雷", pos:"50% 100%", text:"造成 3 点伤害。"},
-  bronzeMirror:{name:"护心铜镜", icon:"镜", pos:"100% 100%", text:"获得 3 护阵。"},
-  recoveryPill:{name:"回春丹", icon:"丹", pos:"100% 0%", text:"军府耐久 +4。"},
-  commandScroll:{name:"军机密卷", icon:"卷", pos:"0% 0%", text:"士气 +3，并刷新敌人意图。"},
-  grainPouch:{name:"粮草锦囊", icon:"粮", pos:"0% 100%", text:"团队粮草 +3。"},
-  breakerAwl:{name:"破盾锥", icon:"锥", pos:"50% 0%", text:"破盾 4，并造成 1 点伤害。"}
+  thunderCharm:{name:"雷火符", rarity:"rare", icon:"雷", pos:"50% 100%", text:"造成 3 点伤害。"},
+  bronzeMirror:{name:"护心铜镜", rarity:"common", icon:"镜", pos:"100% 100%", text:"获得 3 护阵。"},
+  recoveryPill:{name:"回春丹", rarity:"common", icon:"丹", pos:"100% 0%", text:"军府耐久 +4。"},
+  commandScroll:{name:"军机密卷", rarity:"rare", icon:"卷", pos:"0% 0%", text:"士气 +3，并刷新敌人意图。"},
+  grainPouch:{name:"粮草锦囊", rarity:"common", icon:"粮", pos:"0% 100%", text:"团队粮草 +3。"},
+  breakerAwl:{name:"破盾锥", rarity:"epic", icon:"锥", pos:"50% 0%", text:"破盾 4，并造成 1 点伤害。"},
+  phoenixTally:{name:"凤羽兵符", rarity:"legend", icon:"凤", pos:"0% 0%", text:"造成 5 点伤害，并获得 2 护阵。"},
+  mythicSeal:{name:"天命秘印", rarity:"mythic", icon:"印", pos:"100% 0%", text:"军府耐久 +6，士气 +6。"}
 };
 const expeditionTreasureOrder = Object.keys(expeditionTreasures);
 const expeditionIntentMeta = {
@@ -2711,7 +2928,15 @@ function createEmptyExpedition(){
     provisions:0,
     runScore:0,
     coopCombo:0,
+    maxCombo:0,
     lastRole:null,
+    bossKills:0,
+    hiddenBossKills:0,
+    bestRarity:"common",
+    reviveUsed:false,
+    endedBy:null,
+    endedAt:null,
+    contributions:{},
     enemy:null,
     intent:null,
     shield:0,
@@ -2818,7 +3043,15 @@ function normalizeExpedition(){
   if (typeof expedition.provisions !== "number") expedition.provisions = 0;
   if (typeof expedition.runScore !== "number") expedition.runScore = 0;
   if (typeof expedition.coopCombo !== "number") expedition.coopCombo = 0;
+  if (typeof expedition.maxCombo !== "number") expedition.maxCombo = 0;
   if (typeof expedition.lastRole !== "string") expedition.lastRole = null;
+  if (typeof expedition.bossKills !== "number") expedition.bossKills = 0;
+  if (typeof expedition.hiddenBossKills !== "number") expedition.hiddenBossKills = 0;
+  if (!expedition.bestRarity || !rarityMeta[expedition.bestRarity]) expedition.bestRarity = "common";
+  if (typeof expedition.reviveUsed !== "boolean") expedition.reviveUsed = false;
+  if (typeof expedition.endedBy !== "string") expedition.endedBy = null;
+  if (typeof expedition.endedAt !== "string") expedition.endedAt = null;
+  if (!expedition.contributions || typeof expedition.contributions !== "object" || Array.isArray(expedition.contributions)) expedition.contributions = {};
   if (typeof expedition.shield !== "number") expedition.shield = 0;
   if (typeof expedition.guard !== "number") expedition.guard = 0;
   if (typeof expedition.shopRefreshes !== "number") expedition.shopRefreshes = 0;
@@ -2831,6 +3064,9 @@ function normalizeExpedition(){
   expedition.provisions = Math.max(0, Math.floor(expedition.provisions));
   expedition.runScore = Math.max(0, Math.floor(expedition.runScore));
   expedition.coopCombo = Math.max(0, Math.floor(expedition.coopCombo));
+  expedition.maxCombo = Math.max(0, Math.floor(expedition.maxCombo));
+  expedition.bossKills = Math.max(0, Math.floor(expedition.bossKills));
+  expedition.hiddenBossKills = Math.max(0, Math.floor(expedition.hiddenBossKills));
   if (expedition.lastRole && !roles[expedition.lastRole]) expedition.lastRole = null;
   expedition.shield = Math.max(0, Math.floor(expedition.shield));
   expedition.guard = Math.max(0, Math.floor(expedition.guard));
@@ -3718,6 +3954,69 @@ function getExpeditionIconStyle(pos){
   return `--icon-pos:${pos || "0% 0%"}`;
 }
 
+function getRarityMeta(rarity){
+  return rarityMeta[rarity] || rarityMeta.common;
+}
+
+function getRarityClass(rarity){
+  return `rarity-${getRarityMeta(rarity).key}`;
+}
+
+function getRarityStyle(rarity){
+  return `--rarity-color:${getRarityMeta(rarity).color}`;
+}
+
+function getRarityRank(rarity){
+  return rarityRank.indexOf(getRarityMeta(rarity).key);
+}
+
+function registerExpeditionRarity(rarity){
+  const next = getRarityMeta(rarity).key;
+  if (!expedition.bestRarity || getRarityRank(next) > getRarityRank(expedition.bestRarity)){
+    expedition.bestRarity = next;
+  }
+}
+
+function getEnemyTier(enemy){
+  if (enemy?.hidden) return "hidden";
+  if (enemy?.boss) return "boss";
+  if (enemy?.elite) return "elite";
+  return enemy?.tier || "normal";
+}
+
+function getEnemyTierMeta(enemy){
+  return enemyTierMeta[getEnemyTier(enemy)] || enemyTierMeta.normal;
+}
+
+function getEnemyPortraitStyle(enemy){
+  const pos = enemyPortraits[enemy?.portrait] || enemyPortraits.cavalry;
+  return `--enemy-pos:${pos};--enemy-color:${enemy?.color || getEnemyTierMeta(enemy).color}`;
+}
+
+function addExpeditionContribution(playerOrId, amount){
+  if (!expedition || amount <= 0) return;
+  const id = typeof playerOrId === "string" ? playerOrId : playerOrId?.id;
+  if (!id) return;
+  if (!expedition.contributions || typeof expedition.contributions !== "object") expedition.contributions = {};
+  expedition.contributions[id] = Math.max(0, Math.floor((expedition.contributions[id] || 0) + amount));
+}
+
+function drawWeightedKey(keys, catalog, weights){
+  const entries = keys.map(key => {
+    const item = catalog[key];
+    const rarity = getRarityMeta(item?.rarity).key;
+    return {key, weight:weights[rarity] ?? getRarityMeta(rarity).weight};
+  }).filter(item => item.weight > 0);
+  const pool = entries.length ? entries : keys.map(key => ({key, weight:1}));
+  const total = pool.reduce((sum, item) => sum + item.weight, 0);
+  let roll = Math.random() * total;
+  for (const item of pool){
+    roll -= item.weight;
+    if (roll <= 0) return item.key;
+  }
+  return pool[0]?.key || keys[0];
+}
+
 function drawUniqueKeys(keys, count){
   const pool = [...keys];
   const picks = [];
@@ -3732,15 +4031,19 @@ function drawExpeditionShopOffers(){
   return drawUniqueKeys(expeditionShopOrder, Math.min(4, expeditionShopOrder.length));
 }
 
-function drawExpeditionTreasure(){
-  return expeditionTreasureOrder[Math.floor(Math.random() * expeditionTreasureOrder.length)];
+function drawExpeditionTreasure(boosted = false){
+  const weights = boosted
+    ? {common:12, rare:34, epic:28, legend:18, mythic:8}
+    : {common:42, rare:34, epic:17, legend:6, mythic:1};
+  return drawWeightedKey(expeditionTreasureOrder, expeditionTreasures, weights);
 }
 
 function grantRandomExpeditionTreasure(){
   const candidates = players.filter(player => !player.expeditionTreasure);
   const target = candidates[Math.floor(Math.random() * candidates.length)];
   if (!target) return null;
-  target.expeditionTreasure = drawExpeditionTreasure();
+  target.expeditionTreasure = drawExpeditionTreasure(true);
+  registerExpeditionRarity(expeditionTreasures[target.expeditionTreasure]?.rarity);
   return target;
 }
 
@@ -3767,6 +4070,7 @@ function startExpedition(){
   expedition.log = [];
   players.forEach(player => {
     player.expeditionTreasure = drawExpeditionTreasure();
+    registerExpeditionRarity(expeditionTreasures[player.expeditionTreasure]?.rarity);
   });
   startExpeditionFloor();
   pushEvent(`<strong>军师远征</strong>｜${isCoopMode() ? `合作闯关开始，${getTeamRoleDiversity()} 种职业组成同盟` : players.length === 1 ? "单人闯关" : `${players.length} 人合作讨伐`}，第 1 关敌军现身。`);
@@ -3807,31 +4111,53 @@ function startExpeditionFloor(){
     expedition.enemy.hp = Math.max(1, expedition.enemy.hp - burn);
     pushExpeditionLog(`火攻令先发制人，${expedition.enemy.name} 受到 ${burn} 点伤害。`);
   }
+  if (getRelicLevel("starFormation")){
+    const burn = 4 * getRelicLevel("starFormation");
+    expedition.enemy.hp = Math.max(1, expedition.enemy.hp - burn);
+    expedition.morale += 3 * getRelicLevel("starFormation");
+    pushExpeditionLog(`七星续命灯照亮阵前，${expedition.enemy.name} 受到 ${burn} 点伤害，士气提升。`);
+  }
   expedition.intent = rollExpeditionIntent(expedition.enemy);
+  if (expedition.enemy.hidden){
+    pushExpeditionLog(`隐藏超强 Boss 现身：${expedition.enemy.name}！这是一场可以载入课堂战报的遭遇。`);
+    pushEvent(`<strong>隐藏 Boss</strong>｜${expedition.enemy.name} 降临第 ${expedition.floor} 关。`);
+    launchFireworks(3);
+  }
   pushExpeditionLog(`第 ${expedition.floor} 关：${expedition.enemy.name} 出现。`);
 }
 
 function createExpeditionEnemy(floor){
-  const bossFloor = floor % 5 === 0;
-  const pool = expeditionEnemies.filter(enemy => bossFloor ? enemy.boss : !enemy.boss);
+  const hiddenChance = floor >= 8 ? (floor % 10 === 0 ? 0.36 : Math.min(0.14, 0.045 + floor * 0.004)) : 0;
+  const hiddenFloor = hiddenChance > 0 && Math.random() < hiddenChance;
+  const bossFloor = !hiddenFloor && floor % 5 === 0;
+  const eliteFloor = !hiddenFloor && !bossFloor && floor % 3 === 0;
+  const targetTier = hiddenFloor ? "hidden" : bossFloor ? "boss" : eliteFloor ? "elite" : "normal";
+  const pool = expeditionEnemies.filter(enemy => getEnemyTier(enemy) === targetTier);
   const base = pool[Math.floor(Math.random() * pool.length)] || expeditionEnemies[0];
   const playerScale = Math.max(1, players.length);
   const longRunEase = isCoopMode() ? 0.86 : 1;
-  const maxHp = Math.round(base.hp + floor * (bossFloor ? 4.2 : 2.8) * longRunEase + playerScale * (bossFloor ? 4 : 2.6));
+  const tier = getEnemyTier(base);
+  const hpFactor = tier === "hidden" ? 1.58 : tier === "boss" ? 1.32 : tier === "elite" ? 1.14 : 1;
+  const attackBonus = tier === "hidden" ? 3 : tier === "boss" ? 1 : tier === "elite" ? 1 : 0;
+  const maxHp = Math.round((base.hp + floor * (base.boss ? 4.2 : 2.8) * longRunEase + playerScale * (base.boss ? 4 : 2.6)) * hpFactor);
   return {
     ...base,
+    tier,
     hp:maxHp,
     maxHp,
-    attack:base.attack + Math.floor(floor / (isCoopMode() ? 5 : 4)) + (bossFloor ? 1 : 0)
+    attack:base.attack + Math.floor(floor / (isCoopMode() ? 5 : 4)) + attackBonus
   };
 }
 
 function rollExpeditionIntent(enemy){
   const pool = ["attack", "attack", "shield", "raid"];
+  const tier = getEnemyTier(enemy);
   if (enemy.key === "woodenOx") pool.push("heal", "heal");
   if (enemy.key === "ironGuard") pool.push("shield", "shield");
   if (enemy.key === "fireShip") pool.push("attack", "attack");
-  if (enemy.key === "darkStrategist" || enemy.boss) pool.push("curse", "curse");
+  if (enemy.key === "darkStrategist" || tier === "elite" || enemy.boss) pool.push("curse", "curse");
+  if (tier === "boss") pool.push("attack", "shield", "curse");
+  if (tier === "hidden") pool.push("attack", "attack", "shield", "heal", "curse", "curse");
   const type = pool[Math.floor(Math.random() * pool.length)];
   const meta = expeditionIntentMeta[type] || expeditionIntentMeta.attack;
   const value = Math.max(1, enemy.attack + Math.floor(Math.random() * 2) + (type === "shield" ? 1 : 0));
@@ -3859,6 +4185,7 @@ function recordCoopAnswer(player, amount, finalAmount, synergy){
   }else{
     expedition.coopCombo = Math.max(1, Math.floor(expedition.coopCombo / 2));
   }
+  expedition.maxCombo = Math.max(expedition.maxCombo || 0, expedition.coopCombo || 0);
   expedition.lastRole = player.role;
   if (synergy > 0){
     pushExpeditionLog(`合作连携生效，${roles[player.role]?.name || "队员"} 追加 ${synergy} 协作伤害。`);
@@ -3874,6 +4201,7 @@ function getExpeditionDamage(player, amount, finalAmount){
   if (player.role === "vanguard" && amount === 2) damage += 1;
   if (player.role === "director" && expedition.enemy?.boss) damage += 1;
   if (expedition.morale >= 6 && amount === 2) damage += 1;
+  if (amount === 2 && expedition.enemy?.boss) damage += getRelicLevel("demonHalberd") * 2;
   damage += getCoopSynergyDamage(player, amount);
   return Math.max(1, damage);
 }
@@ -3884,6 +4212,7 @@ function strikeExpeditionEnemy(label, damage, player){
   expedition.shield -= absorbed;
   const realDamage = Math.max(0, damage - absorbed);
   expedition.enemy.hp = Math.max(0, expedition.enemy.hp - realDamage);
+  addExpeditionContribution(player, Math.max(1, Math.ceil(realDamage / 2)));
   pushExpeditionLog(`${label}造成 ${damage} 伤害${absorbed ? `，破盾 ${absorbed}` : ""}。`);
   if (expedition.enemy.hp <= 0){
     finishExpeditionFloor(player || players[0]);
@@ -3912,6 +4241,7 @@ function expeditionAnswer(id, amount){
   const synergyDamage = getCoopSynergyDamage(player, amount);
   const damage = getExpeditionDamage(player, amount, finalAmount);
   recordCoopAnswer(player, amount, finalAmount, synergyDamage);
+  addExpeditionContribution(player, finalAmount);
   const absorbed = Math.min(expedition.shield, damage);
   expedition.shield -= absorbed;
   const realDamage = damage - absorbed;
@@ -3975,45 +4305,104 @@ function applyEnemyIntent(){
 
 function finishExpeditionFloor(player){
   const enemy = expedition.enemy;
+  const tier = getEnemyTier(enemy);
+  const isMajorEnemy = tier === "elite" || enemy.boss;
   expedition.defeated += 1;
-  expedition.morale += enemy.boss ? 4 : 2;
-  expedition.provisions += enemy.boss ? 4 : 2;
-  player.score += enemy.boss ? 2 : 1;
+  expedition.morale += enemy.hidden ? 8 : enemy.boss ? 4 : enemy.elite ? 3 : 2;
+  expedition.provisions += enemy.hidden ? 7 : enemy.boss ? 4 : enemy.elite ? 3 : 2;
+  player.score += enemy.hidden ? 4 : enemy.boss ? 2 : 1;
+  addExpeditionContribution(player, enemy.hidden ? 8 : enemy.boss ? 5 : enemy.elite ? 3 : 2);
   if (isCoopMode()){
-    const clearScore = enemy.boss ? 8 : 3;
-    grantTeamScore(clearScore, enemy.boss ? "Boss 讨伐奖励" : "关卡推进奖励");
+    const clearScore = enemy.hidden ? 18 : enemy.boss ? 8 : enemy.elite ? 5 : 3;
+    grantTeamScore(clearScore, enemy.hidden ? "隐藏 Boss 讨伐奖励" : enemy.boss ? "Boss 讨伐奖励" : enemy.elite ? "精英名将奖励" : "关卡推进奖励");
     teamBestFloor = Math.max(teamBestFloor, expedition.floor + 1);
     if (enemy.boss) teamBossKills += 1;
+  }
+  if (enemy.boss) expedition.bossKills += 1;
+  if (enemy.hidden) expedition.hiddenBossKills += 1;
+  if (enemy.boss && getRelicLevel("emperorJade")){
+    grantTeamScore(6 * getRelicLevel("emperorJade"), "传国玉玺追加 Boss 战绩");
   }
   if (getRelicLevel("greenBag")){
     const heal = 3 * getRelicLevel("greenBag");
     expedition.teamHp = Math.min(expedition.maxTeamHp, expedition.teamHp + heal);
     pushExpeditionLog(`青囊医包修整队伍，军府耐久 +${heal}。`);
   }
-  expedition.rewards = drawExpeditionRewards();
+  expedition.rewards = drawExpeditionRewards(enemy);
   pushExpeditionLog(`${enemy.name} 被击败。选择一件遗物后进入下一关。`);
   pushEvent(`<strong>远征告捷</strong>｜${player.name} 击败 ${enemy.name}，远征推进到第 ${expedition.floor + 1} 关。`);
-  launchFireworks(enemy.boss ? 4 : 2);
-  burstConfetti(enemy.boss ? 38 : 24);
+  launchFireworks(enemy.hidden ? 7 : enemy.boss ? 4 : isMajorEnemy ? 3 : 2);
+  burstConfetti(enemy.hidden ? 72 : enemy.boss ? 42 : isMajorEnemy ? 30 : 24);
   playTone(enemy.boss ? "fanfare" : "big");
 }
 
-function finishExpeditionRun(victory){
+function finishExpeditionRun(victory, reason = "defeat"){
   expedition.runOver = true;
   expedition.active = false;
   expedition.rewards = [];
-  pushExpeditionLog(victory ? "远征凯旋，军府留名。" : "军府耐久归零，本次远征结束。");
+  expedition.shopOpen = false;
+  expedition.endedBy = reason;
+  expedition.endedAt = new Date().toLocaleTimeString("zh-CN", {hour:"2-digit", minute:"2-digit"});
+  pushExpeditionLog(victory ? "远征结算，军府留名。" : "军府耐久归零，本次远征结束。");
   pushEvent(`<strong>远征结束</strong>｜本次到达第 ${expedition.floor} 关，击败 ${expedition.defeated} 名敌军${isCoopMode() ? `，团队总分 ${teamScore}` : ""}。`);
   showToast(`远征结束：击败 ${expedition.defeated} 名敌军${isCoopMode() ? `，团队总分 ${teamScore}` : ""}。`);
   playTone(victory ? "fanfare" : "soft");
 }
 
-function drawExpeditionRewards(){
+function settleExpeditionRun(){
+  if (!expedition.active || expedition.runOver) return;
+  snapshot();
+  finishExpeditionRun(true, "settled");
+  render();
+  saveState();
+}
+
+function reviveExpeditionRun(){
+  if (!expedition.runOver || expedition.endedBy !== "defeat" || expedition.reviveUsed) return;
+  const password = (prompt("请输入管理员续命密码") || "").trim();
+  if (password !== "myskme"){
+    showToast("密码不正确，未续命。");
+    playTone("soft");
+    return;
+  }
+  snapshot();
+  expedition.active = true;
+  expedition.runOver = false;
+  expedition.reviveUsed = true;
+  expedition.endedBy = null;
+  expedition.endedAt = null;
+  expedition.teamHp = Math.max(4, Math.ceil(expedition.maxTeamHp * 0.45));
+  expedition.provisions += players.length + 2;
+  expedition.guard += 4;
+  expedition.rewards = [];
+  expedition.shopOpen = false;
+  if (!expedition.enemy || expedition.enemy.hp <= 0){
+    startExpeditionFloor();
+  }else{
+    expedition.intent = rollExpeditionIntent(expedition.enemy);
+  }
+  pushExpeditionLog("管理员续命成功，军府耐久恢复，队伍获得护阵和补给。");
+  pushEvent(`<strong>管理员续命</strong>｜远征已复活，军府耐久恢复到 ${expedition.teamHp}/${expedition.maxTeamHp}。`);
+  showToast("管理员续命成功，远征继续。");
+  launchFireworks(2);
+  render();
+  saveState();
+}
+
+function drawExpeditionRewards(enemy){
+  const tier = getEnemyTier(enemy);
+  const rewardWeights = {
+    normal:{common:44, rare:32, epic:17, legend:6, mythic:1},
+    elite:{common:20, rare:38, epic:28, legend:11, mythic:3},
+    boss:{common:0, rare:40, epic:34, legend:20, mythic:6},
+    hidden:{common:0, rare:0, epic:42, legend:36, mythic:22}
+  };
   const pool = [...expeditionRelicOrder];
   const picks = [];
   while (picks.length < 3 && pool.length){
-    const index = Math.floor(Math.random() * pool.length);
-    picks.push(pool.splice(index, 1)[0]);
+    const key = drawWeightedKey(pool, expeditionRelics, rewardWeights[tier] || rewardWeights.normal);
+    picks.push(key);
+    pool.splice(pool.indexOf(key), 1);
   }
   return picks;
 }
@@ -4023,6 +4412,8 @@ function chooseExpeditionReward(key){
   snapshot();
   expedition.relics.push(key);
   const relic = expeditionRelics[key];
+  const rarity = getRarityMeta(relic?.rarity);
+  registerExpeditionRarity(rarity.key);
   expedition.rewards = [];
   if (getRelicLevel("luckyPouch")){
     const gain = 2 * getRelicLevel("luckyPouch");
@@ -4035,8 +4426,16 @@ function chooseExpeditionReward(key){
   if (treasureTarget){
     pushExpeditionLog(`${treasureTarget.name} 获得一个个人神秘宝物。`);
   }
-  pushExpeditionLog(`获得遗物：${relic.name}。`);
-  showToast(`获得遗物：${relic.name}`);
+  if (key === "wolongBook"){
+    expedition.intent = rollExpeditionIntent(expedition.enemy);
+  }
+  pushExpeditionLog(`获得${rarity.label}遗物：${relic.name}。`);
+  showToast(`获得${rarity.label}遗物：${relic.name}`);
+  if (rarity.key === "legend" || rarity.key === "mythic"){
+    launchFireworks(rarity.fire);
+    burstConfetti(rarity.key === "mythic" ? 66 : 44);
+    playTone("fanfare");
+  }
   render();
   saveState();
 }
@@ -4096,6 +4495,9 @@ function buyExpeditionShopItem(key){
     return;
   }
   snapshot();
+  const rarity = getRarityMeta(item.rarity);
+  registerExpeditionRarity(rarity.key);
+  addExpeditionContribution(players[0], rarity.key === "epic" ? 2 : rarity.key === "rare" ? 1 : 0);
   expedition.provisions -= cost;
   let usedTurn = false;
   if (key === "volley"){
@@ -4152,10 +4554,12 @@ function useExpeditionTreasure(id){
   if (!player || !player.expeditionTreasure) return;
   const key = player.expeditionTreasure;
   const treasure = expeditionTreasures[key] || expeditionTreasures.thunderCharm;
+  const rarity = getRarityMeta(treasure.rarity);
   snapshot();
   player.expeditionTreasure = null;
   let damage = 0;
-  let message = `${player.name} 揭开个人神秘宝物：${treasure.name}。`;
+  let message = `${player.name} 揭开${rarity.label}宝物：${treasure.name}。`;
+  registerExpeditionRarity(rarity.key);
   if (key === "thunderCharm"){
     damage = 3;
   }else if (key === "bronzeMirror"){
@@ -4176,7 +4580,16 @@ function useExpeditionTreasure(id){
     expedition.shield -= broken;
     damage = 1;
     message += ` 破盾 ${broken}。`;
+  }else if (key === "phoenixTally"){
+    damage = 5;
+    expedition.guard += 2;
+    message += " 凤羽兵符展开，护阵 +2。";
+  }else if (key === "mythicSeal"){
+    expedition.teamHp = Math.min(expedition.maxTeamHp, expedition.teamHp + 6);
+    expedition.morale += 6;
+    message += " 天命秘印发动，军府耐久 +6，士气 +6。";
   }
+  addExpeditionContribution(player, rarity.key === "mythic" ? 4 : rarity.key === "legend" ? 3 : 1);
   pushExpeditionLog(message);
   if (isCoopMode()) grantTeamScore(1, "个人宝物协作");
   if (damage > 0) strikeExpeditionEnemy(`个人宝物「${treasure.name}」`, damage, player);
@@ -4226,7 +4639,10 @@ function useExpeditionSkill(id){
     damage = 1;
     message = `${player.name} 使用职业奇策。`;
   }
-  if (damage > 0) damage += getRelicLevel("thunderArrow");
+  if (damage > 0) damage += getRelicLevel("thunderArrow") + getRelicLevel("wolongBook") * 2;
+  if (damage > 0 && getRelicLevel("wolongBook")){
+    expedition.intent = rollExpeditionIntent(expedition.enemy);
+  }
   player.skillCooldown = 3;
   player.skillUsed = true;
   pushExpeditionLog(message);
@@ -4276,8 +4692,84 @@ function renderRelics(){
   expedition.relics.forEach(key => counts[key] = (counts[key] || 0) + 1);
   return Object.entries(counts).map(([key, count]) => {
     const relic = expeditionRelics[key] || expeditionRelics.warDrum;
-    return `<div class="relic-chip"><span class="relic-icon" style="${getRelicIconStyle(key)}"></span><span>${escapeHtml(relic.name)}${count > 1 ? ` x${count}` : ""}</span></div>`;
+    const rarity = getRarityMeta(relic.rarity);
+    return `<div class="relic-chip ${getRarityClass(rarity.key)}" style="${getRarityStyle(rarity.key)}"><span class="relic-icon" style="${getRelicIconStyle(key)}"></span><span><small class="rarity-badge">${rarity.label}</small> ${escapeHtml(relic.name)}${count > 1 ? ` x${count}` : ""}</span></div>`;
   }).join("");
+}
+
+function getExpeditionAchievements(){
+  const best = getRarityMeta(expedition.bestRarity);
+  const achievements = [];
+  if (expedition.defeated >= 1) achievements.push({name:"初阵告捷", text:"击败第一名敌军，远征正式留名。"});
+  if (expedition.floor >= 5 || expedition.defeated >= 5) achievements.push({name:"五关斩将", text:"课堂队伍已经形成稳定闯关节奏。"});
+  if (expedition.bossKills > 0) achievements.push({name:"Boss 讨伐者", text:`本局击败 ${expedition.bossKills} 名黑化 Boss。`});
+  if (expedition.hiddenBossKills > 0) achievements.push({name:"黑化传说见证者", text:"隐藏超强 Boss 被击破，全班可以截图纪念。"});
+  if (getRarityRank(best.key) >= getRarityRank("legend")) achievements.push({name:`${best.label}掉落`, text:"获得高稀有宝物，爽感拉满。"});
+  if ((expedition.maxCombo || 0) >= 5) achievements.push({name:"连携如风", text:`最高合作连携达到 ${expedition.maxCombo}。`});
+  if (expedition.reviveUsed) achievements.push({name:"绝境续命", text:"管理员续命成功，队伍从失败边缘被拉回。"});
+  if (expedition.endedBy === "settled") achievements.push({name:"军师收官", text:"老师主动结算，适合课堂截图保存。"});
+  if (!achievements.length) achievements.push({name:"蓄势待发", text:"下一局很可能打得更远。"});
+  return achievements.slice(0, 8);
+}
+
+function renderExpeditionResult(){
+  const best = getRarityMeta(expedition.bestRarity);
+  const resultText = expedition.endedBy === "defeat"
+    ? "军府耐久归零，远征暂告一段落。老师可以截图保存，也可以输入管理员密码续命。"
+    : "本次远征已结算，适合课堂投屏截图，给全班留下本局战绩。";
+  const contributionRows = [...players]
+    .map(player => ({player, value: expedition.contributions?.[player.id] || 0}))
+    .sort((a,b) => b.value - a.value || b.player.score - a.player.score)
+    .map((item, index) => {
+      const role = roles[item.player.role] || roles.mage;
+      const treasure = item.player.expeditionTreasure ? expeditionTreasures[item.player.expeditionTreasure] : null;
+      const rarity = treasure ? getRarityMeta(treasure.rarity) : null;
+      return `<div class="contribution-card">
+        <strong>${index + 1}. ${escapeHtml(item.player.name)} · ${escapeHtml(role.name)}</strong>
+        <span>本局贡献 ${item.value}｜课堂分 ${item.player.score}${treasure ? `｜${rarity.label}宝物 ${escapeHtml(treasure.name)}` : ""}</span>
+      </div>`;
+    }).join("");
+  const achievements = getExpeditionAchievements().map(item => `
+    <div class="achievement-card">
+      <strong>${escapeHtml(item.name)}</strong>
+      <span>${escapeHtml(item.text)}</span>
+    </div>
+  `).join("");
+  return `
+    <div class="expedition-result">
+      <section class="expedition-panel result-panel">
+        <div class="result-title">
+          <h2>军师会盟战绩</h2>
+          <p>${resultText}</p>
+        </div>
+        <div class="result-stats">
+          <div class="expedition-stat"><small>最终关卡</small><strong>第 ${expedition.floor} 关</strong></div>
+          <div class="expedition-stat"><small>击败敌军</small><strong>${expedition.defeated}</strong></div>
+          <div class="expedition-stat"><small>Boss / 隐藏</small><strong>${expedition.bossKills} / ${expedition.hiddenBossKills}</strong></div>
+          <div class="expedition-stat"><small>团队总分</small><strong>${teamScore}</strong></div>
+          <div class="expedition-stat"><small>最高连携</small><strong>${expedition.maxCombo || 0}</strong></div>
+          <div class="expedition-stat"><small>最高掉落</small><strong>${best.label}</strong></div>
+        </div>
+        <div class="result-actions">
+          <button class="primary-btn" type="button" data-expedition-restart="1">再开一局</button>
+          ${expedition.endedBy === "defeat" && !expedition.reviveUsed ? `<button class="ghost-btn" type="button" data-expedition-revive="1">管理员续命</button>` : ""}
+          <span class="chip">MYSKME 课堂远征</span>
+        </div>
+      </section>
+      <section class="expedition-panel expedition-copy">
+        <h2>成就徽章</h2>
+        <div class="achievement-grid">${achievements}</div>
+      </section>
+      <section class="expedition-panel expedition-copy">
+        <h2>贡献榜</h2>
+        <div class="contribution-grid">${contributionRows}</div>
+      </section>
+      <section class="expedition-panel expedition-copy">
+        <h2>遗物收藏</h2>
+        <div class="relic-strip">${renderRelics()}</div>
+      </section>
+    </div>
+  `;
 }
 
 function renderExpedition(){
@@ -4320,6 +4812,10 @@ function renderExpedition(){
     `;
     return;
   }
+  if (expedition.runOver){
+    els.expeditionView.innerHTML = renderExpeditionResult();
+    return;
+  }
   const enemy = expedition.enemy || createExpeditionEnemy(expedition.floor);
   const hpPercent = Math.max(0, Math.round((enemy.hp || 0) / Math.max(1, enemy.maxHp || 1) * 100));
   const teamPercent = Math.max(0, Math.round(expedition.teamHp / Math.max(1, expedition.maxTeamHp) * 100));
@@ -4331,8 +4827,10 @@ function renderExpedition(){
       <div class="reward-grid">
         ${expedition.rewards.map(key => {
           const relic = expeditionRelics[key];
-          return `<button class="reward-card" type="button" data-expedition-reward="${escapeHtml(key)}">
+          const rarity = getRarityMeta(relic?.rarity);
+          return `<button class="reward-card ${getRarityClass(rarity.key)}" style="${getRarityStyle(rarity.key)}" type="button" data-expedition-reward="${escapeHtml(key)}">
             <span class="reward-icon" style="${getRelicIconStyle(key)}"></span>
+            <small class="rarity-badge">${rarity.label}</small>
             <strong>${escapeHtml(relic.name)}</strong>
             <span>${escapeHtml(relic.text)}</span>
           </button>`;
@@ -4356,10 +4854,12 @@ function renderExpedition(){
         ${(expedition.shopOffers.length ? expedition.shopOffers : expeditionShopOrder.slice(0, 4)).map(key => {
           const item = expeditionShopItems[key];
           const cost = getExpeditionShopCost(key);
+          const rarity = getRarityMeta(item.rarity);
           const noTreasureTarget = key === "mystery" && players.every(player => player.expeditionTreasure);
           const disabled = !expedition.active || expedition.provisions < cost || noTreasureTarget;
-          return `<button class="shop-card" type="button" data-expedition-shop="${escapeHtml(key)}" ${disabled ? "disabled" : ""}>
+          return `<button class="shop-card ${getRarityClass(rarity.key)}" style="${getRarityStyle(rarity.key)}" type="button" data-expedition-shop="${escapeHtml(key)}" ${disabled ? "disabled" : ""}>
             <span class="relic-icon" style="${getExpeditionIconStyle(item.pos)}"></span>
+            <small class="rarity-badge">${rarity.label}</small>
             <strong>${escapeHtml(item.icon)} ${escapeHtml(item.name)}</strong>
             <small>${cost} 粮草</small>
             <span>${escapeHtml(noTreasureTarget ? "全员已有宝物，暂时无需购买。" : item.text)}</span>
@@ -4375,6 +4875,7 @@ function renderExpedition(){
     const activeCardKey = player.inventory.find(cardKey => lootCards[cardKey] && lootCards[cardKey].type === "active");
     const activeCard = activeCardKey ? lootCards[activeCardKey] : null;
     const treasure = player.expeditionTreasure ? expeditionTreasures[player.expeditionTreasure] : null;
+    const treasureRarity = treasure ? getRarityMeta(treasure.rarity) : null;
     const disabledByReward = expedition.rewards.length || expedition.runOver;
     return `<article class="expedition-player" style="--player-color:${player.color}">
       <h3>${escapeHtml(player.name)} · ${escapeHtml(role.icon)} ${escapeHtml(role.name)}</h3>
@@ -4382,7 +4883,7 @@ function renderExpedition(){
         <span class="mini-tag">${isCoopMode() ? "贡献" : "积分"}：${player.score}</span>
         <span class="mini-tag">军粮：${player.coins}</span>
         <span class="mini-tag">奇策：${player.skillCooldown > 0 ? `冷却 ${player.skillCooldown}` : "可用"}</span>
-        <span class="mini-tag">宝物：${treasure ? "已备" : "空"}</span>
+        <span class="mini-tag ${treasureRarity ? getRarityClass(treasureRarity.key) : ""}" ${treasureRarity ? `style="${getRarityStyle(treasureRarity.key)}"` : ""}>宝物：${treasure ? `${treasureRarity.label} ${treasure.name}` : "空"}</span>
       </div>
       <div class="expedition-hit-actions">
         <button class="primary-btn" type="button" data-expedition-hit="${player.id}" data-expedition-score="1" ${disabledByReward ? "disabled" : ""}>+1</button>
@@ -4396,14 +4897,14 @@ function renderExpedition(){
   }).join("");
   els.expeditionView.innerHTML = `
     <div class="expedition-hero">
-      <section class="expedition-panel enemy-card" style="--enemy-color:${enemy.color || "#d69a39"}">
+      <section class="expedition-panel enemy-card enemy-${getEnemyTier(enemy)}" style="--enemy-color:${enemy.color || "#d69a39"}">
         <div class="enemy-top">
-          <div class="enemy-seal">${escapeHtml(enemy.icon || "敌")}</div>
+          <div class="enemy-portrait" style="${getEnemyPortraitStyle(enemy)}" title="${escapeHtml(enemy.name || "敌军")}"></div>
           <div>
             <h2>${escapeHtml(enemy.name || "未知敌军")}</h2>
             <p>${escapeHtml(enemy.trait || "敌军正在集结。")}</p>
           </div>
-          <span class="enemy-badge">${enemy.boss ? "Boss" : `第 ${expedition.floor} 关`}</span>
+          <span class="enemy-badge enemy-tier">${escapeHtml(getEnemyTierMeta(enemy).label)}</span>
         </div>
         <div>
           <div class="hp-shell" title="敌军血量"><div class="hp-fill" style="--hp:${hpPercent}%"></div></div>
@@ -4431,6 +4932,7 @@ function renderExpedition(){
         <div class="expedition-actions">
           <button class="ghost-btn" type="button" data-expedition-rest="1" ${expedition.provisions >= 3 && expedition.active ? "" : "disabled"}>粮草修整</button>
           <button class="primary-btn" type="button" data-expedition-shop-open="1" ${expedition.active && !expedition.rewards.length ? "" : "disabled"}>远征商店</button>
+          <button class="ghost-btn" type="button" data-expedition-settle="1" ${expedition.active ? "" : "disabled"}>结算战绩</button>
           <button class="ghost-btn" type="button" data-expedition-undo="1">撤回</button>
           <button class="ghost-btn" type="button" data-expedition-restart="1">重开</button>
         </div>
@@ -5292,6 +5794,16 @@ els.expeditionView.addEventListener("click", event => {
   const restartButton = event.target.closest("button[data-expedition-restart]");
   if (restartButton){
     restartExpedition();
+    return;
+  }
+  const settleButton = event.target.closest("button[data-expedition-settle]");
+  if (settleButton && !settleButton.disabled){
+    settleExpeditionRun();
+    return;
+  }
+  const reviveButton = event.target.closest("button[data-expedition-revive]");
+  if (reviveButton){
+    reviveExpeditionRun();
     return;
   }
   const restButton = event.target.closest("button[data-expedition-rest]");
