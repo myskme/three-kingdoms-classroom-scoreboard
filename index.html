@@ -1187,9 +1187,9 @@ body[data-stage-tab="scene"] .score-ribbon{
   overflow:hidden;
   padding:14px;
   background:
-    linear-gradient(135deg, rgba(255,211,107,.18), transparent 35%, rgba(255,89,104,.1)),
-    linear-gradient(180deg, rgba(31,20,15,.9), rgba(5,8,12,.96)),
-    url("assets/coop-route-chart.jpg") center / cover no-repeat;
+    linear-gradient(135deg, rgba(255,211,107,.28), transparent 36%, rgba(255,89,104,.13)),
+    linear-gradient(180deg, rgba(31,20,15,.84), rgba(5,8,12,.96)),
+    url("assets/share-card-bg.jpg") center / cover no-repeat;
 }
 .result-panel:before{
   content:"MYSKME";
@@ -1200,6 +1200,10 @@ body[data-stage-tab="scene"] .score-ribbon{
   font-size:13px;
   font-weight:950;
   letter-spacing:3px;
+}
+.result-panel > *{
+  position:relative;
+  z-index:1;
 }
 .result-title{
   display:grid;
@@ -1220,7 +1224,7 @@ body[data-stage-tab="scene"] .score-ribbon{
   gap:8px;
 }
 .result-stats{
-  grid-template-columns:repeat(6, minmax(0,1fr));
+  grid-template-columns:repeat(4, minmax(0,1fr));
   margin-top:12px;
 }
 .achievement-grid{
@@ -1253,6 +1257,15 @@ body[data-stage-tab="scene"] .score-ribbon{
   flex-wrap:wrap;
   gap:8px;
   margin-top:12px;
+}
+.share-note{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:9px;
+  color:rgba(255,255,255,.76);
+  font-size:11px;
+  font-weight:850;
 }
 
 .players{
@@ -2140,7 +2153,7 @@ body[data-stage-tab="scene"] .score-ribbon{
   .shop-grid{grid-template-columns:repeat(2, minmax(0,1fr))}
   .expedition-view{padding:9px;min-height:auto}
   .expedition-stats{grid-template-columns:repeat(2, minmax(0,1fr))}
-  .result-stats{grid-template-columns:repeat(3, minmax(0,1fr))}
+  .result-stats{grid-template-columns:repeat(4, minmax(0,1fr))}
   .expedition-art{min-height:150px}
   .role-gallery{grid-template-columns:repeat(3, minmax(0,1fr))}
   .icon-showcase{grid-template-columns:repeat(4, minmax(0,1fr))}
@@ -2169,6 +2182,7 @@ body[data-stage-tab="scene"] .score-ribbon{
   .role-gallery{grid-template-columns:repeat(2, minmax(0,1fr))}
   .icon-showcase{grid-template-columns:repeat(3, minmax(0,1fr))}
   .intent-row{grid-template-columns:1fr}
+  .result-stats{grid-template-columns:repeat(2, minmax(0,1fr))}
   .expedition-hit-actions{grid-template-columns:repeat(3, minmax(0,1fr))}
   .expedition-hit-actions .wide-action{grid-column:span 3}
 }
@@ -2603,6 +2617,7 @@ const boardTiles = [
 ];
 const STORAGE_KEY = "threeKingdomsClassroomStrategist.v1";
 const LEGACY_STORAGE_KEYS = ["castleClassroomScoreboard", "castleClassroomScoreboard.v2", "castleClassroomScoreboard.lite.v3"];
+const SHARE_URL = "https://myskme.github.io/three-kingdoms-classroom-scoreboard/";
 let memoryState = "";
 let storageAvailable = null;
 let storageWarningShown = false;
@@ -2675,12 +2690,20 @@ const expeditionRelics = {
   crossbow:{name:"连弩阵", rarity:"epic", icon:"弩", pos:"50% 100%", text:"多人合作时，+2 答题额外造成 1 伤害。"},
   bladeForge:{name:"百炼兵匣", rarity:"epic", icon:"兵", pos:"50% 0%", text:"商店的强弩齐射额外造成 2 伤害。"},
   moraleBanner:{name:"会盟战旗", rarity:"epic", icon:"旗", pos:"0% 0%", text:"每关开始士气 +2。"},
+  battleStandard:{name:"破军战旗", rarity:"rare", icon:"破", pos:"50% 0%", text:"每次 +1 答题也额外造成 1 伤害。"},
+  starOracle:{name:"观星铜盘", rarity:"rare", icon:"星", pos:"100% 0%", text:"每关开始士气 +1，适合稳住节奏。"},
+  whiteHorseSaddle:{name:"白马义从鞍", rarity:"epic", icon:"骑", pos:"100% 100%", text:"每关开始护阵 +1；+2 答题额外获得士气。"},
+  riverChain:{name:"连环铁索", rarity:"epic", icon:"锁", pos:"100% 100%", text:"敌人架盾时护盾减少 2。"},
   thunderArrow:{name:"霹雳弩机", rarity:"legend", icon:"弩", pos:"50% 100%", text:"职业奇策额外造成 1 伤害。"},
   quartermasterLedger:{name:"军需账册", rarity:"legend", icon:"账", pos:"0% 100%", text:"远征商店价格 -1，最低 1 粮草。"},
   emperorJade:{name:"传国玉玺", rarity:"legend", icon:"玺", pos:"0% 0%", text:"击败 Boss 时团队总分额外 +6。"},
+  merchantSeal:{name:"富商金印", rarity:"legend", icon:"商", pos:"0% 0%", text:"商店购买后返还 1 粮草，首次刷新更便宜。"},
+  redHareShadow:{name:"赤兔影缰", rarity:"legend", icon:"赤", pos:"50% 100%", text:"Boss 战 +2 答题额外造成 2 伤害。"},
   starFormation:{name:"七星续命灯", rarity:"mythic", icon:"星", pos:"100% 0%", text:"每关开局额外火攻，且士气 +3。"},
   demonHalberd:{name:"无双魔戟", rarity:"mythic", icon:"戟", pos:"50% 100%", text:"+2 答题对 Boss 额外造成 2 伤害。"},
-  wolongBook:{name:"卧龙天书", rarity:"mythic", icon:"书", pos:"0% 100%", text:"职业奇策额外造成 2 伤害，并刷新敌军意图。"}
+  wolongBook:{name:"卧龙天书", rarity:"mythic", icon:"书", pos:"0% 100%", text:"职业奇策额外造成 2 伤害，并刷新敌军意图。"},
+  celestialLedger:{name:"天命功勋册", rarity:"mythic", icon:"册", pos:"0% 0%", text:"每次选择遗物后，团队总分和粮草额外提升。"},
+  imperialWine:{name:"温酒斩将盏", rarity:"mythic", icon:"盏", pos:"0% 0%", text:"击败精英或 Boss 后，士气高涨并刷新个人宝物。"}
 };
 const expeditionRelicOrder = Object.keys(expeditionRelics);
 const expeditionShopItems = {
@@ -2691,7 +2714,8 @@ const expeditionShopItems = {
   mystery:{name:"个人锦匣", rarity:"rare", icon:"匣", cost:2, pos:"100% 0%", text:"给一名没有宝物的玩家补一个神秘宝物。"},
   scout:{name:"夜探军情", rarity:"rare", icon:"探", cost:2, pos:"0% 100%", text:"破盾 2，士气 +1，并刷新敌人意图。"},
   ram:{name:"冲车破门", rarity:"epic", icon:"车", cost:5, pos:"50% 100%", text:"造成 6 点伤害。会触发敌人行动。"},
-  feast:{name:"犒赏三军", rarity:"epic", icon:"宴", cost:4, pos:"0% 0%", text:"士气 +2，全员奇策冷却 -1。"}
+  feast:{name:"犒赏三军", rarity:"epic", icon:"宴", cost:4, pos:"0% 0%", text:"士气 +2，全员奇策冷却 -1。"},
+  fateDraw:{name:"天命卜宝", rarity:"legend", icon:"签", cost:3, pos:"0% 0%", text:"抽一支天命签：可能爆发、补给、护阵，或直接开出高稀有个人宝物。"}
 };
 const expeditionShopOrder = Object.keys(expeditionShopItems);
 const expeditionTreasures = {
@@ -2702,7 +2726,14 @@ const expeditionTreasures = {
   grainPouch:{name:"粮草锦囊", rarity:"common", icon:"粮", pos:"0% 100%", text:"团队粮草 +3。"},
   breakerAwl:{name:"破盾锥", rarity:"epic", icon:"锥", pos:"50% 0%", text:"破盾 4，并造成 1 点伤害。"},
   phoenixTally:{name:"凤羽兵符", rarity:"legend", icon:"凤", pos:"0% 0%", text:"造成 5 点伤害，并获得 2 护阵。"},
-  mythicSeal:{name:"天命秘印", rarity:"mythic", icon:"印", pos:"100% 0%", text:"军府耐久 +6，士气 +6。"}
+  dragonScaleArmor:{name:"龙鳞玄甲", rarity:"epic", icon:"甲", pos:"100% 100%", text:"护阵 +6。"},
+  jadeWine:{name:"玉液军酿", rarity:"rare", icon:"酿", pos:"100% 0%", text:"军府耐久 +3，粮草 +2。"},
+  shadowDagger:{name:"破影短刃", rarity:"epic", icon:"刃", pos:"50% 0%", text:"清空敌方护盾，并造成 2 点伤害。"},
+  imperialBanner:{name:"天子旌旗", rarity:"legend", icon:"旗", pos:"0% 0%", text:"团队总分 +5，护阵 +3。"},
+  skyBow:{name:"落星神弓", rarity:"legend", icon:"弓", pos:"50% 100%", text:"造成 6 点伤害，士气 +2。"},
+  mythicSeal:{name:"天命秘印", rarity:"mythic", icon:"印", pos:"100% 0%", text:"军府耐久 +6，士气 +6。"},
+  celestialSword:{name:"天罡神剑", rarity:"mythic", icon:"剑", pos:"50% 100%", text:"造成 8 点伤害，若是 Boss 额外 +4。"},
+  phoenixEdict:{name:"凤鸣诏令", rarity:"mythic", icon:"诏", pos:"0% 0%", text:"士气 +8，全员奇策冷却 -1。"}
 };
 const expeditionTreasureOrder = Object.keys(expeditionTreasures);
 const expeditionIntentMeta = {
@@ -4017,6 +4048,17 @@ function drawWeightedKey(keys, catalog, weights){
   return pool[0]?.key || keys[0];
 }
 
+function drawWeightedItem(items){
+  const pool = items.filter(item => item.weight > 0);
+  const total = pool.reduce((sum, item) => sum + item.weight, 0);
+  let roll = Math.random() * total;
+  for (const item of pool){
+    roll -= item.weight;
+    if (roll <= 0) return item;
+  }
+  return pool[0] || items[0];
+}
+
 function drawUniqueKeys(keys, count){
   const pool = [...keys];
   const picks = [];
@@ -4031,18 +4073,18 @@ function drawExpeditionShopOffers(){
   return drawUniqueKeys(expeditionShopOrder, Math.min(4, expeditionShopOrder.length));
 }
 
-function drawExpeditionTreasure(boosted = false){
-  const weights = boosted
+function drawExpeditionTreasure(boosted = false, customWeights = null){
+  const weights = customWeights || (boosted
     ? {common:12, rare:34, epic:28, legend:18, mythic:8}
-    : {common:42, rare:34, epic:17, legend:6, mythic:1};
+    : {common:42, rare:34, epic:17, legend:6, mythic:1});
   return drawWeightedKey(expeditionTreasureOrder, expeditionTreasures, weights);
 }
 
-function grantRandomExpeditionTreasure(){
+function grantRandomExpeditionTreasure(customWeights = null){
   const candidates = players.filter(player => !player.expeditionTreasure);
   const target = candidates[Math.floor(Math.random() * candidates.length)];
   if (!target) return null;
-  target.expeditionTreasure = drawExpeditionTreasure(true);
+  target.expeditionTreasure = drawExpeditionTreasure(true, customWeights);
   registerExpeditionRarity(expeditionTreasures[target.expeditionTreasure]?.rarity);
   return target;
 }
@@ -4096,10 +4138,20 @@ function startExpeditionFloor(){
     expedition.guard += guard;
     pushExpeditionLog(`铁壁阵图展开，队伍获得 ${guard} 护阵。`);
   }
+  if (getRelicLevel("whiteHorseSaddle")){
+    const guard = getRelicLevel("whiteHorseSaddle");
+    expedition.guard += guard;
+    pushExpeditionLog(`白马义从鞍加速布阵，队伍获得 ${guard} 护阵。`);
+  }
   if (getRelicLevel("moraleBanner")){
     const morale = 2 * getRelicLevel("moraleBanner");
     expedition.morale += morale;
     pushExpeditionLog(`会盟战旗鼓舞全队，士气 +${morale}。`);
+  }
+  if (getRelicLevel("starOracle")){
+    const morale = getRelicLevel("starOracle");
+    expedition.morale += morale;
+    pushExpeditionLog(`观星铜盘提前推演敌情，士气 +${morale}。`);
   }
   if (getRelicLevel("strategyMap")){
     const gain = 2 * getRelicLevel("strategyMap");
@@ -4195,12 +4247,14 @@ function recordCoopAnswer(player, amount, finalAmount, synergy){
 function getExpeditionDamage(player, amount, finalAmount){
   let damage = finalAmount;
   damage += getRelicLevel("tigerSeal");
+  if (amount === 1) damage += getRelicLevel("battleStandard");
   if (amount === 2) damage += getRelicLevel("warDrum");
   if (amount === 2 && players.length >= 2) damage += getRelicLevel("crossbow");
   if (player.role === "mage" && amount === 2) damage += 1;
   if (player.role === "vanguard" && amount === 2) damage += 1;
   if (player.role === "director" && expedition.enemy?.boss) damage += 1;
   if (expedition.morale >= 6 && amount === 2) damage += 1;
+  if (amount === 2 && expedition.enemy?.boss) damage += getRelicLevel("redHareShadow") * 2;
   if (amount === 2 && expedition.enemy?.boss) damage += getRelicLevel("demonHalberd") * 2;
   damage += getCoopSynergyDamage(player, amount);
   return Math.max(1, damage);
@@ -4247,6 +4301,9 @@ function expeditionAnswer(id, amount){
   const realDamage = damage - absorbed;
   expedition.enemy.hp = Math.max(0, expedition.enemy.hp - realDamage);
   expedition.morale += amount;
+  if (amount === 2 && getRelicLevel("whiteHorseSaddle")){
+    expedition.morale += getRelicLevel("whiteHorseSaddle");
+  }
   expedition.provisions += amount + getRelicLevel("grainRoute");
   pushExpeditionLog(`${player.name} 答对 +${amount}，造成 ${damage} 伤害${absorbed ? `，破盾 ${absorbed}` : ""}，获得 ${earnedCoins} 军粮。`);
   if (player.role === "foodie" && Math.random() < 0.35){
@@ -4285,8 +4342,10 @@ function applyEnemyIntent(){
     expedition.teamHp = Math.max(0, expedition.teamHp - damage);
     pushExpeditionLog(`${enemy.name} 发动${intent.label}，军府耐久 -${damage}${block ? `，护阵抵挡 ${block}` : ""}。`);
   }else if (intent.type === "shield"){
-    expedition.shield += intent.value + Math.floor(expedition.floor / 3);
-    pushExpeditionLog(`${enemy.name} 架起盾阵，获得 ${intent.value} 护盾。`);
+    const chainReduce = getRelicLevel("riverChain") * 2;
+    const shieldGain = Math.max(0, intent.value + Math.floor(expedition.floor / 3) - chainReduce);
+    expedition.shield += shieldGain;
+    pushExpeditionLog(`${enemy.name} 架起盾阵，获得 ${shieldGain} 护盾${chainReduce ? `，连环铁索压制 ${chainReduce}` : ""}。`);
   }else if (intent.type === "raid"){
     const lost = Math.min(expedition.provisions, intent.value);
     expedition.provisions -= lost;
@@ -4327,6 +4386,12 @@ function finishExpeditionFloor(player){
     const heal = 3 * getRelicLevel("greenBag");
     expedition.teamHp = Math.min(expedition.maxTeamHp, expedition.teamHp + heal);
     pushExpeditionLog(`青囊医包修整队伍，军府耐久 +${heal}。`);
+  }
+  if (isMajorEnemy && getRelicLevel("imperialWine")){
+    const morale = 5 * getRelicLevel("imperialWine");
+    expedition.morale += morale;
+    const treasureTarget = grantRandomExpeditionTreasure();
+    pushExpeditionLog(`温酒斩将盏点燃战意，士气 +${morale}${treasureTarget ? `，${treasureTarget.name} 获得新宝物` : ""}。`);
   }
   expedition.rewards = drawExpeditionRewards(enemy);
   pushExpeditionLog(`${enemy.name} 被击败。选择一件遗物后进入下一关。`);
@@ -4420,6 +4485,12 @@ function chooseExpeditionReward(key){
     expedition.provisions += gain;
     pushExpeditionLog(`锦囊暗袋带来补给，粮草 +${gain}。`);
   }
+  if (getRelicLevel("celestialLedger")){
+    const level = getRelicLevel("celestialLedger");
+    expedition.provisions += level;
+    grantTeamScore(5 * level, "天命功勋册记录遗物战绩");
+    pushExpeditionLog(`天命功勋册闪耀，粮草 +${level}${isCoopMode() ? `，团队总分 +${5 * level}` : ""}。`);
+  }
   expedition.floor += 1;
   startExpeditionFloor();
   const treasureTarget = grantRandomExpeditionTreasure();
@@ -4468,9 +4539,14 @@ function closeExpeditionShop(){
   render();
 }
 
+function getExpeditionShopRefreshCost(){
+  const baseCost = expedition.shopRefreshes > 0 ? 2 : 1;
+  return Math.max(0, baseCost - Math.min(1, getRelicLevel("merchantSeal")));
+}
+
 function refreshExpeditionShop(){
   if (!expedition.active || expedition.runOver || expedition.rewards.length) return;
-  const cost = expedition.shopRefreshes > 0 ? 2 : 1;
+  const cost = getExpeditionShopRefreshCost();
   if (expedition.provisions < cost){
     showToast("粮草不足，暂时不能刷新商店。");
     return;
@@ -4482,6 +4558,61 @@ function refreshExpeditionShop(){
   pushExpeditionLog(`远征商店刷新，本层货架换了一批宝物，消耗 ${cost} 粮草。`);
   render();
   saveState();
+}
+
+function resolveFateDraw(){
+  const outcome = drawWeightedItem([
+    {key:"mythicTreasure", label:"神话签", rarity:"mythic", weight:6},
+    {key:"legendTreasure", label:"传说签", rarity:"legend", weight:13},
+    {key:"burst", label:"破阵签", rarity:"epic", weight:20},
+    {key:"bounty", label:"丰收签", rarity:"rare", weight:25},
+    {key:"guard", label:"守御签", rarity:"rare", weight:22},
+    {key:"small", label:"小吉签", rarity:"common", weight:14}
+  ]);
+  const rarity = getRarityMeta(outcome.rarity);
+  registerExpeditionRarity(rarity.key);
+  let usedTurn = false;
+  let message = `天命卜宝抽中${rarity.label}「${outcome.label}」。`;
+  if (outcome.key === "mythicTreasure"){
+    const target = grantRandomExpeditionTreasure({common:0, rare:0, epic:18, legend:42, mythic:40});
+    if (target){
+      message += `${target.name} 获得一件高稀有个人宝物。`;
+    }else{
+      expedition.morale += 6;
+      expedition.provisions += 4;
+      message += "全员已有宝物，改为士气 +6，粮草 +4。";
+    }
+    launchFireworks(5);
+  }else if (outcome.key === "legendTreasure"){
+    const target = grantRandomExpeditionTreasure({common:0, rare:8, epic:36, legend:42, mythic:14});
+    if (target){
+      message += `${target.name} 获得一件神秘宝物。`;
+    }else{
+      expedition.guard += 5;
+      expedition.provisions += 3;
+      message += "全员已有宝物，改为护阵 +5，粮草 +3。";
+    }
+    burstConfetti(32);
+  }else if (outcome.key === "burst"){
+    message += "天命破阵，立即造成 7 点伤害。";
+    usedTurn = !strikeExpeditionEnemy("天命卜宝「破阵签」", 7, players[0]);
+  }else if (outcome.key === "bounty"){
+    expedition.provisions += 5;
+    expedition.morale += 2;
+    message += "军粮大丰收，粮草 +5，士气 +2。";
+  }else if (outcome.key === "guard"){
+    expedition.guard += 6;
+    expedition.teamHp = Math.min(expedition.maxTeamHp, expedition.teamHp + 2);
+    message += "守御阵亮起，护阵 +6，军府耐久 +2。";
+  }else{
+    expedition.guard += 1;
+    expedition.morale += 1;
+    message += "小吉也有用，护阵 +1，士气 +1。";
+  }
+  pushExpeditionLog(message);
+  pushEvent(`<strong>天命卜宝</strong>｜${message}`);
+  playTone(rarity.key === "mythic" || rarity.key === "legend" ? "fanfare" : "mystery");
+  return {usedTurn};
 }
 
 function buyExpeditionShopItem(key){
@@ -4497,7 +4628,7 @@ function buyExpeditionShopItem(key){
   snapshot();
   const rarity = getRarityMeta(item.rarity);
   registerExpeditionRarity(rarity.key);
-  addExpeditionContribution(players[0], rarity.key === "epic" ? 2 : rarity.key === "rare" ? 1 : 0);
+  addExpeditionContribution(players[0], rarity.key === "mythic" ? 5 : rarity.key === "legend" ? 4 : rarity.key === "epic" ? 2 : rarity.key === "rare" ? 1 : 0);
   expedition.provisions -= cost;
   let usedTurn = false;
   if (key === "volley"){
@@ -4538,6 +4669,13 @@ function buyExpeditionShopItem(key){
       player.skillUsed = player.skillCooldown > 0;
     });
     pushExpeditionLog(`购买 ${item.name}，士气 +2，全员奇策冷却 -1。`);
+  }else if (key === "fateDraw"){
+    usedTurn = resolveFateDraw().usedTurn;
+  }
+  if (getRelicLevel("merchantSeal")){
+    const refund = Math.min(1, getRelicLevel("merchantSeal"));
+    expedition.provisions += refund;
+    pushExpeditionLog(`富商金印返利，粮草 +${refund}。`);
   }
   expedition.shopOffers = expedition.shopOffers.filter(itemKey => itemKey !== key);
   if (usedTurn && !expedition.runOver){
@@ -4584,10 +4722,40 @@ function useExpeditionTreasure(id){
     damage = 5;
     expedition.guard += 2;
     message += " 凤羽兵符展开，护阵 +2。";
+  }else if (key === "dragonScaleArmor"){
+    expedition.guard += 6;
+    message += " 龙鳞玄甲披挂，护阵 +6。";
+  }else if (key === "jadeWine"){
+    expedition.teamHp = Math.min(expedition.maxTeamHp, expedition.teamHp + 3);
+    expedition.provisions += 2;
+    message += " 玉液军酿犒军，军府耐久 +3，粮草 +2。";
+  }else if (key === "shadowDagger"){
+    const broken = expedition.shield;
+    expedition.shield = 0;
+    damage = 2;
+    message += ` 破影短刃清空护盾 ${broken}。`;
+  }else if (key === "imperialBanner"){
+    expedition.guard += 3;
+    grantTeamScore(5, "天子旌旗鼓舞同盟");
+    message += ` 天子旌旗展开，护阵 +3${isCoopMode() ? "，团队总分 +5" : ""}。`;
+  }else if (key === "skyBow"){
+    damage = 6;
+    expedition.morale += 2;
+    message += " 落星神弓压阵，士气 +2。";
   }else if (key === "mythicSeal"){
     expedition.teamHp = Math.min(expedition.maxTeamHp, expedition.teamHp + 6);
     expedition.morale += 6;
     message += " 天命秘印发动，军府耐久 +6，士气 +6。";
+  }else if (key === "celestialSword"){
+    damage = 8 + (expedition.enemy?.boss ? 4 : 0);
+    message += expedition.enemy?.boss ? " 天罡神剑斩向 Boss，追加破军伤害。" : " 天罡神剑出鞘。";
+  }else if (key === "phoenixEdict"){
+    expedition.morale += 8;
+    players.forEach(item => {
+      item.skillCooldown = Math.max(0, (item.skillCooldown || 0) - 1);
+      item.skillUsed = item.skillCooldown > 0;
+    });
+    message += " 凤鸣诏令传遍全军，士气 +8，全员奇策冷却 -1。";
   }
   addExpeditionContribution(player, rarity.key === "mythic" ? 4 : rarity.key === "legend" ? 3 : 1);
   pushExpeditionLog(message);
@@ -4713,7 +4881,8 @@ function getExpeditionAchievements(){
 }
 
 function renderExpeditionResult(){
-  const best = getRarityMeta(expedition.bestRarity);
+  const summary = getExpeditionResultSummary();
+  const best = summary.best;
   const resultText = expedition.endedBy === "defeat"
     ? "军府耐久归零，远征暂告一段落。老师可以截图保存，也可以输入管理员密码续命。"
     : "本次远征已结算，适合课堂投屏截图，给全班留下本局战绩。";
@@ -4746,14 +4915,22 @@ function renderExpeditionResult(){
           <div class="expedition-stat"><small>最终关卡</small><strong>第 ${expedition.floor} 关</strong></div>
           <div class="expedition-stat"><small>击败敌军</small><strong>${expedition.defeated}</strong></div>
           <div class="expedition-stat"><small>Boss / 隐藏</small><strong>${expedition.bossKills} / ${expedition.hiddenBossKills}</strong></div>
+          <div class="expedition-stat"><small>同盟战力</small><strong>${summary.teamPower}</strong></div>
           <div class="expedition-stat"><small>团队总分</small><strong>${teamScore}</strong></div>
           <div class="expedition-stat"><small>最高连携</small><strong>${expedition.maxCombo || 0}</strong></div>
           <div class="expedition-stat"><small>最高掉落</small><strong>${best.label}</strong></div>
+          <div class="expedition-stat"><small>遗物 / 宝物</small><strong>${summary.relicCount} / ${summary.treasureCount}</strong></div>
         </div>
         <div class="result-actions">
+          <button class="primary-btn" type="button" data-expedition-share="1">生成战报图</button>
           <button class="primary-btn" type="button" data-expedition-restart="1">再开一局</button>
           ${expedition.endedBy === "defeat" && !expedition.reviveUsed ? `<button class="ghost-btn" type="button" data-expedition-revive="1">管理员续命</button>` : ""}
           <span class="chip">MYSKME 课堂远征</span>
+        </div>
+        <div class="share-note">
+          <span class="chip">含二维码</span>
+          <span class="chip">iPad 可保存到相册</span>
+          <span class="chip">适合课后炫耀战绩</span>
         </div>
       </section>
       <section class="expedition-panel expedition-copy">
@@ -4770,6 +4947,423 @@ function renderExpeditionResult(){
       </section>
     </div>
   `;
+}
+
+function getShareUrl(){
+  if (location.protocol.startsWith("http") && location.hostname.includes("myskme.github.io")){
+    return location.href.split("#")[0];
+  }
+  return SHARE_URL;
+}
+
+function getRelicCounts(){
+  const counts = {};
+  expedition.relics.forEach(key => counts[key] = (counts[key] || 0) + 1);
+  return counts;
+}
+
+function getExpeditionResultSummary(){
+  const best = getRarityMeta(expedition.bestRarity);
+  const teamPower = players.reduce((sum, player) => sum + getPlayerPower(player), 0);
+  const treasureCount = players.filter(player => player.expeditionTreasure).length;
+  const topContributors = [...players]
+    .map(player => ({player, value:expedition.contributions?.[player.id] || 0}))
+    .sort((a,b) => b.value - a.value || b.player.score - a.player.score)
+    .slice(0, 3);
+  const relicCounts = getRelicCounts();
+  const topRelics = Object.entries(relicCounts)
+    .map(([key, count]) => {
+      const relic = expeditionRelics[key] || expeditionRelics.warDrum;
+      const rarity = getRarityMeta(relic.rarity);
+      return {key, count, relic, rarity};
+    })
+    .sort((a,b) => getRarityRank(b.rarity.key) - getRarityRank(a.rarity.key) || b.count - a.count)
+    .slice(0, 6);
+  return {
+    best,
+    teamPower,
+    treasureCount,
+    relicCount:expedition.relics.length,
+    topContributors,
+    topRelics,
+    achievements:getExpeditionAchievements().slice(0, 4)
+  };
+}
+
+function loadCanvasImage(src){
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = reject;
+    image.src = src;
+  });
+}
+
+function drawCoverImage(ctx, image, x, y, width, height){
+  const scale = Math.max(width / image.width, height / image.height);
+  const drawWidth = image.width * scale;
+  const drawHeight = image.height * scale;
+  ctx.drawImage(image, x + (width - drawWidth) / 2, y + (height - drawHeight) / 2, drawWidth, drawHeight);
+}
+
+function fillRoundRect(ctx, x, y, width, height, radius){
+  const r = Math.min(radius, width / 2, height / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + width - r, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+  ctx.lineTo(x + width, y + height - r);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+  ctx.lineTo(x + r, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawShareLines(ctx, text, x, y, maxWidth, lineHeight, maxLines = 2){
+  const chars = String(text).split("");
+  const lines = [];
+  let line = "";
+  chars.forEach(char => {
+    const next = line + char;
+    if (ctx.measureText(next).width > maxWidth && line){
+      lines.push(line);
+      line = char;
+    }else{
+      line = next;
+    }
+  });
+  if (line) lines.push(line);
+  const visible = lines.slice(0, maxLines);
+  visible.forEach((item, index) => ctx.fillText(index === maxLines - 1 && lines.length > maxLines ? `${item.slice(0, -1)}...` : item, x, y + index * lineHeight));
+  return y + visible.length * lineHeight;
+}
+
+function appendQrBits(bits, value, length){
+  for (let index = length - 1; index >= 0; index--){
+    bits.push((value >>> index) & 1);
+  }
+}
+
+function getQrBytes(text){
+  if (window.TextEncoder) return [...new TextEncoder().encode(text)];
+  return String(text).split("").map(char => char.charCodeAt(0) & 0xff);
+}
+
+function qrGfMultiply(x, y){
+  let result = 0;
+  while (y){
+    if (y & 1) result ^= x;
+    x <<= 1;
+    if (x & 0x100) x ^= 0x11d;
+    y >>>= 1;
+  }
+  return result;
+}
+
+function qrGfPow(power){
+  let value = 1;
+  for (let index = 0; index < power; index++) value = qrGfMultiply(value, 2);
+  return value;
+}
+
+function qrGeneratorPoly(degree){
+  let poly = [1];
+  for (let index = 0; index < degree; index++){
+    const next = new Array(poly.length + 1).fill(0);
+    const root = qrGfPow(index);
+    for (let offset = 0; offset < poly.length; offset++){
+      next[offset] ^= poly[offset];
+      next[offset + 1] ^= qrGfMultiply(poly[offset], root);
+    }
+    poly = next;
+  }
+  return poly;
+}
+
+function qrReedSolomon(data, degree){
+  const generator = qrGeneratorPoly(degree);
+  const result = new Array(degree).fill(0);
+  data.forEach(byte => {
+    const factor = byte ^ result.shift();
+    result.push(0);
+    for (let index = 0; index < degree; index++){
+      result[index] ^= qrGfMultiply(generator[index + 1], factor);
+    }
+  });
+  return result;
+}
+
+function createQrMatrix(text){
+  const version = 4;
+  const size = 21 + (version - 1) * 4;
+  const dataCodewords = 80;
+  const eccCodewords = 20;
+  const matrix = Array.from({length:size}, () => Array(size).fill(false));
+  const reserved = Array.from({length:size}, () => Array(size).fill(false));
+  const setModule = (x, y, dark, reserve = true) => {
+    if (x < 0 || y < 0 || x >= size || y >= size) return;
+    matrix[y][x] = Boolean(dark);
+    if (reserve) reserved[y][x] = true;
+  };
+  const drawFinder = (x, y) => {
+    for (let dy = -1; dy <= 7; dy++){
+      for (let dx = -1; dx <= 7; dx++){
+        const xx = x + dx;
+        const yy = y + dy;
+        const inside = dx >= 0 && dx <= 6 && dy >= 0 && dy <= 6;
+        const dark = inside && (dx === 0 || dx === 6 || dy === 0 || dy === 6 || (dx >= 2 && dx <= 4 && dy >= 2 && dy <= 4));
+        setModule(xx, yy, dark, true);
+      }
+    }
+  };
+  const drawAlignment = (cx, cy) => {
+    for (let dy = -2; dy <= 2; dy++){
+      for (let dx = -2; dx <= 2; dx++){
+        setModule(cx + dx, cy + dy, Math.max(Math.abs(dx), Math.abs(dy)) === 2 || (dx === 0 && dy === 0), true);
+      }
+    }
+  };
+  drawFinder(0, 0);
+  drawFinder(size - 7, 0);
+  drawFinder(0, size - 7);
+  drawAlignment(26, 26);
+  for (let index = 8; index < size - 8; index++){
+    const dark = index % 2 === 0;
+    setModule(index, 6, dark, true);
+    setModule(6, index, dark, true);
+  }
+  [0,1,2,3,4,5,7,8].forEach(index => {
+    reserved[index][8] = true;
+    reserved[8][index] = true;
+  });
+  for (let index = 0; index < 8; index++) reserved[8][size - 1 - index] = true;
+  for (let index = 0; index < 7; index++) reserved[size - 1 - index][8] = true;
+  setModule(8, size - 8, true, true);
+
+  const bytes = getQrBytes(text);
+  const bits = [];
+  appendQrBits(bits, 0x4, 4);
+  appendQrBits(bits, bytes.length, 8);
+  bytes.forEach(byte => appendQrBits(bits, byte, 8));
+  const capacity = dataCodewords * 8;
+  const terminator = Math.min(4, capacity - bits.length);
+  for (let index = 0; index < terminator; index++) bits.push(0);
+  while (bits.length % 8) bits.push(0);
+  const data = [];
+  for (let index = 0; index < bits.length; index += 8){
+    let byte = 0;
+    for (let offset = 0; offset < 8; offset++) byte = (byte << 1) | bits[index + offset];
+    data.push(byte);
+  }
+  if (data.length > dataCodewords) throw new Error("QR content is too long");
+  const pads = [0xec, 0x11];
+  for (let index = 0; data.length < dataCodewords; index++){
+    data.push(pads[index % 2]);
+  }
+  const allCodewords = data.concat(qrReedSolomon(data, eccCodewords));
+  const codeBits = [];
+  allCodewords.forEach(byte => appendQrBits(codeBits, byte, 8));
+  let bitIndex = 0;
+  let upward = true;
+  for (let right = size - 1; right >= 1; right -= 2){
+    if (right === 6) right -= 1;
+    for (let vertical = 0; vertical < size; vertical++){
+      const y = upward ? size - 1 - vertical : vertical;
+      for (let dx = 0; dx < 2; dx++){
+        const x = right - dx;
+        if (reserved[y][x]) continue;
+        let dark = bitIndex < codeBits.length ? codeBits[bitIndex] === 1 : false;
+        bitIndex += 1;
+        if ((x + y) % 2 === 0) dark = !dark;
+        matrix[y][x] = dark;
+      }
+    }
+    upward = !upward;
+  }
+  const formatBits = 0x77c4;
+  const getBit = (value, index) => ((value >>> index) & 1) !== 0;
+  for (let index = 0; index <= 5; index++) setModule(8, index, getBit(formatBits, index), true);
+  setModule(8, 7, getBit(formatBits, 6), true);
+  setModule(8, 8, getBit(formatBits, 7), true);
+  setModule(7, 8, getBit(formatBits, 8), true);
+  for (let index = 9; index < 15; index++) setModule(14 - index, 8, getBit(formatBits, index), true);
+  for (let index = 0; index < 8; index++) setModule(size - 1 - index, 8, getBit(formatBits, index), true);
+  for (let index = 8; index < 15; index++) setModule(8, size - 15 + index, getBit(formatBits, index), true);
+  setModule(8, size - 8, true, true);
+  return matrix;
+}
+
+function drawQrCode(ctx, text, x, y, size){
+  const matrix = createQrMatrix(text);
+  const quiet = 4;
+  const module = size / (matrix.length + quiet * 2);
+  ctx.fillStyle = "#fffaf0";
+  fillRoundRect(ctx, x, y, size, size, 24);
+  ctx.fillStyle = "#10131b";
+  matrix.forEach((row, rowIndex) => {
+    row.forEach((dark, colIndex) => {
+      if (!dark) return;
+      ctx.fillRect(
+        Math.round(x + (colIndex + quiet) * module),
+        Math.round(y + (rowIndex + quiet) * module),
+        Math.ceil(module),
+        Math.ceil(module)
+      );
+    });
+  });
+}
+
+function drawShareStat(ctx, label, value, x, y, width, height, color = "#ffd36b"){
+  ctx.fillStyle = "rgba(5,8,12,.72)";
+  fillRoundRect(ctx, x, y, width, height, 22);
+  ctx.strokeStyle = "rgba(255,223,146,.24)";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x + 1, y + 1, width - 2, height - 2);
+  ctx.fillStyle = "rgba(255,255,255,.72)";
+  ctx.font = "700 26px system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText(label, x + 28, y + 42);
+  ctx.fillStyle = color;
+  ctx.font = "900 46px system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText(String(value), x + 28, y + 94, width - 48);
+}
+
+async function generateExpeditionShareImage(){
+  if (!expedition.runOver){
+    showToast("请先结算远征，再生成战报图。");
+    return;
+  }
+  showToast("正在生成战报图...");
+  const width = 1080;
+  const height = 1920;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  const summary = getExpeditionResultSummary();
+  try{
+    const bg = await loadCanvasImage("assets/share-card-bg.jpg");
+    drawCoverImage(ctx, bg, 0, 0, width, height);
+  }catch(error){
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, "#351b12");
+    gradient.addColorStop(.54, "#08121a");
+    gradient.addColorStop(1, "#190d0b");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+  }
+  ctx.fillStyle = "rgba(3,7,15,.32)";
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = "rgba(3,7,15,.66)";
+  fillRoundRect(ctx, 70, 250, 940, 1160, 34);
+  ctx.strokeStyle = "rgba(255,223,146,.28)";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(72, 252, 936, 1156);
+
+  ctx.fillStyle = "#fff7dc";
+  ctx.font = "900 62px system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("三国课堂军师远征战报", 92, 135);
+  ctx.fillStyle = "#ffd36b";
+  ctx.font = "900 34px system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("MYSKME · 军师争霸积分器", 94, 184);
+  ctx.fillStyle = "rgba(255,255,255,.72)";
+  ctx.font = "700 25px system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText(new Date().toLocaleString("zh-CN", {month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit"}), 94, 226);
+
+  const statColor = summary.best.color || "#ffd36b";
+  drawShareStat(ctx, "最终关卡", `第 ${expedition.floor} 关`, 94, 300, 430, 125);
+  drawShareStat(ctx, "击败敌军", expedition.defeated, 556, 300, 430, 125);
+  drawShareStat(ctx, "同盟战力", summary.teamPower, 94, 450, 430, 125);
+  drawShareStat(ctx, "团队总分", teamScore, 556, 450, 430, 125);
+  drawShareStat(ctx, "Boss / 隐藏", `${expedition.bossKills} / ${expedition.hiddenBossKills}`, 94, 600, 430, 125);
+  drawShareStat(ctx, "最高掉落", summary.best.label, 556, 600, 430, 125, statColor);
+
+  ctx.fillStyle = "#ffd36b";
+  ctx.font = "900 34px system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("贡献榜", 104, 790);
+  summary.topContributors.forEach((item, index) => {
+    const role = roles[item.player.role] || roles.mage;
+    const y = 830 + index * 86;
+    ctx.fillStyle = index === 0 ? "rgba(255,211,107,.2)" : "rgba(255,255,255,.08)";
+    fillRoundRect(ctx, 104, y, 872, 66, 18);
+    ctx.fillStyle = index === 0 ? "#ffd36b" : "#fff7dc";
+    ctx.font = "900 28px system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.fillText(`${index + 1}. ${item.player.name}`, 128, y + 42);
+    ctx.fillStyle = "rgba(255,255,255,.76)";
+    ctx.font = "700 23px system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.fillText(`${role.name} · 贡献 ${item.value} · 课堂分 ${item.player.score}`, 432, y + 42);
+  });
+
+  ctx.fillStyle = "#ffd36b";
+  ctx.font = "900 34px system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("高光成就", 104, 1112);
+  summary.achievements.forEach((item, index) => {
+    const x = 104 + (index % 2) * 436;
+    const y = 1150 + Math.floor(index / 2) * 112;
+    ctx.fillStyle = "rgba(255,255,255,.08)";
+    fillRoundRect(ctx, x, y, 400, 86, 18);
+    ctx.fillStyle = "#fff7dc";
+    ctx.font = "900 24px system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+    ctx.fillText(item.name, x + 20, y + 34);
+    ctx.fillStyle = "rgba(255,255,255,.68)";
+    ctx.font = "700 19px system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+    drawShareLines(ctx, item.text, x + 20, y + 62, 350, 22, 1);
+  });
+
+  ctx.fillStyle = "rgba(255,255,255,.78)";
+  ctx.font = "800 24px system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+  const relicText = summary.topRelics.length
+    ? summary.topRelics.map(item => `${item.rarity.label}${item.relic.name}${item.count > 1 ? `x${item.count}` : ""}`).join(" · ")
+    : "本局尚未获得遗物";
+  drawShareLines(ctx, `珍品收藏：${relicText}`, 104, 1352, 840, 30, 2);
+
+  ctx.fillStyle = "rgba(5,8,12,.7)";
+  fillRoundRect(ctx, 160, 1458, 760, 350, 34);
+  drawQrCode(ctx, getShareUrl(), 390, 1490, 300);
+  ctx.fillStyle = "#ffd36b";
+  ctx.font = "900 28px system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("扫码打开课堂积分器", 386, 1838);
+  ctx.fillStyle = "rgba(255,255,255,.72)";
+  ctx.font = "700 21px system-ui, -apple-system, BlinkMacSystemFont, sans-serif";
+  ctx.fillText("继续挑战下一局 · 刷更高关卡与神话掉落", 304, 1876);
+
+  const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+  if (!blob){
+    showToast("战报图生成失败，请再试一次。");
+    return;
+  }
+  const fileName = `MYSKME-三国课堂远征战报-${Date.now()}.png`;
+  let file = null;
+  try{
+    file = new File([blob], fileName, {type:"image/png"});
+  }catch(error){
+    file = null;
+  }
+  if (file && navigator.canShare){
+    try{
+      if (navigator.canShare({files:[file]})){
+        await navigator.share({files:[file], title:"三国课堂军师远征战报", text:"扫码加入三国课堂军师争霸积分器"});
+        showToast("战报图已生成，可保存到相册。");
+        return;
+      }
+    }catch(error){
+      if (error?.name === "AbortError"){
+        showToast("已取消分享。");
+        return;
+      }
+    }
+  }
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+  showToast("战报图已下载，可保存到相册。");
 }
 
 function renderExpedition(){
@@ -4838,6 +5432,7 @@ function renderExpedition(){
       </div>
     </section>
   ` : "";
+  const shopRefreshCost = getExpeditionShopRefreshCost();
   const shopOverlayHtml = expedition.shopOpen ? `
     <div class="expedition-shop-drawer" data-expedition-shop-backdrop="1">
       <section class="expedition-shop-panel" role="dialog" aria-modal="true" aria-label="远征商店">
@@ -4845,7 +5440,7 @@ function renderExpedition(){
           <h2>远征商店</h2>
           <div class="expedition-actions">
             <span class="chip">粮草 ${expedition.provisions}</span>
-            <button class="ghost-btn" type="button" data-expedition-shop-refresh="1" ${expedition.provisions >= (expedition.shopRefreshes > 0 ? 2 : 1) ? "" : "disabled"}>刷新 ${expedition.shopRefreshes > 0 ? 2 : 1}</button>
+            <button class="ghost-btn" type="button" data-expedition-shop-refresh="1" ${expedition.provisions >= shopRefreshCost ? "" : "disabled"}>刷新 ${shopRefreshCost}</button>
             <button class="close-btn" type="button" data-expedition-shop-close="button" aria-label="关闭">X</button>
           </div>
         </div>
@@ -5799,6 +6394,11 @@ els.expeditionView.addEventListener("click", event => {
   const settleButton = event.target.closest("button[data-expedition-settle]");
   if (settleButton && !settleButton.disabled){
     settleExpeditionRun();
+    return;
+  }
+  const shareButton = event.target.closest("button[data-expedition-share]");
+  if (shareButton && !shareButton.disabled){
+    generateExpeditionShareImage();
     return;
   }
   const reviveButton = event.target.closest("button[data-expedition-revive]");
